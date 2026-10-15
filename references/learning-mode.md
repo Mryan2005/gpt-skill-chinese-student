@@ -29,6 +29,17 @@ Use this workflow when the user gives an image path or a folder containing learn
    - If no existing knowledge point can be identified confidently, append the material to the end of the same Markdown file under a clearly marked `待归类内容` section. Do not force an uncertain merge.
    - Preserve image order in the source markers even when the material is merged into an earlier knowledge-point section. This keeps both conceptual proximity and a recoverable source trail.
 
+### Hash-table fallback
+
+If heading-based insertion cannot reliably keep a large or irregular Markdown file organized, use a hash table as the intake representation inside that same Markdown file. This is a fallback for storage, not a reason to create another file.
+
+- Use a canonical chapter key such as `学科/章节编号/章节名称`.
+- Serialize one key-value record per physical line, for example `chapter-key -> {chapter: ..., content: [...], sources: [...]}`. Escape line breaks inside the value when needed.
+- When another image belongs to an existing chapter key, update that exact line's content list and source list; never create a second line for the same chapter.
+- Keep the content entries in image order within the line, and preserve the full readable material rather than only a summary.
+- If no chapter key can be established confidently, append a new `待归类内容` record at the end. Do not force it into an existing line.
+- Before generating the graph, read the hash-table records as the source and expand them into knowledge-point nodes without duplicating the same chapter's full content in multiple source sections.
+
 4. Finish the intake before deriving highlights.
 
    - Confirm that every inventoried image has a saved status and source entry in the one Markdown file. Separate unreadable or conflicting items for later review.
