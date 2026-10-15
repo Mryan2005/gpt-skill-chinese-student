@@ -28,7 +28,7 @@ If the project already has a graph format, preserve its visual language and stab
    2. `从内容提取出来的重点` - after reading both the node's `知识内容` and its `相关的题目`, synthesize concise, scannable points about what is actually important: the concepts, conditions, operations, distinctions, recurring ways the questions test them, and demonstrated error boundaries. These points must be supported by the content and questions; do not write a content-only excerpt or introduce unsupported claims. If there are no mapped questions yet, state that question evidence is unavailable instead of pretending the points came from questions.
    3. `相关的题目` - each mapped question must contain all four fields:
       - `题目` - the preserved stem/options/figure reference;
-      - `自己的解答思路` - a complete route for solving, not just a formula or answer;
+      - `自己的解答思路` - a complete, generalizable route for solving, not just a formula or answer. When the question is multiple-choice or fill-in, it may also include a logically derived speed method, with its conditions and failure boundary;
       - `官方答案` - the supplied official answer or `当前未提供官方答案。`;
       - `考到的知识点` - the node(s), conditions, and operation actually tested.
    4. `关联的知识点` - linked node titles/IDs, with edges rendered in the graph and a short reason for each relationship when the UI supports it.

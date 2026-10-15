@@ -14,6 +14,16 @@ The record must contain the exam source path/name, subject graph path/version, a
 
 Keep the `首轮作答` section immutable. Add later sections such as `解析对照`, `错误原因`, and `知识图谱补充` after it; never rewrite the first answers to match the explanation. When an exam task is resumed, load this record first so the review uses the actual first attempt rather than a reconstructed answer.
 
+## Post-exam method review
+
+The review must produce two layers of method, not just a right/wrong judgment:
+
+- `通解` - the standard, principled solution route that can be transferred to most variants of the same question type. State the concepts, conditions, derivation or procedure, and why the route works.
+- `提速解法` - only for multiple-choice and fill-in questions, derive a faster route from the `通解`. It may use a justified invariant, estimation, substitution, symmetry, range check, option verification, or another logically equivalent reduction, but never guessing, memorizing traps, pattern matching, or trial-and-error without proof.
+- `适用条件与失效边界` - state when the speed method is valid, when it is not, and what to fall back to. For non-multiple-choice/non-fill-in questions, keep the complete `通解` as the primary method.
+
+For each question reviewed after the explanation, append these method fields to the saved record when applicable. Test the `通解` against the mapped question and nearby variants or related graph questions so the result aims to solve most of the type, not only the exact original question.
+
 ## Workflow
 
 1. Load the graph before answering.
@@ -54,7 +64,7 @@ Keep the `首轮作答` section immutable. Add later sections such as `解析对
 5. Feed the reflection back into learning.
 
    - For `笔记没记全 / 知识内容缺失`, supplement the relevant node's `知识内容` with the supplied source or explanation evidence, then regenerate `从内容提取出来的重点` after rereading the node content and all related questions.
-   - For `这类题型没掌握 / 解题程序不熟`, add or repair a `相关的题目` entry containing the full question, the student's route, the supplied official answer, and the tested knowledge points; make the solving procedure explicit.
+   - For `这类题型没掌握 / 解题程序不熟`, add or repair a `相关的题目` entry containing the full question, the student's `通解`, the supplied official answer, and the tested knowledge points; make the solving procedure explicit. For a multiple-choice or fill-in question, also record a derived `提速解法` plus its `适用条件与失效边界`.
    - For `计算错误或抄写错误`, add the verified calculation checkpoint and a clearly labeled `需要小心的地方` to the relevant node's content or highlights.
    - For `看题看错 / 漏看条件 / 误解题意`, add the missed condition, contrast, or reading checkpoint as a clearly labeled `需要小心的地方` and link it to the relevant node/question.
    - For a missing dependency, repair `关联的知识点` and the graph edge; for a missing condition, add the condition and a boundary example.
