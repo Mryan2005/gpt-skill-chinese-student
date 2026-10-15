@@ -1,4 +1,4 @@
-# Student: 考试模式
+# 中式学生：考试模式
 
 ## Closed-book boundary
 
@@ -13,7 +13,7 @@ If the subject graph is missing, or a question cannot be supported by it, stop s
    - Identify the subject and exact graph HTML. Read its node data and relevant card content, not just the visible node labels.
    - Confirm that the graph is the version intended for this exam. If multiple versions exist, use the one the user names or the project state identifies; otherwise report the ambiguity.
 
-2. Read the exam PDF with the PDF skill.
+2. Read the exam PDF by calling `[@PDF](plugin://pdf@openai-primary-runtime)` / the available `pdf:pdf` skill.
 
    - Inspect every page needed to enumerate all questions in order, including options, figures, tables, formulas, instructions, and page breaks.
    - Preserve each question's original number and type. If extraction and visual rendering disagree, treat it as an evidence conflict and identify the page/question rather than silently choosing.
@@ -29,19 +29,23 @@ If the subject graph is missing, or a question cannot be supported by it, stop s
    - `解答思路` - the derivation or decision route supported by the graph
    - `证据边界` - `图谱支持` or a precise `图谱缺口`
 
+   Answer every question in order. When the graph cannot support a question, still record the question and mark the answer as `图谱缺口`; do not skip it or answer from outside knowledge.
+
    Do not open or use the solution/explanation PDF until this pass is complete. Numerical answers should be independently recomputed when the graph provides enough information; proof questions still need a written derivation rather than an unexplained result.
 
-4. Compare with the supplied solution PDF after the first pass.
+4. After the first pass, call `[@PDF](plugin://pdf@openai-primary-runtime)` / the available `pdf:pdf` skill again to read and compare the supplied solution/explanation PDF.
 
    - Use the PDF skill to read the complete relevant explanation pages and align them by question number.
    - Treat the supplied solution as the comparison reference, not as retroactive study material for the frozen answers.
-   - Distinguish at least: missing note/content, missing condition or relation, unmastered question type/procedure, calculation or transcription error, question-reading error, and source ambiguity.
+   - For every question, classify the cause when applicable: `笔记没记全 / 知识内容缺失`, `这类题型没掌握 / 解题程序不熟`, `计算错误或抄写错误`, `看题看错 / 漏看条件 / 误解题意`, or `题面与解析存在冲突`.
    - If the solution itself is missing, unreadable, or conflicts with the question, record that exact boundary and do not manufacture an official answer.
 
 5. Feed the reflection back into learning.
 
-   - For a missing concept, expand the relevant node's `知识内容` and `从内容提取出来的重点` with the supplied evidence.
-   - For an unmastered operation, add or repair a `相关的题目` entry containing the full question, the student's route, the supplied official answer, and the tested knowledge points.
+   - For `笔记没记全 / 知识内容缺失`, supplement the relevant node's `知识内容` with the supplied source or explanation evidence, then regenerate `从内容提取出来的重点` after rereading the node content and all related questions.
+   - For `这类题型没掌握 / 解题程序不熟`, add or repair a `相关的题目` entry containing the full question, the student's route, the supplied official answer, and the tested knowledge points; make the solving procedure explicit.
+   - For `计算错误或抄写错误`, add the verified calculation checkpoint and a clearly labeled `需要小心的地方` to the relevant node's content or highlights.
+   - For `看题看错 / 漏看条件 / 误解题意`, add the missed condition, contrast, or reading checkpoint as a clearly labeled `需要小心的地方` and link it to the relevant node/question.
    - For a missing dependency, repair `关联的知识点` and the graph edge; for a missing condition, add the condition and a boundary example.
    - Preserve the original question and wrong-answer history. Do not overwrite the first attempt; append the comparison and correction.
    - Record only evidenced learner gaps or understandings in `learner_state.md`, and update `.codex/task-state.md` and `design_memory.md` only in their respective scopes.
