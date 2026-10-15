@@ -6,6 +6,15 @@ Create or update exactly one knowledge-network HTML file for the requested subje
 
 If the project already has a graph format, preserve its visual language and stable IDs. Otherwise prefer a self-contained offline HTML file with inline data, styles, and scripts. If local supporting files are necessary for scale, keep them local and verify every path from the HTML entrypoint.
 
+## Understand unfamiliar knowledge before encoding
+
+Learning is not limited to copying the supplied material. When a concept, term, historical background, formula, diagram, or question operation is new or not yet understood well enough to explain, use web search to investigate it before finalizing the node. Prefer authoritative or primary educational sources, compare sources when the meaning is ambiguous, and do not silently choose between conflicting explanations.
+
+- Use the external material to understand and verify the concept, conditions, boundaries, and examples; do not paste it blindly or let it replace the user's original/course content.
+- Record the external source title and URL, plus the point it clarified, in the same Markdown source or the node's provenance metadata. Keep the original image/text source distinguishable from supplemental web understanding.
+- After the concept is understood, incorporate only the verified clarification needed for the node's `知识内容`, then read the related questions before deriving `从内容提取出来的重点`.
+- If reliable understanding cannot be established, mark the exact `理解边界` or `待核实` point instead of presenting an uncertain explanation as fact.
+
 ## Image-to-Markdown intake
 
 Use this workflow when the user gives an image path or a folder containing learning images. The Markdown file is the durable source for the later subject graph; do not create one Markdown file per image.

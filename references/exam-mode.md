@@ -2,7 +2,7 @@
 
 ## Closed-book boundary
 
-The subject's current knowledge-graph HTML is the only knowledge source for the initial answer pass. The question PDF supplies the questions; it does not supply the learned theory. Do not use web search, other websites, unrelated notes, hidden model knowledge, or an answer key during this pass. Reasoning may combine facts and procedures from multiple graph nodes, but every substantive premise must be traceable to a node or its mapped question evidence.
+The subject's current knowledge-graph HTML is the only knowledge source for the initial answer pass. This restriction overrides the learning mode's permission to use web research. The question PDF supplies the questions; it does not supply the learned theory. Do not use web search, other websites, unrelated notes, hidden model knowledge, or an answer key during this pass. Reasoning may combine facts and procedures from multiple graph nodes, but every substantive premise must be traceable to a node or its mapped question evidence.
 
 If the subject graph is missing, or a question cannot be supported by it, stop short of guessing. Mark the result as `图谱缺口`, name the missing concept/condition/procedure, and preserve the question for later learning repair.
 
