@@ -6,6 +6,35 @@ Create or update exactly one knowledge-network HTML file for the requested subje
 
 If the project already has a graph format, preserve its visual language and stable IDs. Otherwise prefer a self-contained offline HTML file with inline data, styles, and scripts. If local supporting files are necessary for scale, keep them local and verify every path from the HTML entrypoint.
 
+## Image-to-Markdown intake
+
+Use this workflow when the user gives an image path or a folder containing learning images. The Markdown file is the durable source for the later subject graph; do not create one Markdown file per image.
+
+1. Resolve the input and output.
+
+   - Accept a single image file or a folder. Inventory supported image files in a deterministic order, preferring page numbers or natural filename order; if the order is ambiguous, report the assumption.
+   - Use the user-specified Markdown path when provided. Otherwise use the existing canonical subject Markdown file; if none exists, create one stable `<subject>-learning.md` in the subject project.
+   - Maintain a small processing manifest in that same Markdown file, recording each image's sequence, source path, and status so that no image is silently skipped.
+
+2. Read images sequentially.
+
+   - Open and inspect only the current image before moving to the next one, using `view_image` or an equivalent local image-inspection tool. Read the whole image, including headings, body text, formulas, tables, diagrams, annotations, and captions; use visual inspection for layout-dependent material instead of trusting OCR alone.
+   - Preserve the readable source/course content faithfully in the Markdown file. Keep the image path and sequence beside the captured material. If text, formula, or diagram content is unreadable, mark the exact boundary as `图片内容无法核实` rather than inventing it.
+   - Save the Markdown file after each image when practical. A later image must not erase or rewrite the earlier image's captured content.
+
+3. Place material by knowledge point.
+
+   - Match an image's material to an existing knowledge-point heading only when the concept and meaning match, not merely because a keyword is shared. Insert the new material inside or immediately beside that existing section, keeping related explanations and examples close together.
+   - If the same knowledge point appears again, extend the existing section and retain a separate source marker for the new image; do not create a duplicate knowledge-point section.
+   - If no existing knowledge point can be identified confidently, append the material to the end of the same Markdown file under a clearly marked `待归类内容` section. Do not force an uncertain merge.
+   - Preserve image order in the source markers even when the material is merged into an earlier knowledge-point section. This keeps both conceptual proximity and a recoverable source trail.
+
+4. Finish the intake before deriving highlights.
+
+   - Confirm that every inventoried image has a saved status and source entry in the one Markdown file. Separate unreadable or conflicting items for later review.
+   - Only after the image batch has been captured and organized, read each node's complete `知识内容` and all mapped questions, then derive `从内容提取出来的重点` according to the rule below.
+   - Use the completed Markdown as the source for the one subject-level knowledge-network HTML file.
+
 ## Workflow
 
 1. Establish scope and sources.
