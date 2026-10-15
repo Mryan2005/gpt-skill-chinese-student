@@ -1,8 +1,8 @@
-# Student: 学习模式
+# 中式学生：学习模式
 
 ## Outcome
 
-Create or update exactly one knowledge-network HTML entrypoint for the requested subject. Every knowledge point is a graph node. The file must let the learner select a node and inspect its complete evidence-backed card; the graph must make the relations between nodes visible.
+Create or update exactly one knowledge-network HTML file for the requested subject. One subject maps to one graph HTML file: do not split a subject into multiple graph HTML files or merge different subjects into one graph file. Every knowledge point is exactly one graph node. The file must let the learner select a node and inspect its complete evidence-backed card; the graph must make the relations between nodes visible.
 
 If the project already has a graph format, preserve its visual language and stable IDs. Otherwise prefer a self-contained offline HTML file with inline data, styles, and scripts. If local supporting files are necessary for scale, keep them local and verify every path from the HTML entrypoint.
 
@@ -22,8 +22,8 @@ If the project already has a graph format, preserve its visual language and stab
 
 3. Build every node card with these four sections, in this order:
 
-   1. `知识内容` - the source-grounded explanation, definitions, conditions, formulas, procedures, and boundaries.
-   2. `从内容提取出来的重点` - concise, scannable points extracted from that node's content; do not introduce unsupported claims.
+   1. `知识内容` - preserve the original source content, textbook content, or other supplied course content as the node's main material. Add source-grounded explanations, definitions, conditions, formulas, procedures, and boundaries when needed, but do not replace the source/course content with a summary-only rewrite.
+   2. `从内容提取出来的重点` - concise, scannable points extracted from that node's `知识内容`; do not introduce unsupported claims or points that are not present in the source/course content.
    3. `相关的题目` - each mapped question must contain all four fields:
       - `题目` - the preserved stem/options/figure reference;
       - `自己的解答思路` - a complete route for solving, not just a formula or answer;
