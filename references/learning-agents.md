@@ -9,6 +9,8 @@ Use four narrowly scoped learning agents to reduce missed source details and imp
 - Give every agent the same subject, source paths, current Markdown/graph paths, and batch identifier.
 - Put each report in a separate path such as `<project>/.codex/learning-reports/<batch-id>/<role>.md`. Agents must not write the canonical Markdown, graph HTML, learner state, task state, or design memory directly.
 - Agents may read the source materials and existing graph. In `学习`, they may use web search when needed for understanding or finding related examples, but must record source titles/URLs and what each source clarified. They must never silently convert external material into an official answer.
+- Every report must label claims as `原始材料`, `外部补充`, `题目推导`, `官方解析可读部分`, or `待核实`. A report must not present an inferred or clipped continuation as original or official.
+- Write prose as Markdown and formulas as delimited LaTeX. Run `scripts/validate_markup.py` on each report before the main skill reads it.
 - Keep the four roles disjoint. An agent may flag a dependency for another role, but it must not perform that role's work.
 - The main skill waits for all four reports, checks contradictions and source boundaries, then merges them. If one agent fails, continue with the remaining reports and mark the missing subtask instead of inventing its result.
 - In `考试`, do not use this learning delegation to obtain outside knowledge. The exam still reads only the current subject graph.
@@ -34,6 +36,8 @@ Read the extraction report and the source material. Turn the material into an un
 - verified clarifications from learning-time web research when needed;
 - separate labels for original course content, external clarification, and unresolved understanding.
 
+Every sentence added from a web source or inference must stay in a labeled `外部补充` or `题目推导` block. Do not fold it into `原始材料`.
+
 Do not split sentences into fake highlights, search for related questions, or decide graph edges.
 
 ### 3. 相关例题代理
@@ -44,6 +48,7 @@ Read the refined content and existing question sources. Find or map related ques
 - type and tested knowledge points;
 - a general solving route;
 - an official answer only when the source provides or verifies one;
+- a provenance state for the answer: `官方解析可读部分`, `来源未提供`, or `待核实`;
 - for multiple-choice/fill-in items, a logically derived speed route, conditions, and failure boundary.
 
 Do not invent a question, official answer, or source attribution.

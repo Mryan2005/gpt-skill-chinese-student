@@ -12,6 +12,7 @@ Learning is not limited to copying the supplied material. When a concept, term, 
 
 - Use the external material to understand and verify the concept, conditions, boundaries, and examples; do not paste it blindly or let it replace the user's original/course content.
 - Record the external source title and URL, plus the point it clarified, in the same Markdown source or the node's provenance metadata. Keep the original image/text source distinguishable from supplemental web understanding.
+- Put web-derived clarification in a visibly labeled `补充理解` or `外部补充` block with its source. Never merge an externally supplied sentence into the `原始材料` block without a provenance label.
 - Use Markdown for prose, headings, lists, tables, and links. Transcribe readable mathematical expressions into LaTeX using the existing renderer's consistent inline/block delimiters; do not leave a formula as a plain-text approximation. If the formula is not readable, preserve the source reference and mark it as `图片内容无法核实`.
 - After the concept is understood, incorporate only the verified clarification needed for the node's `知识内容`, then read the related questions before deriving `从内容提取出来的重点`.
 - If reliable understanding cannot be established, mark the exact `理解边界` or `待核实` point instead of presenting an uncertain explanation as fact.
@@ -99,4 +100,5 @@ If heading-based insertion cannot reliably keep a large or irregular Markdown fi
    - Check that every node has all four required sections, every relation points to an existing node, IDs are unique, and question mappings retain their provenance.
    - Open the HTML in a browser or equivalent renderer. Check graph interaction, card selection, search/filter behavior, long formulas, Chinese text, narrow layout, and print/readability when relevant.
    - Check browser-console errors and broken local asset paths. Verify Markdown structure and actual LaTeX rendering for mathematical content: notation must be readable in the rendered card, not merely present as delimiters or raw source.
+   - Run `scripts/validate_markup.py` on the Markdown source and every retained learning report. Do not accept a validator that only counts backslashes or delimiters; it must reject bare commands such as `\\frac` outside a math span.
    - Report any source-limited or unresolved material explicitly; do not silently call an incomplete graph complete.

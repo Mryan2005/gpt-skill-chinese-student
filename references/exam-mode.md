@@ -6,6 +6,8 @@ The subject's current knowledge-graph HTML is the only knowledge source for the 
 
 If the subject graph is missing, or a question cannot be supported by it, stop short of guessing. Mark the result as `图谱缺口`, name the missing concept/condition/procedure, and preserve the question for later learning repair.
 
+When reading the explanation PDF, treat clipped, unreadable, occluded, or conflicting text as an evidence boundary. Record only the visibly readable answer as `官方解析可读部分`; never complete the missing continuation from model memory, web research, the graph, or what the answer is likely to be.
+
 ## Saved answer record
 
 The first-pass answers must be saved to a durable local Markdown record before the explanation PDF is opened. Use the target project's existing convention when one exists; otherwise use `<subject-project>/.codex/exam-attempts/<exam-id>-attempt.md`. If there is no project directory, use `exam-attempts/<exam-id>-attempt.md` beside the subject graph HTML. Do not overwrite an existing attempt; create a new exam ID or continue the matching unfinished record.
@@ -57,13 +59,13 @@ For each question reviewed after the explanation, append these method fields to 
 
    - Append the comparison to the saved record; never replace or edit the immutable `首轮作答` section.
    - Use the PDF skill to read the complete relevant explanation pages and align them by question number.
-   - Treat the supplied solution as the comparison reference, not as retroactive study material for the frozen answers.
+   - Treat the supplied solution as the comparison reference, not as retroactive study material for the frozen answers. If the page ends mid-sentence or text extraction and the rendered page disagree, preserve the disagreement and mark the missing part `解析证据截断`.
    - For every question, classify the cause when applicable: `笔记没记全 / 知识内容缺失`, `这类题型没掌握 / 解题程序不熟`, `计算错误或抄写错误`, `看题看错 / 漏看条件 / 误解题意`, or `题面与解析存在冲突`.
-   - If the solution itself is missing, unreadable, or conflicts with the question, record that exact boundary and do not manufacture an official answer.
+   - If the solution itself is missing, unreadable, clipped, or conflicts with the question, record that exact boundary and do not manufacture an official answer. Do not label inferred content as `官方答案`.
 
 5. Feed the reflection back into learning.
 
-   - For `笔记没记全 / 知识内容缺失`, supplement the relevant node's `知识内容` with the supplied source or explanation evidence, then regenerate `从内容提取出来的重点` after rereading the node content and all related questions.
+   - For `笔记没记全 / 知识内容缺失`, add the supplied evidence as a labeled `官方解析可读部分` or `补充理解` block in the relevant node. Do not rewrite the `原始材料` block. Then regenerate `从内容提取出来的重点` after rereading the node content and all related questions.
    - For `这类题型没掌握 / 解题程序不熟`, add or repair a `相关的题目` entry containing the full question, the student's `通解`, the supplied official answer, and the tested knowledge points; make the solving procedure explicit. For a multiple-choice or fill-in question, also record a derived `提速解法` plus its `适用条件与失效边界`.
    - For `计算错误或抄写错误`, add the verified calculation checkpoint and a clearly labeled `需要小心的地方` to the relevant node's content or highlights.
    - For `看题看错 / 漏看条件 / 误解题意`, add the missed condition, contrast, or reading checkpoint as a clearly labeled `需要小心的地方` and link it to the relevant node/question.
@@ -75,6 +77,7 @@ For each question reviewed after the explanation, append these method fields to 
 
    - Check that the new question mapping and official answer point to the supplied solution evidence, all node IDs/edges remain valid, and the required four card sections remain present.
    - Render and inspect the updated HTML. Re-run relevant static checks and browser-console checks, including Markdown structure and actual LaTeX rendering.
+   - Run `scripts/validate_markup.py` against the immutable attempt, appended review, and any updated graph source Markdown. A bare LaTeX command outside a math delimiter is a failure.
 
 ## Final report shape
 
