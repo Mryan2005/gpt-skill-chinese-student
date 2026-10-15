@@ -22,8 +22,10 @@ If the project already has a graph format, preserve its visual language and stab
 
 3. Build every node card with these four sections, in this order:
 
+   Read the complete `知识内容` and all available `相关的题目` for the node before writing `从内容提取出来的重点`. The card may display the four sections in the order below, but the `重点` is a later synthesis, not an early excerpt made before the questions are understood.
+
    1. `知识内容` - preserve the original source content, textbook content, or other supplied course content as the node's main material. Add source-grounded explanations, definitions, conditions, formulas, procedures, and boundaries when needed, but do not replace the source/course content with a summary-only rewrite.
-   2. `从内容提取出来的重点` - concise, scannable points extracted from that node's `知识内容`; do not introduce unsupported claims or points that are not present in the source/course content.
+   2. `从内容提取出来的重点` - after reading both the node's `知识内容` and its `相关的题目`, synthesize concise, scannable points about what is actually important: the concepts, conditions, operations, distinctions, recurring ways the questions test them, and demonstrated error boundaries. These points must be supported by the content and questions; do not write a content-only excerpt or introduce unsupported claims. If there are no mapped questions yet, state that question evidence is unavailable instead of pretending the points came from questions.
    3. `相关的题目` - each mapped question must contain all four fields:
       - `题目` - the preserved stem/options/figure reference;
       - `自己的解答思路` - a complete route for solving, not just a formula or answer;
