@@ -32,6 +32,7 @@ For each question reviewed after the explanation, append these method fields to 
 
    - Identify the subject and exact graph HTML. Read its node data and relevant card content, not just the visible node labels.
    - Confirm that the graph is the version intended for this exam. If multiple versions exist, use the one the user names or the project state identifies; otherwise report the ambiguity.
+   - Read the graph's learning-readiness state and active exam-risk list. If it says `学习未完成`, preserve those gaps as evidence boundaries during the exam; never repair them with outside knowledge.
 
 2. Read the exam PDF by calling `[@PDF](plugin://pdf@openai-primary-runtime)` / the available `pdf:pdf` skill.
 

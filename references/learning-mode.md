@@ -6,6 +6,21 @@ Create or update exactly one knowledge-network HTML file for the requested subje
 
 If the project already has a graph format, preserve its visual language and stable IDs. Otherwise prefer a self-contained offline HTML file with inline data, styles, and scripts. If local supporting files are necessary for scale, keep them local and verify every path from the HTML entrypoint.
 
+## Exam-dependency gate
+
+The learning Markdown and graph are the memory used by later exams. Treat every omission, vague definition, missing condition, broken relation, missing example, or unreadable formula as a future exam risk. Do not mark a learning batch complete merely because the file or HTML exists.
+
+Before setting the learning state to `可用于考试`, verify:
+
+- **Coverage**: every supplied image/source item has a status, source marker, and a home in the one Markdown file; unreadable or conflicting parts are listed explicitly.
+- **Concept clarity**: each node states what the concept is, its conditions, boundaries, and relevant procedure clearly enough to explain without reconstructing missing context.
+- **Question readiness**: mapped questions retain the full stem, solving route, official-answer evidence, and tested knowledge points; representative gaps are recorded instead of hidden.
+- **Relations**: prerequisites and associated concepts have stable IDs and reasons for their edges; duplicate concepts are merged rather than silently split.
+- **Notation and provenance**: Markdown and LaTeX render correctly, and every sentence is labeled as original material, external supplement, question-derived, official readable evidence, or unresolved.
+- **Exam risk list**: active gaps are written to `learner_state.md` and the project task state. If any gate item fails, set the state to `学习未完成` and list the blocker. The next exam must see that blocker as `图谱缺口`.
+
+Only after this gate passes may the graph version be described as ready for an exam.
+
 ## Understand unfamiliar knowledge before encoding
 
 Learning is not limited to copying the supplied material. When a concept, term, historical background, formula, diagram, or question operation is new or not yet understood well enough to explain, use web search to investigate it before finalizing the node. Prefer authoritative or primary educational sources, compare sources when the meaning is ambiguous, and do not silently choose between conflicting explanations.

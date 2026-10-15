@@ -11,6 +11,7 @@ Use four narrowly scoped learning agents to reduce missed source details and imp
 - Agents may read the source materials and existing graph. In `学习`, they may use web search when needed for understanding or finding related examples, but must record source titles/URLs and what each source clarified. They must never silently convert external material into an official answer.
 - Every report must label claims as `原始材料`, `外部补充`, `题目推导`, `官方解析可读部分`, or `待核实`. A report must not present an inferred or clipped continuation as original or official.
 - Write prose as Markdown and formulas as delimited LaTeX. Run `scripts/validate_markup.py` on each report before the main skill reads it.
+- Agents must flag anything that could later become an exam gap: missing definition, missing condition, unclear formula, unsupported example, unresolved relation, or incomplete source. Do not report a subtask as complete while hiding such a gap.
 - Keep the four roles disjoint. An agent may flag a dependency for another role, but it must not perform that role's work.
 - The main skill waits for all four reports, checks contradictions and source boundaries, then merges them. If one agent fails, continue with the remaining reports and mark the missing subtask instead of inventing its result.
 - In `考试`, do not use this learning delegation to obtain outside knowledge. The exam still reads only the current subject graph.
@@ -74,5 +75,7 @@ The main skill merges in this order:
 4. Add relation-map IDs and edges.
 5. Read the complete merged `知识内容` and all `相关的题目`, then directly distill `从内容提取出来的重点`. Do not let any agent produce the final highlights before this merge.
 6. Generate the one subject graph HTML and run the Markdown/LaTeX, source-provenance, node/edge, and rendered-view checks.
+
+7. Run the exam-dependency gate. Mark the batch `可用于考试` only when coverage, concept clarity, question readiness, relations, notation, and provenance all pass. Otherwise mark it `学习未完成`, write the blockers to `learner_state.md` and task state, and carry them into future exams as `图谱缺口`.
 
 If reports disagree, preserve the source conflict and mark `待核实`; do not resolve it by majority vote or by silently choosing the most convenient wording.
