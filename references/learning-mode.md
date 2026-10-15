@@ -16,6 +16,10 @@ Learning is not limited to copying the supplied material. When a concept, term, 
 - After the concept is understood, incorporate only the verified clarification needed for the node's `知识内容`, then read the related questions before deriving `从内容提取出来的重点`.
 - If reliable understanding cannot be established, mark the exact `理解边界` or `待核实` point instead of presenting an uncertain explanation as fact.
 
+## Delegated learning pass
+
+For a batch with multiple images, chapters, unfamiliar concepts, or many related questions, read [references/learning-agents.md](learning-agents.md) and run the four-role learning pass before merging the canonical Markdown. A small one-image task may stay inline.
+
 ## Image-to-Markdown intake
 
 Use this workflow when the user gives an image path or a folder containing learning images. The Markdown file is the durable source for the later subject graph; do not create one Markdown file per image.
