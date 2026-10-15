@@ -10,7 +10,7 @@ If the subject graph is missing, or a question cannot be supported by it, stop s
 
 The first-pass answers must be saved to a durable local Markdown record before the explanation PDF is opened. Use the target project's existing convention when one exists; otherwise use `<subject-project>/.codex/exam-attempts/<exam-id>-attempt.md`. If there is no project directory, use `exam-attempts/<exam-id>-attempt.md` beside the subject graph HTML. Do not overwrite an existing attempt; create a new exam ID or continue the matching unfinished record.
 
-The record must contain the exam source path/name, subject graph path/version, attempt status, and one entry per question with `题号 / 题型`, the original `题目`, `调用的知识点`, `作答`, `解答思路`, and `证据边界`. Save or append the record after each question when practical, and always verify that every question has been recorded and the status is `首轮作答完成` before reading the explanation PDF.
+The record must contain the exam source path/name, subject graph path/version, attempt status, and one entry per question with `题号 / 题型`, the original `题目`, `调用的知识点`, `作答`, `解答思路`, and `证据边界`. Write ordinary text as Markdown and transcribe readable mathematical expressions as LaTeX using the graph's established delimiters. Save or append the record after each question when practical, and always verify that every question has been recorded and the status is `首轮作答完成` before reading the explanation PDF.
 
 Keep the `首轮作答` section immutable. Add later sections such as `解析对照`, `错误原因`, and `知识图谱补充` after it; never rewrite the first answers to match the explanation. When an exam task is resumed, load this record first so the review uses the actual first attempt rather than a reconstructed answer.
 
@@ -33,7 +33,7 @@ For each question reviewed after the explanation, append these method fields to 
 
 2. Read the exam PDF by calling `[@PDF](plugin://pdf@openai-primary-runtime)` / the available `pdf:pdf` skill.
 
-   - Inspect every page needed to enumerate all questions in order, including options, figures, tables, formulas, instructions, and page breaks.
+   - Inspect every page needed to enumerate all questions in order, including options, figures, tables, formulas, instructions, and page breaks. Transcribe readable formulas into LaTeX in the saved record; mark unreadable formulas instead of guessing them.
    - Preserve each question's original number and type. If extraction and visual rendering disagree, treat it as an evidence conflict and identify the page/question rather than silently choosing.
 
 3. Freeze the first answer pass.
@@ -74,7 +74,7 @@ For each question reviewed after the explanation, append these method fields to 
 6. Re-verify the repaired graph.
 
    - Check that the new question mapping and official answer point to the supplied solution evidence, all node IDs/edges remain valid, and the required four card sections remain present.
-   - Render and inspect the updated HTML. Re-run relevant static checks and browser-console checks.
+   - Render and inspect the updated HTML. Re-run relevant static checks and browser-console checks, including Markdown structure and actual LaTeX rendering.
 
 ## Final report shape
 

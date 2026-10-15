@@ -12,6 +12,7 @@ Learning is not limited to copying the supplied material. When a concept, term, 
 
 - Use the external material to understand and verify the concept, conditions, boundaries, and examples; do not paste it blindly or let it replace the user's original/course content.
 - Record the external source title and URL, plus the point it clarified, in the same Markdown source or the node's provenance metadata. Keep the original image/text source distinguishable from supplemental web understanding.
+- Use Markdown for prose, headings, lists, tables, and links. Transcribe readable mathematical expressions into LaTeX using the existing renderer's consistent inline/block delimiters; do not leave a formula as a plain-text approximation. If the formula is not readable, preserve the source reference and mark it as `图片内容无法核实`.
 - After the concept is understood, incorporate only the verified clarification needed for the node's `知识内容`, then read the related questions before deriving `从内容提取出来的重点`.
 - If reliable understanding cannot be established, mark the exact `理解边界` or `待核实` point instead of presenting an uncertain explanation as fact.
 
@@ -28,7 +29,7 @@ Use this workflow when the user gives an image path or a folder containing learn
 2. Read images sequentially.
 
    - Open and inspect only the current image before moving to the next one, using `view_image` or an equivalent local image-inspection tool. Read the whole image, including headings, body text, formulas, tables, diagrams, annotations, and captions; use visual inspection for layout-dependent material instead of trusting OCR alone.
-   - Preserve the readable source/course content faithfully in the Markdown file. Keep the image path and sequence beside the captured material. If text, formula, or diagram content is unreadable, mark the exact boundary as `图片内容无法核实` rather than inventing it.
+   - Preserve the readable source/course content faithfully in the Markdown file. Use Markdown for text and transcribe readable formulas into LaTeX with the project's established delimiters. Keep the image path and sequence beside the captured material. If text, formula, or diagram content is unreadable, mark the exact boundary as `图片内容无法核实` rather than inventing it.
    - Save the Markdown file after each image when practical. A later image must not erase or rewrite the earlier image's captured content.
 
 3. Place material by knowledge point.
@@ -93,5 +94,5 @@ If heading-based insertion cannot reliably keep a large or irregular Markdown fi
 
    - Check that every node has all four required sections, every relation points to an existing node, IDs are unique, and question mappings retain their provenance.
    - Open the HTML in a browser or equivalent renderer. Check graph interaction, card selection, search/filter behavior, long formulas, Chinese text, narrow layout, and print/readability when relevant.
-   - Check browser-console errors and broken local asset paths. For mathematical content, verify that the actual rendered notation is readable, not merely that the source contains delimiters.
+   - Check browser-console errors and broken local asset paths. Verify Markdown structure and actual LaTeX rendering for mathematical content: notation must be readable in the rendered card, not merely present as delimiters or raw source.
    - Report any source-limited or unresolved material explicitly; do not silently call an incomplete graph complete.
