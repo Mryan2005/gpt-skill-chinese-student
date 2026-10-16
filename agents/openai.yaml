@@ -1,4 +1,0 @@
-interface:
-  display_name: "中式学生"
-  short_description: "Build subject knowledge graphs and closed-book exams"
-  default_prompt: "Use $chinese-student to build or study from a subject knowledge graph."
