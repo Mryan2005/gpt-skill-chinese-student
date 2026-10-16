@@ -78,6 +78,20 @@ class StudyMathValidatorTests(unittest.TestCase):
         self.assertIn("ANSWER_UNVERIFIED", codes)
         self.assertNotIn("QUESTION_ANSWER_MISMATCH", codes)
 
+    def test_complete_question_can_have_independently_derived_solution(self) -> None:
+        record = load_example()
+        report = validate_record(record)
+        self.assertTrue(report.passed, report.issues)
+        self.assertEqual(record["questions"][0]["derivedSolution"]["origin"], "AI 独立推导")
+
+    def test_incomplete_question_cannot_have_derived_conclusion(self) -> None:
+        record = load_example()
+        question = record["questions"][0]
+        question["questionStatus"] = "QUESTION_INCOMPLETE"
+        codes = issue_codes(record)
+        self.assertIn("DERIVED_ANSWER_FORBIDDEN", codes)
+        self.assertIn("DERIVED_SOLUTION_FORBIDDEN", codes)
+
     def test_missing_answer_blocks_exam_readiness(self) -> None:
         record = load_example()
         question = record["questions"][0]

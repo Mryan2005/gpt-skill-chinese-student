@@ -416,9 +416,20 @@
       "officialAnswer": "B",
       "historicalAnswer": null,
       "derivedAnswer": "B",
+      "officialSolution": null,
+      "historicalSolution": null,
+      "derivedSolution": {
+        "text": "作相邻项的绝对值之比并化简，得到 rho=1。比值判别法在 rho=1 时不能判断敛散性，所以选择 B。",
+        "origin": "AI 独立推导",
+        "confidence": 0.96,
+        "needsReview": false
+      },
       "answerEvidence": [
         {"kind": "official_answer", "value": "B", "sourceId": "series-q12-answer"},
         {"kind": "derived_answer", "value": "B", "sourceId": "series-q12"}
+      ],
+      "solutionEvidence": [
+        {"kind": "derived_solution", "description": "AI 根据完整原题独立求解", "sourceId": "series-q12"}
       ],
       "sourceStatus": "COMPLETE",
       "questionStatus": "COMPLETE",

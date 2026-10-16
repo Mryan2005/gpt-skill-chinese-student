@@ -25,3 +25,7 @@ learner_state 只保存有证据的 understands、cannot_do、does_not_know 和�
 ## Completion
 
 任何缺失、冲突、不可读、无来源或未验证内容都进入 readiness 风险列表。不要因为文件生成、HTML 打开或静态脚本通过就报告完整。
+
+## Derived answer and solution
+
+原解析不存在不等于没有解法。若题目足够完整，领域模型可以生成 derived_solution 和 derived_answer，并标记 AI 独立推导、confidence 和 needs_review。若题目关键内容缺失，derived_solution 和 derived_answer 必须为空。

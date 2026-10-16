@@ -430,6 +430,34 @@
             "additionalProperties": true
           }
         },
+        "officialSolution": {
+          "type": ["string", "object", "null"]
+        },
+        "historicalSolution": {
+          "type": ["string", "object", "null"]
+        },
+        "derivedSolution": {
+          "type": ["string", "object", "null"]
+        },
+        "solutionEvidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "sourceId"],
+            "properties": {
+              "kind": {
+                "enum": ["official_solution", "historical_solution", "derived_solution"]
+              },
+              "sourceId": {
+                "$ref": "#/$defs/id"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
         "sourceStatus": {
           "type": "string"
         },

@@ -11,6 +11,10 @@ Derived 与 Source 冲突时：
 3. 报告 source reference 和冲突位置；
 4. 由 learn 或用户决定是否重建 Derived。
 
+## Derived solutions
+
+政治题没有官方解析时，如果题干和选项完整，允许生成 derived_solution 和 derived_answer。它们必须标记为 AI 独立推导，并与 official/historical answer 和 solution 分开。题干关键措辞或选项缺失时，不得硬猜。
+
 ## Wording checks
 
 检查唯一、根本、本质、首要、核心、基础、前提、决定、体现、来源、动力、目的、标准等高风险措辞。没有原文证据时，不把推断写成 canonical wording。

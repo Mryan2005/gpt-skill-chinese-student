@@ -65,6 +65,20 @@ Rebuilding cards increments derived_version. It does not increment source_versio
 
 Domain models may add fields, but they must preserve source references and must not collapse the two layers into one mutable text field.
 
+## Answer and solution provenance
+
+Question-derived results are separate from source answers and solutions:
+
+~~~text
+official_answer / official_solution
+historical_answer / historical_solution
+derived_answer / derived_solution
+~~~
+
+If the original question is complete enough, a domain model may independently solve it and store derived_answer and derived_solution. The derived result must carry provenance, confidence or needs-review state, and the derivation must remain separate from the Source layer.
+
+If a key condition, formula, option, figure, or sub-question is missing, do not generate a conclusion. Preserve the question gap and leave derived_answer and derived_solution empty. A conflict between official, historical, and derived results is reported, never resolved by overwriting one result.
+
 ## Ownership
 
 - learn owns source intake, Subject routing, persistence, and the common output boundary;

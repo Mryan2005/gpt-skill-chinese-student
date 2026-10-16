@@ -27,8 +27,19 @@
   "officialAnswer": "B",
   "historicalAnswer": null,
   "derivedAnswer": "B",
+  "officialSolution": null,
+  "historicalSolution": null,
+  "derivedSolution": {
+    "text": "先计算相邻项比值。比值极限为 1，因此比值判别法失效，故选 B。",
+    "origin": "AI 独立推导",
+    "confidence": 0.96,
+    "needsReview": false
+  },
   "answerEvidence": [
     {"kind": "official_answer", "value": "B", "sourceId": "series-q12-answer"}
+  ],
+  "solutionEvidence": [
+    {"kind": "derived_solution", "description": "AI 根据完整原题独立求解", "sourceId": "series-q12"}
   ],
   "sourceStatus": "COMPLETE",
   "questionStatus": "COMPLETE",
@@ -57,7 +68,7 @@
 - `solutionStatus`：解析是否完整、是否有断句/空缺；
 - `answerStatus`：答案是否有来源和是否验证。
 
-推荐值：`COMPLETE`、`QUESTION_INCOMPLETE`、`SOLUTION_INCOMPLETE`、`ANSWER_MISSING`、`ANSWER_UNVERIFIED`、`ANSWER_VERIFIED`、`CONFLICTING`。不同字段可以同时处于不同状态。
+推荐值：`COMPLETE`、`QUESTION_INCOMPLETE`、`SOLUTION_INCOMPLETE`、`DERIVED_COMPLETE`、`ANSWER_MISSING`、`ANSWER_UNVERIFIED`、`ANSWER_VERIFIED`、`DERIVED_VERIFIED`、`CONFLICTING`。不同字段可以同时处于不同状态。
 
 真实残缺题仍然建立 Question Record。例如题 21 只拍到一半时，保留题号和已读片段，设置 `questionStatus = QUESTION_INCOMPLETE`，列出 `integrityFlags`，不要删除，也不要用章节总览补位。
 
@@ -103,15 +114,20 @@ mappingEvidence     有真实解题动作和为什么选择 primary 的说明
 
 解析出现“由 ____ 得 ____”“代入 ____ 可得”或明确断页时，设置 `solutionStatus = SOLUTION_INCOMPLETE`，保留 `verifiedFragment`，不要包装为完整解析。
 
-答案证据至少区分：
+答案和解法证据至少区分：
 
 ```text
 official_answer    题目来源或官方答案表直接提供
 historical_answer  旧站/历史记录保存的答案，未必可核实
 derived_answer     根据完整题干和可复算步骤推导出的答案
+official_solution  来源明确的官方解析
+historical_solution 历史记录中的解析，未必可核实
+derived_solution   AI 根据完整原题独立生成的题目级解法
 ```
 
-`historicalAnswer = "B"` 必须伴随 `answerStatus = ANSWER_UNVERIFIED`，不能自动填入 `derivedAnswer`。官方答案、历史答案和推导答案冲突时报告 `ANSWER_PROVENANCE_CONFLICT`，保留各自来源。
+`historicalAnswer = "B"` 必须伴随 `answerStatus = ANSWER_UNVERIFIED`，不能自动填入 `derivedAnswer`。题目完整时可以独立生成 `derivedSolution` 和 `derivedAnswer`，但必须标记 AI 独立推导和 confidence。官方、历史和推导答案或解法冲突时报告 `ANSWER_PROVENANCE_CONFLICT`，保留各自来源。
+
+题目关键条件、公式、选项、图形或分问缺失时，禁止生成 `derivedSolution` 或 `derivedAnswer`。原解析缺失不等于不能独立求解，题目完整性决定是否可以推导。
 
 ## Question Semantic Consistency
 

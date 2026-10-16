@@ -72,12 +72,17 @@ STATUS_VALUES = {
     "COMPLETE",
     "QUESTION_INCOMPLETE",
     "SOLUTION_INCOMPLETE",
+    "DERIVED_COMPLETE",
+    "OFFICIAL_COMPLETE",
+    "HISTORICAL_COMPLETE",
     "ANSWER_MISSING",
     "ANSWER_UNVERIFIED",
     "ANSWER_VERIFIED",
+    "DERIVED_VERIFIED",
     "CONFLICTING",
 }
 ANSWER_EVIDENCE_KINDS = {"official_answer", "historical_answer", "derived_answer"}
+SOLUTION_EVIDENCE_KINDS = {"official_solution", "historical_solution", "derived_solution"}
 
 TYPE_FIELDS = {
     "definition": ("definition", "domain", "contrasts"),
@@ -526,6 +531,7 @@ def _validate_questions(
         math_ids.update(_collect_math_object_ids(question.get("options")))
         math_ids.update(_collect_math_object_ids(question.get("figures")))
         math_ids.update(_collect_math_object_ids(question.get("subparts")))
+        math_content_lost = False
         for source in source_records:
             source_math_ids = {
                 math_object.get("id")
@@ -537,11 +543,14 @@ def _validate_questions(
                     continue
                 status = math_object.get("status")
                 if status in {"UNREADABLE", "CONFLICTING"}:
+                    math_content_lost = True
                     report.add("MATH_UNREADABLE", f"{path}.sourceId", f"source math object {math_object.get('id')} is not readable")
                 if status == "LOST":
+                    math_content_lost = True
                     report.add("MATH_CONTENT_LOSS", f"{path}.sourceId", f"source math object {math_object.get('id')} is lost")
             expected_math_ids = set(_as_list(source.get("expectedMathObjectIds")))
             if expected_math_ids - math_ids:
+                math_content_lost = True
                 report.add(
                     "MATH_CONTENT_LOSS",
                     f"{path}.stem",
@@ -588,8 +597,34 @@ def _validate_questions(
                     f"{path}.solution.referencesMathObjectIds",
                     f"solution references math objects not present in the question: {sorted(referenced_math_ids - math_ids)}",
                 )
-        if solution_status != "COMPLETE":
+        if solution_status not in {"COMPLETE", "DERIVED_COMPLETE", "OFFICIAL_COMPLETE", "HISTORICAL_COMPLETE"}:
             report.add("SOLUTION_INCOMPLETE", f"{path}.solutionStatus", f"solution status: {solution_status}")
+
+        solution_evidence = _as_list(question.get("solutionEvidence"))
+        solution_evidence_kinds: set[str] = set()
+        for index, evidence in enumerate(solution_evidence):
+            evidence_path = f"{path}.solutionEvidence[{index}]"
+            if not isinstance(evidence, dict) or evidence.get("kind") not in SOLUTION_EVIDENCE_KINDS:
+                report.add("ANSWER_PROVENANCE_CONFLICT", evidence_path, "solution evidence kind is invalid")
+                continue
+            solution_evidence_kinds.add(evidence["kind"])
+            if not _non_empty_text(evidence.get("sourceId")) or evidence["sourceId"] not in sources:
+                report.add("ANSWER_PROVENANCE_CONFLICT", evidence_path, "solution evidence source does not exist")
+        for field_name, evidence_kind in (
+            ("officialSolution", "official_solution"),
+            ("historicalSolution", "historical_solution"),
+            ("derivedSolution", "derived_solution"),
+        ):
+            value = question.get(field_name)
+            if value is None:
+                continue
+            solution_text = value.get("text") if isinstance(value, dict) else value
+            if not _meaningful(solution_text):
+                report.add("SOLUTION_INCOMPLETE", f"{path}.{field_name}", "solution text is missing")
+            if evidence_kind not in solution_evidence_kinds:
+                report.add("ANSWER_PROVENANCE_CONFLICT", f"{path}.{field_name}", f"{field_name} lacks matching solution evidence")
+            if field_name == "derivedSolution" and not _non_empty_text(value.get("origin") if isinstance(value, dict) else None):
+                report.add("DERIVED_PROVENANCE_MISSING", f"{path}.{field_name}", "derived solution needs an origin label")
 
         primary_card_id = question.get("primaryCardId")
         declared_primary = question.get("primaryCardIds")
@@ -648,13 +683,19 @@ def _validate_questions(
         if derived is not None and "derived_answer" not in evidence_kinds:
             report.add("ANSWER_PROVENANCE_CONFLICT", f"{path}.derivedAnswer", "derived answer lacks derivation evidence")
         if official is not None and derived is not None and _normalize(official) != _normalize(derived):
-            report.add("QUESTION_ANSWER_MISMATCH", path, "official and derived answers disagree")
+            report.add("ANSWER_PROVENANCE_CONFLICT", path, "official and derived answers disagree")
+        if derived is not None and (question_status != "COMPLETE" or math_content_lost):
+            report.add("DERIVED_ANSWER_FORBIDDEN", f"{path}.derivedAnswer", "cannot derive an answer from an incomplete question")
+        if question.get("derivedSolution") is not None and (question_status != "COMPLETE" or math_content_lost):
+            report.add("DERIVED_SOLUTION_FORBIDDEN", f"{path}.derivedSolution", "cannot derive a solution from an incomplete question")
         if answer_status == "ANSWER_UNVERIFIED":
             report.add("ANSWER_UNVERIFIED", f"{path}.answerStatus", "answer is explicitly unverified")
         if answer_status == "ANSWER_MISSING":
             report.add("ANSWER_MISSING", f"{path}.answerStatus", "answer is not available for exam use")
         if answer_status == "ANSWER_VERIFIED" and official is None and derived is None:
             report.add("QUESTION_ANSWER_MISMATCH", f"{path}.answerStatus", "verified answer has no official or derived value")
+        if answer_status == "DERIVED_VERIFIED" and derived is None:
+            report.add("QUESTION_ANSWER_MISMATCH", f"{path}.answerStatus", "derived verified status has no derived answer")
 
         semantic = question.get("semanticProfile")
         if not isinstance(semantic, dict):
