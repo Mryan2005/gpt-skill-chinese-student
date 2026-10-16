@@ -10,6 +10,7 @@ chinese-student 是一个面向本地学习资料的 Agent Plugin。它把教材
 | --- | --- |
 | learn | 通用学习流程。整理任意学科的来源、知识卡、关系、canonical Markdown 和知识网络 HTML。 |
 | study-math | 数学专项流程。支持数学卡片类型、结构化题库、公式完整性、数学关系和考试可用性闸门。 |
+| study-politics | 政治领域模型。保存教材原文与派生内容的 provenance，并支持概念、原理、标准表述、比较和易混点卡。 |
 | exam | Assessment/Evaluation Runner。在冻结 Subject 上完成闭卷首轮、评分、错误分析和 Learning Gap Report。 |
 | check | 独立的只读 QA/Auditor。验证来源、结构、题目、关系、检索、渲染和考试 readiness，并输出带证据的 findings。 |
 
@@ -18,6 +19,8 @@ learn 是跨学科平台，不是“非数学 skill”。普通数学资料仍�
 learn 是整个插件的学习 Front Door。它先按用户目标选择材料摄入、主题学习、题目整理、Subject 更新、知识库修复或 readiness 检查，再按学科加载领域模型。study-math 负责数学认知结构，learn 负责学习工作流。
 
 study-math 是一个数学学习 Front Door。它根据用户目标路由到材料摄入、主题学习、题组整理、卡片构建、主体更新、知识网修复或考试可用性检查 playbook。用户描述目标即可，不需要自己编排代理和校验步骤。
+
+study-politics 是由 learn 加载的政治领域模型。它区分教材原文与 AI 派生内容，并定义政治专属的概念、原理、标准表述、比较、易混点、时间线、政策框架和题型卡。
 
 check 不参与构建或修复。它读取统一 Subject 和领域 contract，验证真实 artifact，报告 severity、证据、根因和 repairOwner。
 
@@ -90,6 +93,10 @@ plugin/
    │  ├─ references/
    │  ├─ examples/math-records.json
    │  └─ scripts/
+   ├─ study-politics/
+   │  ├─ SKILL.md
+   │  ├─ agents/openai.yaml
+   │  └─ references/
    ├─ check/
    │  ├─ SKILL.md
    │  ├─ playbooks/

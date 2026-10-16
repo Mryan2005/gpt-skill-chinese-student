@@ -13,6 +13,7 @@ SKILL_ROOT = REPO_ROOT / "plugin" / "skills" / "check"
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from validate_findings import validate_report  # noqa: E402
+from validate_source_derived import validate_record as validate_source_derived  # noqa: E402
 
 
 PLAYBOOKS = {
@@ -71,6 +72,18 @@ class CheckStructureTests(unittest.TestCase):
         errors = validate_report(mutated)
         self.assertTrue(any("readOnly" in error for error in errors))
         self.assertTrue(any("summary.blocker" in error for error in errors))
+
+    def test_source_derived_sample_passes(self) -> None:
+        report_path = SKILL_ROOT / "examples" / "source-derived-record.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        self.assertEqual(validate_source_derived(report), [])
+
+    def test_source_derived_collapse_fails(self) -> None:
+        report_path = SKILL_ROOT / "examples" / "source-derived-record.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["derived"][0]["sourceText"] = "错误地复制的原文"
+        errors = validate_source_derived(report)
+        self.assertTrue(any("SOURCE_AND_DERIVED_COLLAPSED" in error for error in errors))
 
 
 if __name__ == "__main__":

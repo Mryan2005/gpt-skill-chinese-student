@@ -1,0 +1,4 @@
+interface:
+  display_name: "政治学习"
+  short_description: "政治领域知识模型"
+  default_prompt: "Use $study-politics as the politics domain model while learn orchestrates the learning workflow."

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "platform-subject.v1",
+  "subjectId": "politics-demo",
+  "sourceVersion": 1,
+  "derivedVersion": 2,
+  "sources": [
+    {
+      "id": "src-marxism-p42-p3",
+      "entityType": "source_text",
+      "text": "物质的唯一特性是客观实在性。",
+      "file": "marxism.pdf",
+      "locator": {
+        "page": 42,
+        "paragraph": 3
+      },
+      "status": "COMPLETE"
+    }
+  ],
+  "derived": [
+    {
+      "id": "politics-card-matter-objective-reality",
+      "type": "concept",
+      "title": "物质的客观实在性",
+      "coreStatement": "物质的唯一特性是客观实在性。",
+      "sourceRefs": [
+        {
+          "sourceId": "src-marxism-p42-p3",
+          "locator": "paragraph-3"
+        }
+      ],
+      "derivedVersion": 2,
+      "status": "ACTIVE"
+    }
+  ]
+}

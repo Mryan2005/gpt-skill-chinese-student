@@ -1,5 +1,7 @@
 # 数学专项共用规则
 
+平台 Source/Derived Contract 见 [platform-contract.md](../../references/platform-contract.md)。
+
 ## 平台边界
 
 `learn` 是跨学科学习基础设施：它统一来源、证据、canonical Markdown、知识网络 HTML、搜索、进度和持久化状态。`study-math` 只提供数学领域的拆分、卡片、题库、关系、公式和考试可用性模型。
