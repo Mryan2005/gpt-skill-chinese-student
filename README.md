@@ -21,6 +21,8 @@ study-math 是一个数学学习 Front Door。它根据用户目标路由到材�
 
 check 不参与构建或修复。它读取统一 Subject 和领域 contract，验证真实 artifact，报告 severity、证据、根因和 repairOwner。
 
+exam 直接读取原始试卷和解析 PDF。禁止 OCR、OCR 中间文本、外部 OCR 服务和委托 OCR；看不清的内容必须记录为不可读。
+
 ## 设计边界
 
 learn 统一平台能力：

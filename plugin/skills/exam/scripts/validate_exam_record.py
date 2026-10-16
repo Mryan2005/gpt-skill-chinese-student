@@ -20,10 +20,80 @@ STATES = [
     "CLOSED",
 ]
 RESULTS = {"correct", "wrong", "unanswered", "partial"}
+PDF_READING_MODES = {"native_pdf_page_image", "native_pdf_text_and_page"}
+PDF_BANNED_TOKENS = {
+    "ocr",
+    "tesseract",
+    "pytesseract",
+    "easyocr",
+    "paddleocr",
+    "ocrmypdf",
+    "keras-ocr",
+    "doctr",
+}
 
 
 def _text(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
+
+
+def _validate_pdf_reference(reference: Any, path: str, errors: list[str]) -> None:
+    if not isinstance(reference, dict):
+        errors.append(f"{path} must be an object")
+        return
+    if reference.get("source") != "original_pdf":
+        errors.append(f"PDF_SOURCE_INTEGRITY_GATE: {path}.source must be original_pdf")
+    source_path = reference.get("path")
+    if not _text(source_path) or not source_path.lower().endswith(".pdf"):
+        errors.append(f"PDF_SOURCE_INTEGRITY_GATE: {path}.path must point to the original PDF")
+    if reference.get("readingMode") not in PDF_READING_MODES:
+        errors.append(f"PDF_SOURCE_INTEGRITY_GATE: {path}.readingMode must use native PDF reading")
+    if reference.get("ocrUsed") is not False:
+        errors.append(f"PDF_SOURCE_INTEGRITY_GATE: {path}.ocrUsed must be false")
+    if reference.get("delegatedOcr") is not False:
+        errors.append(f"PDF_SOURCE_INTEGRITY_GATE: {path}.delegatedOcr must be false")
+    if reference.get("intermediateTextSources") != []:
+        errors.append(f"PDF_SOURCE_INTEGRITY_GATE: {path}.intermediateTextSources must be empty")
+
+
+def _validate_page_reference(reference: Any, path: str, errors: list[str]) -> None:
+    if not isinstance(reference, dict):
+        errors.append(f"PDF_SOURCE_INTEGRITY_GATE: {path} must reference an original PDF page")
+        return
+    _validate_pdf_reference(
+        {
+            "source": reference.get("source"),
+            "path": reference.get("path"),
+            "readingMode": reference.get("readingMode", "native_pdf_text_and_page"),
+            "ocrUsed": reference.get("ocrUsed", False),
+            "delegatedOcr": reference.get("delegatedOcr", False),
+            "intermediateTextSources": reference.get("intermediateTextSources", []),
+        },
+        path,
+        errors,
+    )
+    if not isinstance(reference.get("page"), int) or reference["page"] < 1:
+        errors.append(f"PDF_SOURCE_INTEGRITY_GATE: {path}.page must be a positive integer")
+
+
+def _validate_pdf_reading(record: dict[str, Any], state_index: int, errors: list[str]) -> None:
+    if state_index < STATES.index("FIRST_PASS"):
+        return
+    pdf_reading = record.get("pdfReading")
+    if not isinstance(pdf_reading, dict):
+        errors.append("PDF_SOURCE_INTEGRITY_GATE: pdfReading is required from FIRST_PASS onward")
+        return
+    if pdf_reading.get("sourcePolicy") != "original_pdf_only":
+        errors.append("PDF_SOURCE_INTEGRITY_GATE: sourcePolicy must be original_pdf_only")
+    _validate_pdf_reference(pdf_reading.get("examPdf"), "pdfReading.examPdf", errors)
+    if state_index >= STATES.index("SOLUTION_RELEASED"):
+        _validate_pdf_reference(pdf_reading.get("solutionPdf"), "pdfReading.solutionPdf", errors)
+    for index, entry in enumerate(record.get("accessLog", [])):
+        if not isinstance(entry, dict):
+            continue
+        combined = " ".join(str(value).lower() for value in entry.values())
+        if any(token in combined for token in PDF_BANNED_TOKENS):
+            errors.append(f"PDF_SOURCE_INTEGRITY_GATE: accessLog[{index}] contains a prohibited OCR path or tool")
 
 
 def validate_record(record: Any) -> list[str]:
@@ -49,6 +119,7 @@ def validate_record(record: Any) -> list[str]:
                 errors.append(f"snapshot.{field} is required")
         if state_index >= STATES.index("SNAPSHOT_FROZEN") and snapshot.get("frozen") is not True:
             errors.append("snapshot.frozen must be true after SNAPSHOT_FROZEN")
+    _validate_pdf_reading(record, state_index, errors)
 
     questions = record.get("questions")
     if not isinstance(questions, list) or not questions:
@@ -77,6 +148,8 @@ def validate_record(record: Any) -> list[str]:
                         errors.append(f"{path}.firstPass.{field} is required")
         if state_index >= STATES.index("ANSWERS_FROZEN") and question.get("firstPassFrozen") is not True:
             errors.append(f"{path}.firstPassFrozen must be true after ANSWERS_FROZEN")
+        if state_index >= STATES.index("FIRST_PASS"):
+            _validate_page_reference(question.get("examPage"), f"{path}.examPage", errors)
         grading = question.get("grading")
         if state_index >= STATES.index("GRADING"):
             if not isinstance(grading, dict):
@@ -86,6 +159,9 @@ def validate_record(record: Any) -> list[str]:
         revisions = question.get("revisions", [])
         if not isinstance(revisions, list):
             errors.append(f"{path}.revisions must be a list")
+        official = question.get("official")
+        if state_index >= STATES.index("SOLUTION_RELEASED") and isinstance(official, dict):
+            _validate_page_reference(official.get("sourcePage"), f"{path}.official.sourcePage", errors)
 
     access_log = record.get("accessLog", [])
     if not isinstance(access_log, list):
@@ -97,7 +173,7 @@ def validate_record(record: Any) -> list[str]:
                 continue
             phase = entry.get("phase")
             source = entry.get("source")
-            if phase == "FIRST_PASS" and source in {"web", "solution", "answer_key", "unfrozen_subject"}:
+            if phase == "FIRST_PASS" and source in {"web", "solution", "answer_key", "unfrozen_subject", "ocr", "ocr_text", "transcript"}:
                 errors.append(f"accessLog[{index}] violates FIRST_PASS access policy")
 
     for field in ("officialAnswersReleasedAt", "gradingCompletedAt", "closedAt"):

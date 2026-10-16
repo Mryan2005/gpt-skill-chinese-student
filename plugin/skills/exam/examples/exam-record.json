@@ -19,11 +19,35 @@
     "path": "exam/questions.pdf",
     "version": "questions-v1"
   },
+  "pdfReading": {
+    "sourcePolicy": "original_pdf_only",
+    "examPdf": {
+      "source": "original_pdf",
+      "path": "exam/questions.pdf",
+      "readingMode": "native_pdf_text_and_page",
+      "ocrUsed": false,
+      "delegatedOcr": false,
+      "intermediateTextSources": []
+    },
+    "solutionPdf": {
+      "source": "original_pdf",
+      "path": "exam/solutions.pdf",
+      "readingMode": "native_pdf_text_and_page",
+      "ocrUsed": false,
+      "delegatedOcr": false,
+      "intermediateTextSources": []
+    }
+  },
   "questions": [
     {
       "questionId": "series-mcq-12",
       "originalNumber": 12,
       "type": "multiple_choice",
+      "examPage": {
+        "source": "original_pdf",
+        "path": "exam/questions.pdf",
+        "page": 2
+      },
       "firstPass": {
         "answer": "B",
         "confidence": 0.7,
@@ -39,7 +63,12 @@
       "official": {
         "answer": "B",
         "sourceId": "answer-key-page-1",
-        "solutionStatus": "COMPLETE"
+        "solutionStatus": "COMPLETE",
+        "sourcePage": {
+          "source": "original_pdf",
+          "path": "exam/solutions.pdf",
+          "page": 1
+        }
       },
       "grading": {
         "result": "correct",
@@ -52,6 +81,11 @@
       "questionId": "series-mcq-17",
       "originalNumber": 17,
       "type": "multiple_choice",
+      "examPage": {
+        "source": "original_pdf",
+        "path": "exam/questions.pdf",
+        "page": 3
+      },
       "firstPass": {
         "answer": "A",
         "confidence": 0.4,
@@ -67,7 +101,12 @@
       "official": {
         "answer": "C",
         "sourceId": "answer-key-page-1",
-        "solutionStatus": "COMPLETE"
+        "solutionStatus": "COMPLETE",
+        "sourcePage": {
+          "source": "original_pdf",
+          "path": "exam/solutions.pdf",
+          "page": 1
+        }
       },
       "grading": {
         "result": "wrong",

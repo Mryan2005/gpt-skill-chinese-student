@@ -2,6 +2,8 @@
 
 exam measures a learner against a frozen Subject snapshot. It is not a builder, a domain model, or an audit repairer.
 
+The original exam PDF and explanation PDF are authoritative inputs. Read them with the native PDF/page-reading capability. Read [pdf-reading.md](pdf-reading.md) before running any PDF-backed exam.
+
 ## State machine
 
 ~~~text

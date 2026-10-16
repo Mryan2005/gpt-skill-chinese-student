@@ -25,6 +25,7 @@ PLAYBOOKS = {
 REFERENCES = {
     "common.md",
     "exam-contract.md",
+    "pdf-reading.md",
     "answer-record.md",
     "grading.md",
     "error-taxonomy.md",
@@ -66,6 +67,20 @@ class ExamStructureTests(unittest.TestCase):
         record["questions"][0]["firstPassFrozen"] = False
         errors = validate_record(record)
         self.assertTrue(any("firstPassFrozen" in error for error in errors))
+
+    def test_ocr_or_surrogate_pdf_input_fails_integrity_gate(self) -> None:
+        record = copy.deepcopy(load_example())
+        record["pdfReading"]["examPdf"]["ocrUsed"] = True
+        record["questions"][0]["examPage"]["path"] = "exam/questions_ocr.txt"
+        errors = validate_record(record)
+        self.assertTrue(any("PDF_SOURCE_INTEGRITY_GATE" in error for error in errors))
+
+    def test_delegated_ocr_is_transitively_forbidden(self) -> None:
+        record = copy.deepcopy(load_example())
+        record["pdfReading"]["examPdf"]["delegatedOcr"] = True
+        record["accessLog"].append({"phase": "FIRST_PASS", "source": "ocr", "detail": "delegated helper"})
+        errors = validate_record(record)
+        self.assertTrue(any("PDF_SOURCE_INTEGRITY_GATE" in error for error in errors))
 
 
 if __name__ == "__main__":
