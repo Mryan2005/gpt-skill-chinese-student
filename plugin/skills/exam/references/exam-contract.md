@@ -7,11 +7,14 @@ The original exam PDF and explanation PDF are authoritative inputs. Read them wi
 ## State machine
 
 ~~~text
-READY → SNAPSHOT_FROZEN → FIRST_PASS → ANSWERS_FROZEN
+NEW_EXAM_REQUEST → CLEANUP_PREVIOUS_RUN → WORKSPACE_VERIFIED_CLEAN
+      → LOAD_EXAM_PDF → SNAPSHOT_FROZEN → FIRST_PASS → ANSWERS_FROZEN
       → SOLUTION_RELEASED → GRADING → POSTMORTEM → CLOSED
 ~~~
 
 States only move forward. A resumed task loads the existing record and continues from its state.
+
+Read [exam-workspace.md](exam-workspace.md) before creating a new run. The previous exam workspace is disposable and must be deleted as a whole before the new PDF is loaded.
 
 Before SNAPSHOT_FROZEN, an outdated Subject must be migrated by update. The snapshot must record migrationStatus=UP_TO_DATE. After SNAPSHOT_FROZEN, update cannot alter the snapshot or its Derived state; a later migration starts a separate exam.
 

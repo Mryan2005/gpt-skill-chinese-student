@@ -10,6 +10,7 @@ exam 是 Assessment / Evaluation Runner。它测量冻结知识状态下的学�
 ## Non-negotiables
 
 - 开始测量前冻结 Subject snapshot。
+- 每场新考试开始前必须删除并重建整个 .exam/current workspace，确认为空后才能加载新试卷。
 - 考试和解析 PDF 必须由当前 AI 直接读取原始 PDF。禁止 OCR、OCR 包、外部 OCR API、转写替代输入和委托 OCR。
 - FIRST_PASS 只能访问冻结的知识图谱和题目。
 - 首轮禁止 Web、解析、答案表、其他资料和未冻结的新知识。
@@ -18,12 +19,18 @@ exam 是 Assessment / Evaluation Runner。它测量冻结知识状态下的学�
 - exam 不调用 learn 或 study-math 修改被测 artifact。
 - exam 输出 Exam Result、Learning Gap Report 和 Repair Requests，由 learn 或领域模型决定如何修复。
 
-完整状态和记录合同见 [exam-contract.md](references/exam-contract.md)、[pdf-reading.md](references/pdf-reading.md)、[answer-record.md](references/answer-record.md)、[grading.md](references/grading.md) 和 [error-taxonomy.md](references/error-taxonomy.md)。
+完整状态和记录合同见 [exam-contract.md](references/exam-contract.md)、[exam-workspace.md](references/exam-workspace.md)、[pdf-reading.md](references/pdf-reading.md)、[answer-record.md](references/answer-record.md)、[grading.md](references/grading.md) 和 [error-taxonomy.md](references/error-taxonomy.md)。
 
 ## State machine
 
 ~~~text
-READY
+NEW_EXAM_REQUEST
+  ↓
+CLEANUP_PREVIOUS_RUN
+  ↓
+WORKSPACE_VERIFIED_CLEAN
+  ↓
+LOAD_EXAM_PDF
   ↓
 SNAPSHOT_FROZEN
   ↓

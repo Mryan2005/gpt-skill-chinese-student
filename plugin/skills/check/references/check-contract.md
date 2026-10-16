@@ -2,6 +2,8 @@
 
 check reads Subject artifacts and produces findings. It does not own the learning content or any domain model.
 
+Read [check-workspace.md](check-workspace.md) before every audit. Old findings and render caches are disposable and cannot be reused as evidence.
+
 ## Inputs
 
 - The current Subject and its version;

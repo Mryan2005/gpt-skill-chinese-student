@@ -7,10 +7,11 @@ Use it when the user wants to replay an exam, a subset of failed questions, or a
 ## Procedure
 
 1. Load the original Exam Snapshot and first-pass record.
-2. State whether the replay uses the same snapshot or a new version. Never silently mix them.
-3. Present only the allowed question set and the access policy for the replay.
-4. Record replay answers as a new attempt or revision. Preserve the original attempt.
-5. Compare original and replay performance without changing the original result.
+2. Reset a new disposable replay workspace before loading any replay question.
+3. State whether the replay uses the same snapshot or a new version. Never silently mix them.
+4. Present only the allowed question set and the access policy for the replay.
+5. Record replay answers as a new attempt or revision. Preserve the original attempt.
+6. Compare original and replay performance without changing the original result.
 
 ## Gate
 

@@ -1,6 +1,20 @@
 {
   "schemaVersion": "check.finding.v1",
   "readOnly": true,
+  "state": "CLOSED",
+  "workspace": {
+    "root": ".check/current",
+    "runId": "math-1-check-001",
+    "resetAt": "2026-10-16T10:00:00+08:00",
+    "previousRunDeleted": true,
+    "cleanVerified": true,
+    "residualPaths": []
+  },
+  "artifact": {
+    "subjectId": "math-1",
+    "version": "math-records.example.v1",
+    "checkedAt": "2026-10-16T10:02:00+08:00"
+  },
   "subject": {
     "id": "math-1",
     "title": "数学一"

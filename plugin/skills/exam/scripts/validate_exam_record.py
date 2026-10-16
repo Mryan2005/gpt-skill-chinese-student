@@ -10,7 +10,10 @@ from typing import Any
 
 
 STATES = [
-    "READY",
+    "NEW_EXAM_REQUEST",
+    "CLEANUP_PREVIOUS_RUN",
+    "WORKSPACE_VERIFIED_CLEAN",
+    "LOAD_EXAM_PDF",
     "SNAPSHOT_FROZEN",
     "FIRST_PASS",
     "ANSWERS_FROZEN",
@@ -96,6 +99,31 @@ def _validate_pdf_reading(record: dict[str, Any], state_index: int, errors: list
             errors.append(f"PDF_SOURCE_INTEGRITY_GATE: accessLog[{index}] contains a prohibited OCR path or tool")
 
 
+def _validate_workspace(record: dict[str, Any], state_index: int, errors: list[str]) -> None:
+    if state_index < STATES.index("CLEANUP_PREVIOUS_RUN"):
+        return
+    workspace = record.get("workspace")
+    if not isinstance(workspace, dict):
+        errors.append("EXAM_WORKSPACE_NOT_CLEAN: workspace is required before cleanup")
+        return
+    if workspace.get("root") != ".exam/current":
+        errors.append("EXAM_WORKSPACE_NOT_CLEAN: workspace.root must be .exam/current")
+    for field in ("runId", "resetAt"):
+        if not _text(workspace.get(field)):
+            errors.append(f"EXAM_WORKSPACE_NOT_CLEAN: workspace.{field} is required")
+    if workspace.get("previousRunDeleted") is not True:
+        errors.append("EXAM_WORKSPACE_NOT_CLEAN: previousRunDeleted must be true")
+    residual = workspace.get("residualPaths")
+    if not isinstance(residual, list):
+        errors.append("EXAM_WORKSPACE_NOT_CLEAN: residualPaths must be a list")
+    elif residual:
+        errors.append(f"EXAM_WORKSPACE_NOT_CLEAN: residualPaths is not empty: {residual}")
+    if state_index >= STATES.index("WORKSPACE_VERIFIED_CLEAN") and workspace.get("cleanVerified") is not True:
+        errors.append("EXAM_WORKSPACE_NOT_CLEAN: cleanVerified must be true")
+    if state_index >= STATES.index("LOAD_EXAM_PDF") and workspace.get("examLoaded") is not True:
+        errors.append("EXAM_WORKSPACE_NOT_CLEAN: examLoaded must be true after LOAD_EXAM_PDF")
+
+
 def validate_record(record: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(record, dict):
@@ -110,6 +138,7 @@ def validate_record(record: Any) -> list[str]:
         state_index = STATES.index(state)
     if not isinstance(record.get("readOnlyDuringMeasurement"), bool):
         errors.append("readOnlyDuringMeasurement must be boolean")
+    _validate_workspace(record, state_index, errors)
     snapshot = record.get("snapshot")
     if not isinstance(snapshot, dict):
         errors.append("snapshot is required")

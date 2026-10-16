@@ -3,6 +3,15 @@
   "examId": "math-1-demo-001",
   "state": "CLOSED",
   "readOnlyDuringMeasurement": true,
+  "workspace": {
+    "root": ".exam/current",
+    "runId": "math-1-demo-001",
+    "resetAt": "2026-10-16T07:55:00+08:00",
+    "previousRunDeleted": true,
+    "cleanVerified": true,
+    "residualPaths": [],
+    "examLoaded": true
+  },
   "subject": {
     "id": "math-1",
     "title": "数学一"

@@ -4,6 +4,7 @@ import copy
 import json
 import re
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -13,6 +14,7 @@ SKILL_ROOT = REPO_ROOT / "plugin" / "skills" / "exam"
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from validate_exam_record import validate_record  # noqa: E402
+from reset_exam_workspace import reset_workspace, validate_target  # noqa: E402
 
 
 PLAYBOOKS = {
@@ -25,6 +27,7 @@ PLAYBOOKS = {
 REFERENCES = {
     "common.md",
     "exam-contract.md",
+    "exam-workspace.md",
     "pdf-reading.md",
     "answer-record.md",
     "grading.md",
@@ -93,6 +96,21 @@ class ExamStructureTests(unittest.TestCase):
         record["updateAppliedAfterFreeze"] = True
         errors = validate_record(record)
         self.assertTrue(any("UPDATE_MUTATED_FROZEN_EXAM" in error for error in errors))
+
+    def test_residual_workspace_blocks_exam(self) -> None:
+        record = copy.deepcopy(load_example())
+        record["workspace"]["residualPaths"] = ["first-pass-answers.json"]
+        errors = validate_record(record)
+        self.assertTrue(any("EXAM_WORKSPACE_NOT_CLEAN" in error for error in errors))
+
+    def test_reset_script_deletes_only_the_exact_current_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / ".exam" / "current"
+            root.mkdir(parents=True)
+            (root / "old-answers.json").write_text("old", encoding="utf-8")
+            target = validate_target(str(root))
+            reset_workspace(target, True)
+            self.assertEqual(list(target.iterdir()), [])
 
 
 if __name__ == "__main__":

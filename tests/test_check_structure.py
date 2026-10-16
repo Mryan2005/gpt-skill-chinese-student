@@ -4,6 +4,7 @@ import copy
 import json
 import re
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -14,6 +15,7 @@ sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from validate_findings import validate_report  # noqa: E402
 from validate_source_derived import validate_record as validate_source_derived  # noqa: E402
+from reset_check_workspace import reset_workspace, validate_target  # noqa: E402
 
 
 PLAYBOOKS = {
@@ -30,6 +32,7 @@ PLAYBOOKS = {
 REFERENCES = {
     "common.md",
     "check-contract.md",
+    "check-workspace.md",
     "finding-schema.md",
     "severity.md",
 }
@@ -73,6 +76,13 @@ class CheckStructureTests(unittest.TestCase):
         self.assertTrue(any("readOnly" in error for error in errors))
         self.assertTrue(any("summary.blocker" in error for error in errors))
 
+    def test_finding_report_rejects_residual_workspace(self) -> None:
+        report_path = SKILL_ROOT / "examples" / "finding-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["workspace"]["residualPaths"] = ["findings.json"]
+        errors = validate_report(report)
+        self.assertTrue(any("CHECK_WORKSPACE_NOT_CLEAN" in error for error in errors))
+
     def test_source_derived_sample_passes(self) -> None:
         report_path = SKILL_ROOT / "examples" / "source-derived-record.json"
         report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -84,6 +94,15 @@ class CheckStructureTests(unittest.TestCase):
         report["derived"][0]["sourceText"] = "错误地复制的原文"
         errors = validate_source_derived(report)
         self.assertTrue(any("SOURCE_AND_DERIVED_COLLAPSED" in error for error in errors))
+
+    def test_reset_script_deletes_only_the_exact_current_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / ".check" / "current"
+            root.mkdir(parents=True)
+            (root / "old-findings.json").write_text("old", encoding="utf-8")
+            target = validate_target(str(root))
+            reset_workspace(target, True)
+            self.assertEqual(list(target.iterdir()), [])
 
 
 if __name__ == "__main__":

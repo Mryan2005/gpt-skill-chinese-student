@@ -46,6 +46,19 @@ def validate_report(report: Any) -> list[str]:
         errors.append("schemaVersion must be check.finding.v1")
     if report.get("readOnly") is not True:
         errors.append("readOnly must be true")
+    workspace = report.get("workspace")
+    if not isinstance(workspace, dict):
+        errors.append("CHECK_WORKSPACE_NOT_CLEAN: workspace is required")
+    else:
+        if workspace.get("root") != ".check/current":
+            errors.append("CHECK_WORKSPACE_NOT_CLEAN: workspace.root must be .check/current")
+        if workspace.get("previousRunDeleted") is not True or workspace.get("cleanVerified") is not True:
+            errors.append("CHECK_WORKSPACE_NOT_CLEAN: workspace must record reset and clean verification")
+        if workspace.get("residualPaths") != []:
+            errors.append("CHECK_WORKSPACE_NOT_CLEAN: residualPaths must be empty")
+    artifact = report.get("artifact")
+    if not isinstance(artifact, dict) or not _text(artifact.get("version")) or not _text(artifact.get("checkedAt")):
+        errors.append("artifact.version and artifact.checkedAt are required")
     findings = report.get("findings")
     if not isinstance(findings, list):
         return errors + ["findings must be a list"]

@@ -10,6 +10,7 @@ check 是整个学习系统的只读 QA、Auditor 和 Test Runner。它验证 le
 ## Non-negotiables
 
 - 默认只读，不修改 Markdown、HTML、records、learner_state 或 task-state。
+- 每次审计前必须删除并重建整个 .check/current workspace，确认为空后才能读取本次 canonical state。
 - 每个结论都必须有证据路径、实体 ID、观察值和期望值。
 - 每个发现都必须有 code、severity、layer 和 repairOwner。
 - 区分 blocker、error、warning 和 info。
@@ -17,7 +18,7 @@ check 是整个学习系统的只读 QA、Auditor 和 Test Runner。它验证 le
 - 通用检查机制不定义数学或其他学科的卡片正确性。领域规则来自对应 domain contract。
 - 发现根因后停止在报告，不在 check 内自动修复。
 
-读取 [check-contract.md](references/check-contract.md)、[finding-schema.md](references/finding-schema.md) 和 [severity.md](references/severity.md) 了解统一报告合同。
+读取 [check-contract.md](references/check-contract.md)、[check-workspace.md](references/check-workspace.md)、[finding-schema.md](references/finding-schema.md) 和 [severity.md](references/severity.md) 了解统一报告合同。
 
 ## Routing
 
@@ -34,6 +35,19 @@ check 是整个学习系统的只读 QA、Auditor 和 Test Runner。它验证 le
 
 先按用户目标选择审计 playbook，再按 Subject 选择领域 contract。数学检查读取 study-math 的 schema、validator 和 readiness contract；check 不复制数学规则。
 
+## State machine
+
+~~~text
+NEW_CHECK_REQUEST
+→ CLEANUP_PREVIOUS_CHECK_RUN
+→ WORKSPACE_VERIFIED_CLEAN
+→ LOAD_CURRENT_CANONICAL_STATE
+→ RUN_AUDITS
+→ WRITE_FINDINGS
+→ REPORT
+→ CLOSED
+~~~
+
 ## Done gate
 
-使用真实 canonical artifact、Structured Records 和实际 HTML 输出。运行相关 scripts，生成结构化 findings，汇总严重程度、未执行检查、证据路径、根因和 repairOwner。检查结束时只报告验证结果，不报告已修复内容。
+使用真实 canonical artifact、Structured Records 和实际 HTML 输出。运行 reset_check_workspace.py，确认 workspace clean，再生成结构化 findings。汇总严重程度、未执行检查、证据路径、根因和 repairOwner。检查结束时只报告验证结果，不报告已修复内容。
