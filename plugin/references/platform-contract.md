@@ -106,3 +106,4 @@ An exam snapshot records migrationStatus=UP_TO_DATE. Once SNAPSHOT_FROZEN, no up
 - a domain model owns the structure and meaning of derived records;
 - check audits source/derived separation without repairing it;
 - exam reads a frozen derived state and exam source, then emits repair requests.
+- relearn may delete Derived only after explicit confirmation and then delegates reconstruction to learn and the domain model.

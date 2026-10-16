@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "relearn-reset.v1",
+  "action": "relearn",
+  "state": "WAITING_FOR_USER_CONFIRMATION",
+  "subject": {
+    "id": "math-1",
+    "root": "subject/math-1"
+  },
+  "deletePaths": [
+    "derived",
+    "canonical/math-1.md",
+    "knowledge-network/index.html",
+    "learner_state.md"
+  ],
+  "preservePaths": [
+    "sources",
+    "source-records.json",
+    "originals"
+  ],
+  "confirmation": {
+    "required": true,
+    "received": false
+  }
+}
