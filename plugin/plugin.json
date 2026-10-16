@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "chinese-student",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A local-file study plugin that builds exam-ready subject knowledge graphs, runs graph-only PDF exams, and checks whether each concept is immediately findable.",
   "author": {
     "name": "夜桜月花"
