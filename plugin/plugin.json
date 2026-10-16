@@ -3,6 +3,7 @@
   "name": "chinese-student",
   "version": "0.2.0",
   "description": "A local-file study plugin that builds exam-ready subject knowledge graphs, provides a math-specific structured study model, runs graph-only PDF exams, and checks whether each concept is immediately findable.",
+  "license": "Proprietary - All Rights Reserved",
   "author": {
     "name": "夜桜月花"
   },
