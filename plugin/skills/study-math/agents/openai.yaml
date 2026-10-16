@@ -1,0 +1,4 @@
+interface:
+  display_name: "数学学习"
+  short_description: "数学专项知识网络与题库"
+  default_prompt: "Use $study-math to build an exam-ready mathematics graph with atomic cards, structured questions, typed relations, and formula-integrity checks."

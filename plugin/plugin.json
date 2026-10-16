@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "chinese-student",
-  "version": "0.1.1",
-  "description": "A local-file study plugin that builds exam-ready subject knowledge graphs, runs graph-only PDF exams, and checks whether each concept is immediately findable.",
+  "version": "0.2.0",
+  "description": "A local-file study plugin that builds exam-ready subject knowledge graphs, provides a math-specific structured study model, runs graph-only PDF exams, and checks whether each concept is immediately findable.",
   "author": {
     "name": "夜桜月花"
   },
@@ -12,7 +12,7 @@
       "interface": {
         "displayName": "中式学生",
         "shortDescription": "知识图谱学习、考试、检查",
-        "longDescription": "三个指令：学习，把图片和资料整理成可考试的学科知识图谱；考试，只调用当前图谱并在解析后复盘；检查，验证知识点能否唯一定位到主卡或关联卡。",
+        "longDescription": "四个指令：学习，把图片和资料整理成可考试的学科知识图谱；数学学习，使用数学专属卡片、题库、关系和公式完整性模型；考试，只调用当前图谱并在解析后复盘；检查，验证知识点能否唯一定位到主卡或关联卡。",
         "developerName": "夜桜月花",
         "category": "Education",
         "capabilities": [],

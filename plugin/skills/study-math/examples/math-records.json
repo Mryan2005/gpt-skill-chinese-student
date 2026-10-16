@@ -1,0 +1,690 @@
+{
+  "schemaVersion": "study-math.v1",
+  "subject": {
+    "id": "math-1",
+    "title": "数学一",
+    "learningStatus": "可用于考试"
+  },
+  "modules": [
+    {
+      "id": "math-1",
+      "parentId": null,
+      "kind": "subject",
+      "title": "数学一",
+      "aliases": ["考研数学一"],
+      "order": 0,
+      "sourceIds": ["math-1-scope"],
+      "status": "COMPLETE"
+    },
+    {
+      "id": "calculus",
+      "parentId": "math-1",
+      "kind": "course",
+      "title": "高等数学",
+      "aliases": ["高数"],
+      "order": 1,
+      "sourceIds": ["math-1-scope"],
+      "status": "COMPLETE"
+    },
+    {
+      "id": "limits",
+      "parentId": "calculus",
+      "kind": "chapter",
+      "title": "函数与极限",
+      "aliases": ["极限"],
+      "order": 1,
+      "sourceIds": ["limit-definition-text"],
+      "status": "COMPLETE"
+    },
+    {
+      "id": "mean-value-theorems",
+      "parentId": "calculus",
+      "kind": "chapter",
+      "title": "中值定理",
+      "aliases": ["微分中值定理"],
+      "order": 3,
+      "sourceIds": ["lagrange-text"],
+      "status": "COMPLETE"
+    },
+    {
+      "id": "series",
+      "parentId": "calculus",
+      "kind": "chapter",
+      "title": "无穷级数",
+      "aliases": ["级数"],
+      "order": 7,
+      "sourceIds": ["series-overview"],
+      "status": "COMPLETE"
+    },
+    {
+      "id": "positive-series",
+      "parentId": "series",
+      "kind": "section",
+      "title": "正项级数",
+      "aliases": ["正项"],
+      "order": 1,
+      "sourceIds": ["positive-series-text"],
+      "status": "COMPLETE"
+    },
+    {
+      "id": "sequences",
+      "parentId": "limits",
+      "kind": "section",
+      "title": "递推数列",
+      "aliases": ["数列极限"],
+      "order": 2,
+      "sourceIds": ["recurrence-text"],
+      "status": "COMPLETE"
+    }
+  ],
+  "cards": [
+    {
+      "id": "function-limit-definition",
+      "moduleId": "limits",
+      "parentId": "limits",
+      "type": "definition",
+      "title": "函数极限",
+      "recallPrompt": "函数在 x0 处的极限到底是什么意思？",
+      "atomicity": {
+        "coreQuestion": "如何准确说出函数极限的对象、条件和结论？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["limit_definition"],
+      "definition": "函数值在自变量趋近目标点时可以无限接近某个确定值的定义。",
+      "notation": "lim_{x→x0} f(x)=A",
+      "domain": ["x 在定义域内趋近 x0", "极限只讨论趋近过程，不要求 f(x0) 已定义"],
+      "intuition": "控制 x 与 x0 的距离，就能控制 f(x) 与 A 的距离。",
+      "equivalentViews": ["ε-δ 语言", "序列判别语言"],
+      "contrasts": ["函数值 f(x0)", "函数在 x0 处连续"],
+      "minimumExample": "lim_{x→0} sin(x)/x = 1",
+      "understand": "定义卡先区分趋近过程、函数值和连续性。",
+      "conditions": ["目标点附近有定义域中的点"],
+      "pitfalls": ["把 f(x0) 当成极限值", "忘记说明趋近方向或定义域"],
+      "recommendedQuestionIds": [],
+      "questionIds": [],
+      "sourceIds": ["limit-definition-text"],
+      "relationIds": ["limit-prerequisite-lagrange"]
+    },
+    {
+      "id": "lagrange-mean-value-theorem",
+      "moduleId": "mean-value-theorems",
+      "parentId": "mean-value-theorems",
+      "type": "theorem",
+      "title": "Lagrange 中值定理",
+      "recallPrompt": "使用 Lagrange 中值定理前必须验证哪两个区间条件？",
+      "atomicity": {
+        "coreQuestion": "如何检查条件并写出 Lagrange 中值定理的结论？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["lagrange_theorem", "derivative_application"],
+      "preconditions": ["f 在 [a,b] 上连续", "f 在 (a,b) 内可导", "a<b"],
+      "conclusion": "存在 ξ∈(a,b)，使 f'(ξ)=(f(b)-f(a))/(b-a)。",
+      "conditionRoles": {
+        "closed_interval_continuity": "保证端点值和整体连续性",
+        "open_interval_differentiability": "保证可以使用导数表达局部变化"
+      },
+      "uses": ["证明存在性", "估计函数增量", "判断方程根或不等式"],
+      "failureConditions": ["缺少连续性或可导性时不能直接套用"],
+      "misuses": ["把 ξ 当成端点", "只写结论不检查前提"],
+      "understand": "定理卡把条件、条件作用和结论绑定。",
+      "conditions": ["闭区间与开区间条件不能交换"],
+      "pitfalls": ["忘记 ξ 的范围", "将平均变化率当成某个固定点值"],
+      "recommendedQuestionIds": [],
+      "questionIds": [],
+      "sourceIds": ["lagrange-text"],
+      "relationIds": ["limit-prerequisite-lagrange"]
+    },
+    {
+      "id": "ratio-test",
+      "moduleId": "positive-series",
+      "parentId": "positive-series",
+      "type": "method",
+      "title": "比值判别法",
+      "recallPrompt": "什么结构优先考虑比值判别法？",
+      "atomicity": {
+        "coreQuestion": "如何识别并执行比值判别法？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["series_ratio_test", "convergence_decision"],
+      "understand": "面对阶乘、指数、连乘或相邻项容易约分的正项级数，比较相邻项绝对值的比值。",
+      "signals": ["n!", "a^n", "连乘结构", "相邻项容易约分"],
+      "formulae": [
+        {
+          "latex": "\\rho=\\lim_{n\\to\\infty}\\left|\\frac{u_{n+1}}{u_n}\\right|",
+          "conditions": ["极限存在或可用上极限判断"]
+        }
+      ],
+      "conditions": ["ρ<1 时收敛", "ρ>1 时发散", "ρ=1 时本方法失效"],
+      "steps": [
+        "写出 u_{n+1}",
+        "作比 |u_{n+1}/u_n|",
+        "约分化简",
+        "求 n→∞ 的极限 ρ",
+        "将 ρ 与 1 比较并停止在正确结论"
+      ],
+      "stopRule": "ρ=1 时停止使用本判别法，改用其他判别方法。",
+      "failureConditions": ["ρ=1 不能继续推出收敛或发散"],
+      "alternatives": ["根值判别法", "比较判别法", "积分判别法"],
+      "pitfalls": ["把 u_n/u_{n+1} 写反", "ρ=1 时强行下结论"],
+      "recommendedQuestionIds": ["series-mcq-12"],
+      "questionIds": ["series-mcq-12"],
+      "sourceIds": ["series-textbook-ratio"],
+      "relationIds": ["ratio-part-of-positive", "ratio-alternative-root", "ratio-used-by-radius"]
+    },
+    {
+      "id": "recurrence-limit-pattern",
+      "moduleId": "sequences",
+      "parentId": "sequences",
+      "type": "problem-pattern",
+      "title": "递推数列求极限",
+      "recallPrompt": "递推数列求极限时第一步应该判断什么？",
+      "atomicity": {
+        "coreQuestion": "如何用单调有界和极限方程处理递推数列？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["recurrence_limit", "monotone_bounded"],
+      "recognitionSignals": ["a_{n+1}=φ(a_n)", "给出初值", "要求数列极限"],
+      "firstStep": "先猜测不动点并独立检查数列是否有界、是否单调。",
+      "decisionTree": [
+        "先求 φ(x)=x 的候选极限",
+        "再用归纳或差值判断有界性与单调性",
+        "由单调有界定理确认收敛后代入极限方程"
+      ],
+      "tools": ["单调有界定理", "数学归纳法", "连续函数极限传递"],
+      "branches": [
+        {"condition": "递推函数单调且区间保持不变", "action": "证明不变区间后判断单调性"},
+        {"condition": "无法直接证明单调", "action": "寻找压缩估计或比较数列"}
+      ],
+      "closingChecks": ["候选根是否在可达区间", "是否先证明收敛再代入"],
+      "typicalTraps": ["直接把 a_n 和 a_{n+1} 都替换成极限而不证明收敛"],
+      "understand": "题型卡负责拆题顺序，不复制大量递推题。",
+      "conditions": ["极限方程只能在已证明收敛后使用"],
+      "pitfalls": ["漏证有界或单调", "忽略初值决定的可达区间"],
+      "recommendedQuestionIds": [],
+      "questionIds": [],
+      "sourceIds": ["recurrence-text"],
+      "relationIds": []
+    },
+    {
+      "id": "series-test-bridge",
+      "moduleId": "series",
+      "parentId": "series",
+      "type": "bridge",
+      "title": "级数判别选择图",
+      "recallPrompt": "看到一个级数时，先按什么结构选择判别方法？",
+      "atomicity": {
+        "coreQuestion": "如何从级数结构选择第一个判别工具？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["series_method_selection"],
+      "decisionQuestion": "这是正项级数、交错级数、任意项级数还是幂级数？",
+      "branches": [
+        {"condition": "正项且相邻项容易约分", "targetCardId": "ratio-test"},
+        {"condition": "正项且 n 次根容易处理", "targetCardId": "root-test"},
+        {"condition": "幂级数", "targetCardId": "power-series-radius"},
+        {"condition": "交错项", "targetCardId": "alternating-series"}
+      ],
+      "outgoingRelationIds": ["bridge-to-ratio", "bridge-to-root", "bridge-to-radius", "bridge-to-alternating"],
+      "closingChecks": ["比值极限等于 1 时换方法", "幂级数端点必须单独判断"],
+      "understand": "Bridge 把方法选择连接到真实的 typed relation。",
+      "conditions": ["先识别项的符号和题目目标"],
+      "pitfalls": ["把所有级数都送进同一个判别法"],
+      "recommendedQuestionIds": [],
+      "questionIds": [],
+      "sourceIds": ["series-method-map"],
+      "relationIds": ["bridge-to-ratio", "bridge-to-root", "bridge-to-radius", "bridge-to-alternating"]
+    },
+    {
+      "id": "positive-series",
+      "moduleId": "positive-series",
+      "parentId": "positive-series",
+      "type": "definition",
+      "title": "正项级数",
+      "recallPrompt": "什么条件使一个级数成为正项级数？",
+      "atomicity": {
+        "coreQuestion": "如何识别正项级数及其判别入口？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["positive_series"],
+      "definition": "从某项起 u_n≥0 的级数称为正项级数。",
+      "notation": "Σu_n，u_n≥0",
+      "domain": ["从某一项开始满足非负性即可"],
+      "intuition": "部分和单调不减，因此核心转为判断是否有上界。",
+      "equivalentViews": ["部分和单调性", "比较判别入口"],
+      "contrasts": ["交错级数", "任意项级数"],
+      "minimumExample": "Σ1/2^n",
+      "understand": "正项性是选择比较、比值、根值和积分判别的结构信号。",
+      "conditions": ["非负性可从某一项开始成立"],
+      "pitfalls": ["把绝对值后的级数当作原级数而忘记答案目标"],
+      "recommendedQuestionIds": ["series-mcq-12"],
+      "questionIds": ["series-mcq-12"],
+      "sourceIds": ["positive-series-text"],
+      "relationIds": ["ratio-part-of-positive"]
+    },
+    {
+      "id": "root-test",
+      "moduleId": "positive-series",
+      "parentId": "positive-series",
+      "type": "method",
+      "title": "根值判别法",
+      "recallPrompt": "什么时候相邻项比值不方便而应考虑根值判别法？",
+      "atomicity": {
+        "coreQuestion": "如何用通项的 n 次根判断级数敛散性？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["series_root_test", "convergence_decision"],
+      "understand": "当通项含有整体 n 次幂结构时，n 次根可能比相邻项比值更直接。",
+      "signals": ["整体 n 次幂", "指数结构明显"],
+      "formulae": [
+        {
+          "latex": "\\rho=\\lim_{n\\to\\infty}\\sqrt[n]{|u_n|}",
+          "conditions": ["ρ<1 收敛，ρ>1 发散，ρ=1 失效"]
+        }
+      ],
+      "conditions": ["需要比较根值与 1"],
+      "steps": ["取 |u_n| 的 n 次根", "化简", "求极限", "与 1 比较"],
+      "stopRule": "ρ=1 时换用其他判别法。",
+      "failureConditions": ["ρ=1 时不能判断"],
+      "alternatives": ["比值判别法", "比较判别法"],
+      "pitfalls": ["忘记 n 次根的极限运算", "ρ=1 强行结论"],
+      "recommendedQuestionIds": [],
+      "questionIds": [],
+      "sourceIds": ["root-test-text"],
+      "relationIds": ["ratio-alternative-root"]
+    },
+    {
+      "id": "power-series-radius",
+      "moduleId": "series",
+      "parentId": "series",
+      "type": "formula",
+      "title": "幂级数收敛半径",
+      "recallPrompt": "求幂级数收敛半径后还必须检查什么？",
+      "atomicity": {
+        "coreQuestion": "如何得到收敛半径并处理端点？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["power_series_radius", "series_ratio_test"],
+      "formulae": [
+        {
+          "latex": "R=\\lim_{n\\to\\infty}\\left|\\frac{a_n}{a_{n+1}}\\right|",
+          "variables": {"a_n": "幂级数系数"},
+          "conditions": ["该极限存在且为正"]
+        }
+      ],
+      "variables": ["R 表示收敛半径", "端点不由 R 自动决定"],
+      "conditions": ["先求开区间 |x-x0|<R", "两个端点要分别代回原级数判断"],
+      "variants": ["可用 Cauchy-Hadamard 公式"],
+      "uses": ["求收敛区间", "判断端点收敛性"],
+      "omissions": ["不能只报告 R 而省略端点"],
+      "understand": "收敛半径给出开区间，端点是另一个题目。",
+      "pitfalls": ["把端点自动算作收敛", "把中心 x0 遗漏"],
+      "recommendedQuestionIds": [],
+      "questionIds": [],
+      "sourceIds": ["radius-text"],
+      "relationIds": ["ratio-used-by-radius"]
+    },
+    {
+      "id": "alternating-series",
+      "moduleId": "series",
+      "parentId": "series",
+      "type": "definition",
+      "title": "交错级数",
+      "recallPrompt": "交错级数的符号结构是什么？",
+      "atomicity": {
+        "coreQuestion": "如何识别交错级数并进入 Leibniz 判别？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["alternating_series"],
+      "definition": "相邻项符号交替变化的级数。",
+      "notation": "Σ(-1)^(n-1)b_n",
+      "domain": ["b_n 通常取非负"],
+      "intuition": "符号抵消使部分和具有交错结构。",
+      "equivalentViews": ["Leibniz 判别入口"],
+      "contrasts": ["正项级数", "绝对收敛"],
+      "minimumExample": "Σ(-1)^(n-1)/n",
+      "understand": "先识别符号变化，再检查 b_n 单调趋零。",
+      "conditions": ["b_n 单调不增且趋于 0 才能用 Leibniz"],
+      "pitfalls": ["只看符号交替而漏验趋零"],
+      "recommendedQuestionIds": [],
+      "questionIds": [],
+      "sourceIds": ["alternating-text"],
+      "relationIds": ["bridge-to-alternating"]
+    },
+    {
+      "id": "limit-tools-comparison",
+      "moduleId": "limits",
+      "parentId": "limits",
+      "type": "comparison",
+      "title": "极限工具选择对比",
+      "recallPrompt": "面对未定式极限，如何区分等价无穷小、洛必达和 Taylor？",
+      "atomicity": {
+        "coreQuestion": "如何按结构选择三种极限工具？",
+        "independentRecallTasks": 1,
+        "splitCandidates": []
+      },
+      "operationTags": ["limit_method_selection"],
+      "compares": ["等价无穷小", "洛必达法则", "Taylor 展开"],
+      "dimensions": ["识别信号", "适用条件", "结束判断"],
+      "conclusion": "先看结构是否能直接替换，再检查是否满足洛必达条件，最后用展开保留所需阶数。",
+      "counterexamples": ["等价无穷小不能在任意非乘除结构中直接替换"],
+      "understand": "比较卡只保留方法选择维度，不复制三个方法的全部内容。",
+      "conditions": ["每种工具都有自己的适用边界"],
+      "pitfalls": ["把等价无穷小当作恒等替换"],
+      "recommendedQuestionIds": [],
+      "questionIds": [],
+      "sourceIds": ["limit-tools-comparison-text"],
+      "relationIds": ["limit-tool-contrast"]
+    }
+  ],
+  "questions": [
+    {
+      "id": "series-mcq-12",
+      "sourceId": "series-q12",
+      "sourceIds": ["series-q12", "series-q12-answer"],
+      "type": "multiple_choice",
+      "originalNumber": 12,
+      "stem": {
+        "segments": [
+          {"kind": "text", "value": "判断下列正项级数的敛散性，先计算相邻项比值。"},
+          {"kind": "math", "mathObjectId": "q12-ratio"}
+        ]
+      },
+      "options": {
+        "A": "比值极限 rho 小于 1，因此收敛",
+        "B": "比值极限 rho 等于 1，因此比值判别法失效",
+        "C": "比值极限 rho 大于 1，因此收敛",
+        "D": "只要是正项级数就一定收敛"
+      },
+      "figures": [],
+      "subparts": [],
+      "solution": {
+        "text": "作相邻项的绝对值之比并化简，得到 rho=1。比值判别法在 rho=1 时不能判断敛散性，所以选择 B。",
+        "status": "COMPLETE",
+        "referencesMathObjectIds": ["q12-ratio"],
+        "coreOperations": ["series_ratio_test", "convergence_decision"],
+        "verifiedFragment": null
+      },
+      "officialAnswer": "B",
+      "historicalAnswer": null,
+      "derivedAnswer": "B",
+      "answerEvidence": [
+        {"kind": "official_answer", "value": "B", "sourceId": "series-q12-answer"},
+        {"kind": "derived_answer", "value": "B", "sourceId": "series-q12"}
+      ],
+      "sourceStatus": "COMPLETE",
+      "questionStatus": "COMPLETE",
+      "solutionStatus": "COMPLETE",
+      "answerStatus": "ANSWER_VERIFIED",
+      "primaryCardId": "ratio-test",
+      "secondaryCardIds": ["positive-series"],
+      "mappingEvidence": {
+        "coreOperations": ["series_ratio_test", "convergence_decision"],
+        "whyPrimary": "决定性动作是计算相邻项比值并识别 rho=1 的失效边界。",
+        "whyNotOnlyChapter": "题目属于无穷级数章节，但真正训练的是比值判别法的停止条件。"
+      },
+      "semanticProfile": {
+        "stemConcepts": ["series", "positive_terms", "ratio_limit"],
+        "solutionConcepts": ["series", "positive_terms", "ratio_limit"],
+        "allowedDerivedConcepts": ["convergence_decision"]
+      }
+    }
+  ],
+  "relations": [
+    {
+      "id": "limit-prerequisite-lagrange",
+      "from": "function-limit-definition",
+      "to": "lagrange-mean-value-theorem",
+      "type": "prerequisite",
+      "why": "Lagrange 定理的导数概念建立在极限定义之上，因此先理解函数极限的趋近过程。",
+      "sourceIds": ["limit-definition-text", "lagrange-text"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "ratio-part-of-positive",
+      "from": "ratio-test",
+      "to": "positive-series",
+      "type": "part_of",
+      "why": "比值判别法是正项级数判敛方法体系中的一个方法节点。",
+      "sourceIds": ["positive-series-text", "series-textbook-ratio"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "ratio-alternative-root",
+      "from": "ratio-test",
+      "to": "root-test",
+      "type": "alternative",
+      "why": "两者都能处理部分正项级数；比值极限等于 1 时可转向根值判别法。",
+      "sourceIds": ["series-method-map"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "ratio-used-by-radius",
+      "from": "ratio-test",
+      "to": "power-series-radius",
+      "type": "used_by",
+      "why": "幂级数收敛半径常通过相邻系数比值求得，因此收敛半径公式使用比值极限操作。",
+      "sourceIds": ["radius-text"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "bridge-to-ratio",
+      "from": "series-test-bridge",
+      "to": "ratio-test",
+      "type": "method_for",
+      "why": "当正项级数含阶乘、指数或相邻项易约分结构时，选择比值判别法作为第一工具。",
+      "sourceIds": ["series-method-map"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "bridge-to-root",
+      "from": "series-test-bridge",
+      "to": "root-test",
+      "type": "method_for",
+      "why": "当通项呈整体 n 次幂结构时，级数选择图把问题导向根值判别法。",
+      "sourceIds": ["series-method-map"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "bridge-to-radius",
+      "from": "series-test-bridge",
+      "to": "power-series-radius",
+      "type": "method_for",
+      "why": "识别出幂级数后先求收敛半径，再把两个端点作为独立问题检查。",
+      "sourceIds": ["series-method-map", "radius-text"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "bridge-to-alternating",
+      "from": "series-test-bridge",
+      "to": "alternating-series",
+      "type": "method_for",
+      "why": "当项的符号交替时，选择图导向交错级数卡并检查 Leibniz 条件。",
+      "sourceIds": ["series-method-map", "alternating-text"],
+      "status": "VERIFIED"
+    },
+    {
+      "id": "limit-tool-contrast",
+      "from": "limit-tools-comparison",
+      "to": "function-limit-definition",
+      "type": "prerequisite",
+      "why": "极限工具的选择必须建立在理解趋近对象和极限定义边界的基础上。",
+      "sourceIds": ["limit-tools-comparison-text", "limit-definition-text"],
+      "status": "VERIFIED"
+    }
+  ],
+  "sources": [
+    {
+      "id": "math-1-scope",
+      "entityType": "chapter_metadata",
+      "title": "数学一课程范围",
+      "locator": {"path": "course/math-1-scope.pdf", "page": 1},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "课程章节范围"},
+      "content": "高等数学、线性代数、概率论与数理统计",
+      "mathObjects": []
+    },
+    {
+      "id": "series-overview",
+      "entityType": "chapter_metadata",
+      "title": "无穷级数章节总览",
+      "locator": {"path": "series/overview.png", "page": 1},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "章节目录照片"},
+      "content": "章节范围与知识导航，不能作为题目。",
+      "mathObjects": []
+    },
+    {
+      "id": "limit-definition-text",
+      "entityType": "knowledge_content",
+      "title": "函数极限教材页",
+      "locator": {"path": "calculus/limits/page-01.png", "page": 1},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "函数极限定义页"},
+      "content": "函数极限定义、符号和连续性边界。",
+      "mathObjects": []
+    },
+    {
+      "id": "lagrange-text",
+      "entityType": "knowledge_content",
+      "title": "Lagrange 中值定理教材页",
+      "locator": {"path": "calculus/mean-value/page-02.png", "page": 2},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "定理条件与结论"},
+      "content": "闭区间连续、开区间可导以及中值结论。",
+      "mathObjects": []
+    },
+    {
+      "id": "series-textbook-ratio",
+      "entityType": "knowledge_content",
+      "title": "比值判别法教材页",
+      "locator": {"path": "series/positive/ratio-test.png", "page": 3},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "比值判别法公式与条件"},
+      "content": "比值判别法的识别信号、步骤和 rho=1 边界。",
+      "mathObjects": []
+    },
+    {
+      "id": "positive-series-text",
+      "entityType": "knowledge_content",
+      "title": "正项级数教材页",
+      "locator": {"path": "series/positive/overview.png", "page": 1},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "正项级数定义"},
+      "content": "正项级数的定义和判别入口。",
+      "mathObjects": []
+    },
+    {
+      "id": "root-test-text",
+      "entityType": "knowledge_content",
+      "title": "根值判别法教材页",
+      "locator": {"path": "series/positive/root-test.png", "page": 4},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "根值判别法"},
+      "content": "根值判别法的结构信号和失效边界。",
+      "mathObjects": []
+    },
+    {
+      "id": "radius-text",
+      "entityType": "knowledge_content",
+      "title": "幂级数收敛半径教材页",
+      "locator": {"path": "series/power/radius.png", "page": 5},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "收敛半径与端点"},
+      "content": "收敛半径公式、收敛区间和端点判断。",
+      "mathObjects": []
+    },
+    {
+      "id": "alternating-text",
+      "entityType": "knowledge_content",
+      "title": "交错级数教材页",
+      "locator": {"path": "series/alternating/page-01.png", "page": 1},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "交错结构和 Leibniz 入口"},
+      "content": "交错级数符号结构及判别条件。",
+      "mathObjects": []
+    },
+    {
+      "id": "recurrence-text",
+      "entityType": "knowledge_content",
+      "title": "递推数列教材页",
+      "locator": {"path": "calculus/sequences/recurrence.png", "page": 6},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "递推数列求极限题型"},
+      "content": "不动点、单调有界、极限方程和失效边界。",
+      "mathObjects": []
+    },
+    {
+      "id": "series-method-map",
+      "entityType": "knowledge_content",
+      "title": "级数判别选择图",
+      "locator": {"path": "series/method-map.svg", "page": 1},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "方法选择桥梁"},
+      "content": "正项、交错、幂级数与方法选择分支。",
+      "mathObjects": []
+    },
+    {
+      "id": "limit-tools-comparison-text",
+      "entityType": "knowledge_content",
+      "title": "极限工具对比教材页",
+      "locator": {"path": "calculus/limits/tools.png", "page": 8},
+      "status": "COMPLETE",
+      "provenance": {"kind": "外部补充", "description": "方法选择对比"},
+      "content": "三类极限工具的识别信号和边界。",
+      "mathObjects": []
+    },
+    {
+      "id": "series-q12",
+      "entityType": "question",
+      "title": "无穷级数选择题 12",
+      "locator": {"path": "series/questions/page-02.png", "page": 2},
+      "status": "COMPLETE",
+      "provenance": {"kind": "原始材料", "description": "可读的独立选择题"},
+      "content": "题干和四个选项完整可读。",
+      "expectedQuestions": [{"number": 12, "type": "multiple_choice"}],
+      "expectedMathObjectIds": ["q12-ratio"],
+      "mathObjects": [
+        {
+          "id": "q12-ratio",
+          "kind": "formula",
+          "latex": "\\rho=\\lim_{n\\to\\infty}\\left|\\frac{u_{n+1}}{u_n}\\right|",
+          "structure": {"numerator": "u_{n+1}", "denominator": "u_n"},
+          "status": "VERIFIED",
+          "sourceId": "series-q12",
+          "locator": "题干第 2 行"
+        }
+      ]
+    },
+    {
+      "id": "series-q12-answer",
+      "entityType": "answer_key",
+      "title": "无穷级数选择题答案表",
+      "locator": {"path": "series/answers/page-01.png", "page": 1},
+      "status": "COMPLETE",
+      "provenance": {"kind": "官方解析可读部分", "description": "题号 12 的答案 B"},
+      "content": "12-B",
+      "mathObjects": []
+    }
+  ],
+  "progress": {
+    "knowledgeMastery": {
+      "knownCardIds": ["function-limit-definition", "ratio-test"],
+      "reviewCardIds": ["series-test-bridge", "recurrence-limit-pattern"],
+      "unknownCardIds": ["lagrange-mean-value-theorem"]
+    },
+    "questionMastery": {
+      "solvedQuestionIds": ["series-mcq-12"],
+      "reviewQuestionIds": [],
+      "unseenQuestionIds": []
+    }
+  }
+}

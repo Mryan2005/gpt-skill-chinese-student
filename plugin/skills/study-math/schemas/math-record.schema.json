@@ -1,0 +1,665 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/study-math/math-record.v1.json",
+  "title": "Structured Math Records",
+  "description": "The normalized intermediate model used by the study-math skill.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "subject",
+    "modules",
+    "cards",
+    "questions",
+    "relations",
+    "sources",
+    "progress"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "study-math.v1"
+    },
+    "subject": {
+      "$ref": "#/$defs/subject"
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/module"
+      }
+    },
+    "cards": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/card"
+      }
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/question"
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relation"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "progress": {
+      "$ref": "#/$defs/progress"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject": {
+      "type": "object",
+      "required": ["id", "title", "learningStatus"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "learningStatus": {
+          "enum": ["可用于考试", "学习未完成"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "module": {
+      "type": "object",
+      "required": ["id", "kind", "title", "sourceIds", "status"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "parentId": {
+          "type": ["string", "null"]
+        },
+        "kind": {
+          "enum": ["subject", "course", "chapter", "section", "topic"]
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "sourceIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "atomicity": {
+      "type": "object",
+      "required": ["coreQuestion", "independentRecallTasks", "splitCandidates"],
+      "properties": {
+        "coreQuestion": {
+          "$ref": "#/$defs/text"
+        },
+        "independentRecallTasks": {
+          "const": 1
+        },
+        "splitCandidates": {
+          "type": "array",
+          "maxItems": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "card": {
+      "type": "object",
+      "required": [
+        "id",
+        "moduleId",
+        "type",
+        "title",
+        "recallPrompt",
+        "atomicity",
+        "operationTags",
+        "questionIds",
+        "sourceIds"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "moduleId": {
+          "$ref": "#/$defs/id"
+        },
+        "parentId": {
+          "type": ["string", "null"]
+        },
+        "type": {
+          "enum": [
+            "definition",
+            "theorem",
+            "formula",
+            "method",
+            "problem-pattern",
+            "comparison",
+            "bridge"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "recallPrompt": {
+          "$ref": "#/$defs/text"
+        },
+        "atomicity": {
+          "$ref": "#/$defs/atomicity"
+        },
+        "operationTags": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "questionIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "recommendedQuestionIds": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "sourceIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "relationIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "definition"
+              }
+            }
+          },
+          "then": {
+            "required": ["definition", "domain", "contrasts"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "theorem"
+              }
+            }
+          },
+          "then": {
+            "required": ["preconditions", "conclusion", "conditionRoles", "failureConditions"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "formula"
+              }
+            }
+          },
+          "then": {
+            "required": ["formulae", "variables", "conditions"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "method"
+              }
+            }
+          },
+          "then": {
+            "required": ["signals", "formulae", "steps", "stopRule", "failureConditions"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "problem-pattern"
+              }
+            }
+          },
+          "then": {
+            "required": ["recognitionSignals", "firstStep", "decisionTree", "closingChecks"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "comparison"
+              }
+            }
+          },
+          "then": {
+            "required": ["compares", "dimensions", "conclusion"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "bridge"
+              }
+            }
+          },
+          "then": {
+            "required": ["decisionQuestion", "branches", "outgoingRelationIds"]
+          }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "segment": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["text", "math", "figure", "unreadable"]
+        },
+        "value": {
+          "type": "string"
+        },
+        "mathObjectId": {
+          "$ref": "#/$defs/id"
+        },
+        "sourceId": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "additionalProperties": true
+    },
+    "question": {
+      "type": "object",
+      "required": [
+        "id",
+        "sourceId",
+        "type",
+        "originalNumber",
+        "stem",
+        "solution",
+        "sourceStatus",
+        "questionStatus",
+        "solutionStatus",
+        "answerStatus",
+        "primaryCardId",
+        "secondaryCardIds",
+        "mappingEvidence",
+        "semanticProfile"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "sourceId": {
+          "$ref": "#/$defs/id"
+        },
+        "sourceIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "type": {
+          "enum": [
+            "multiple_choice",
+            "single_choice",
+            "multiple_select",
+            "fill_in",
+            "calculation",
+            "proof",
+            "short_answer",
+            "comprehensive"
+          ]
+        },
+        "originalNumber": {
+          "type": ["integer", "string"]
+        },
+        "stem": {
+          "type": "object",
+          "required": ["segments"],
+          "properties": {
+            "segments": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/segment"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "options": {
+          "type": ["object", "array", "null"]
+        },
+        "figures": {
+          "type": "array"
+        },
+        "subparts": {
+          "type": "array"
+        },
+        "solution": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "referencesMathObjectIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              }
+            },
+            "coreOperations": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/text"
+              }
+            },
+            "verifiedFragment": {
+              "type": ["string", "null"]
+            }
+          },
+          "additionalProperties": true
+        },
+        "answerEvidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "value", "sourceId"],
+            "properties": {
+              "kind": {
+                "enum": ["official_answer", "historical_answer", "derived_answer"]
+              },
+              "value": {},
+              "sourceId": {
+                "$ref": "#/$defs/id"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "sourceStatus": {
+          "type": "string"
+        },
+        "questionStatus": {
+          "type": "string"
+        },
+        "solutionStatus": {
+          "type": "string"
+        },
+        "answerStatus": {
+          "type": "string"
+        },
+        "primaryCardId": {
+          "$ref": "#/$defs/id"
+        },
+        "secondaryCardIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "mappingEvidence": {
+          "type": "object",
+          "required": ["coreOperations", "whyPrimary"],
+          "properties": {
+            "coreOperations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/text"
+              }
+            },
+            "whyPrimary": {
+              "$ref": "#/$defs/text"
+            }
+          },
+          "additionalProperties": true
+        },
+        "semanticProfile": {
+          "type": "object",
+          "required": ["stemConcepts", "solutionConcepts", "allowedDerivedConcepts"],
+          "properties": {
+            "stemConcepts": {
+              "type": "array"
+            },
+            "solutionConcepts": {
+              "type": "array"
+            },
+            "allowedDerivedConcepts": {
+              "type": "array"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "relation": {
+      "type": "object",
+      "required": ["id", "from", "to", "type", "why"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "from": {
+          "$ref": "#/$defs/id"
+        },
+        "to": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": [
+            "prerequisite",
+            "derives",
+            "implies",
+            "equivalent",
+            "special_case",
+            "generalization",
+            "part_of",
+            "method_for",
+            "used_by",
+            "alternative",
+            "contrast",
+            "often_confused"
+          ]
+        },
+        "why": {
+          "$ref": "#/$defs/text"
+        },
+        "sourceIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "source": {
+      "type": "object",
+      "required": ["id", "entityType", "title", "status", "provenance", "mathObjects"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "entityType": {
+          "enum": [
+            "chapter_metadata",
+            "knowledge_content",
+            "question",
+            "solution",
+            "answer",
+            "answer_key",
+            "formula",
+            "figure",
+            "example",
+            "note",
+            "question_group",
+            "unclassified"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "status": {
+          "type": "string"
+        },
+        "provenance": {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/text"
+            }
+          },
+          "additionalProperties": true
+        },
+        "mathObjects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "kind", "status"],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "kind": {
+                "$ref": "#/$defs/text"
+              },
+              "status": {
+                "enum": ["VERIFIED", "UNREADABLE", "LOST", "CONFLICTING"]
+              },
+              "latex": {
+                "type": "string"
+              },
+              "structure": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "progress": {
+      "type": "object",
+      "required": ["knowledgeMastery", "questionMastery"],
+      "properties": {
+        "knowledgeMastery": {
+          "$ref": "#/$defs/knowledgeMastery"
+        },
+        "questionMastery": {
+          "$ref": "#/$defs/questionMastery"
+        }
+      },
+      "additionalProperties": true
+    },
+    "knowledgeMastery": {
+      "type": "object",
+      "required": ["knownCardIds", "reviewCardIds", "unknownCardIds"],
+      "properties": {
+        "knownCardIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "reviewCardIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "unknownCardIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "questionMastery": {
+      "type": "object",
+      "required": ["solvedQuestionIds", "reviewQuestionIds", "unseenQuestionIds"],
+      "properties": {
+        "solvedQuestionIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "reviewQuestionIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "unseenQuestionIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
