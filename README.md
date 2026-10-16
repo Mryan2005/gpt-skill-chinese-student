@@ -119,4 +119,4 @@ validate_math.py 检查结构化记录和数学考试闸门。validate_math_card
 
 ## 版权
 
-Copyright (c) 2026 夜桜月花. All rights reserved.
+Copyright (c) 2026 YAN ZHIZHONG. All rights reserved.
