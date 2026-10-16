@@ -1,12 +1,55 @@
 ---
 name: exam
-description: Use for the 中式学生 plugin's 考试 command when the user provides a subject graph, an exam PDF, and later an explanation PDF.
+description: Use as the closed-book assessment runner for a frozen Subject snapshot. It records first-pass answers, releases solutions only after freezing, grades performance, and produces learning-gap reports without modifying the learning artifact.
 ---
 
-# 中式学生：考试
+# 中式学生：考试入口
 
-本 skill 是插件的 `考试` 指令。skill 内部自称“夜桜月花”。读取 [references/common.md](references/common.md) 和 [references/exam.md](references/exam.md) 后执行。
+exam 是 Assessment / Evaluation Runner。它测量冻结知识状态下的学习表现，不负责构建知识、不定义领域卡片，也不审计 Subject 质量。
 
-考试首轮只能调用当前学科网络图，不能联网、不能看其他资料、不能看解析 PDF。必须先把每一道题的首轮答案保存并冻结，再读取解析。考试结束后追加复盘，并把学习漏洞补回主知识点卡或关联知识点卡。
+## Non-negotiables
 
-数学图谱可以由 `study-math` 的结构化记录投影而来；这不改变考试边界。`exam` 仍只读取当前统一知识网络和其中的数学卡/题目映射，不能读取第二份数学知识库，也不能用外部数学知识补齐 `图谱缺口`。
+- 开始测量前冻结 Subject snapshot。
+- FIRST_PASS 只能访问冻结的知识图谱和题目。
+- 首轮禁止 Web、解析、答案表、其他资料和未冻结的新知识。
+- 首轮答案必须先保存并冻结，之后只能追加 revision，不能覆盖。
+- 解析释放、评分和复盘发生在答案冻结之后。
+- exam 不调用 learn 或 study-math 修改被测 artifact。
+- exam 输出 Exam Result、Learning Gap Report 和 Repair Requests，由 learn 或领域模型决定如何修复。
+
+完整状态和记录合同见 [exam-contract.md](references/exam-contract.md)、[answer-record.md](references/answer-record.md)、[grading.md](references/grading.md) 和 [error-taxonomy.md](references/error-taxonomy.md)。
+
+## State machine
+
+~~~text
+READY
+  ↓
+SNAPSHOT_FROZEN
+  ↓
+FIRST_PASS
+  ↓
+ANSWERS_FROZEN
+  ↓
+SOLUTION_RELEASED
+  ↓
+GRADING
+  ↓
+POSTMORTEM
+  ↓
+CLOSED
+~~~
+
+状态只能前进。任何回退或首轮答案覆盖都生成结构错误。
+
+## Routing
+
+| 用户目标 | Playbook |
+| --- | --- |
+| 开始并完成一套闭卷考试 | [run-exam.md](playbooks/run-exam.md) |
+| 已有冻结答案，读取解析并评分 | [grade-exam.md](playbooks/grade-exam.md) |
+| 生成错误分类和学习缺口 | [analyze-errors.md](playbooks/analyze-errors.md) |
+| 按历史记录重放一次考试或错误 | [replay-errors.md](playbooks/replay-errors.md) |
+
+## Done gate
+
+运行 validate_exam_record.py，确认 snapshot、状态、首轮答案、解析释放、评分和 findings 结构完整。报告 Performance、Knowledge Coverage、Graph Effectiveness、Error Profile 和 Repair Requests。考试结束后只交付结果，不直接写回 learn 或领域模型。

@@ -10,10 +10,16 @@ chinese-student 是一个面向本地学习资料的 Agent Plugin。它把教材
 | --- | --- |
 | learn | 通用学习流程。整理任意学科的来源、知识卡、关系、canonical Markdown 和知识网络 HTML。 |
 | study-math | 数学专项流程。支持数学卡片类型、结构化题库、公式完整性、数学关系和考试可用性闸门。 |
-| exam | 只调用当前学科知识图谱完成闭卷首轮作答，并在读取解析后追加复盘。 |
-| check | 只读检查知识点是否能通过一次明确检索定位到唯一卡片，并检查来源、关系和渲染边界。 |
+| exam | Assessment/Evaluation Runner。在冻结 Subject 上完成闭卷首轮、评分、错误分析和 Learning Gap Report。 |
+| check | 独立的只读 QA/Auditor。验证来源、结构、题目、关系、检索、渲染和考试 readiness，并输出带证据的 findings。 |
 
 learn 是跨学科平台，不是“非数学 skill”。普通数学资料仍可使用 learn。当任务需要系统数学网络、大量数学习题、公式与证明、数学题型或考研数学复习时，使用 study-math。
+
+learn 是整个插件的学习 Front Door。它先按用户目标选择材料摄入、主题学习、题目整理、Subject 更新、知识库修复或 readiness 检查，再按学科加载领域模型。study-math 负责数学认知结构，learn 负责学习工作流。
+
+study-math 是一个数学学习 Front Door。它根据用户目标路由到材料摄入、主题学习、题组整理、卡片构建、主体更新、知识网修复或考试可用性检查 playbook。用户描述目标即可，不需要自己编排代理和校验步骤。
+
+check 不参与构建或修复。它读取统一 Subject 和领域 contract，验证真实 artifact，报告 severity、证据、根因和 repairOwner。
 
 ## 设计边界
 
@@ -70,15 +76,28 @@ plugin/
 ├─ plugin.json
 └─ skills/
    ├─ learn/
+   │  ├─ SKILL.md
+   │  ├─ playbooks/
+   │  ├─ references/
+   │  └─ scripts/
    ├─ study-math/
    │  ├─ SKILL.md
    │  ├─ agents/openai.yaml
+   │  ├─ playbooks/
    │  ├─ schemas/math-record.schema.json
    │  ├─ references/
    │  ├─ examples/math-records.json
    │  └─ scripts/
-   ├─ exam/
-   └─ check/
+   ├─ check/
+   │  ├─ SKILL.md
+   │  ├─ playbooks/
+   │  ├─ references/
+   │  └─ scripts/
+   └─ exam/
+      ├─ SKILL.md
+      ├─ playbooks/
+      ├─ references/
+      └─ scripts/
 tests/
 └─ test_validate_math.py
 ~~~
@@ -98,6 +117,8 @@ python -X utf8 -m unittest discover -s tests -v
 ~~~
 
 validate_math.py 检查结构化记录和数学考试闸门。validate_math_cards.py 聚焦 Card Atomicity、Card Size 和类型字段。validate_markup.py 检查 Markdown 数学定界符和裸 LaTeX 命令。实际 HTML 页面仍需在具体 Site 输出生成后检查公式、搜索、卡片点击和浏览器 console。
+
+Playbook 只加载当前任务需要的 schema、完整性规则、渲染规则和代理分工。这样入口保持稳定，具体流程可以独立演进。
 
 ## 证据规则
 

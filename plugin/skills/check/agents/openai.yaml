@@ -1,4 +1,4 @@
 interface:
   display_name: "检查"
   short_description: "检查知识点能否立即定位"
-  default_prompt: "Use $check to audit the subject graph and prove that each concept maps to one findable knowledge card."
+  default_prompt: "Use $check as a read-only QA front door. Route the goal to the right audit playbook, produce evidence-backed findings, and do not repair the learning artifact."

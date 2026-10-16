@@ -1,16 +1,45 @@
 ---
 name: learn
-description: Use for the 中式学生 plugin's 学习 command when the user provides notes, textbook material, image files, PDFs, or a subject path and wants an exam-ready knowledge graph.
+description: Use as the cross-subject learning front door for new material, topic study, question-set organization, subject updates, knowledge-base repair, and exam-readiness checks. It routes domain-specific work to the appropriate subject model.
 ---
 
-# 中式学生：学习
+# 中式学生：学习入口
 
-本 skill 是插件的 `学习` 指令。skill 内部自称“夜桜月花”。读取 [references/common.md](references/common.md)、[references/learning.md](references/learning.md) 和需要时的 [references/learning-agents.md](references/learning-agents.md) 后执行。
+learn 是用户学习行为的总入口。它先理解目标，选择 playbook，再判断是否需要领域模型。用户只描述目标，不需要编排代理、schema 和 validator。
 
-在 `learn` 的通用流程中，最终图谱节点只有两种平台级卡分类：`主知识点卡` 和 `关联知识点卡`。不得创建“细节卡”。每个学科只能有一个网络图 HTML 文件和一个 canonical Markdown 源文件。领域 skill 可以在写回这些统一产物前使用自己的结构化中间模型。
+## Non-negotiables
 
-学习笔记是之后考试的唯一知识记忆。笔记不完整、概念不清、条件缺失、题目映射不足或来源不明时，保持 `学习未完成`，不要把不完整图谱交给考试指令。
+- 一个 Subject 只有一份 canonical Markdown、一份知识网络 HTML 和一份持久化学习状态。
+- Source、Knowledge Node、Question、Relation、Progress 分层保存。
+- 来源先分类，再进入题库或知识图谱。未分类和不可读内容保留边界。
+- 原始材料、外部补充、题目推导、官方解析可读部分和待核实内容不能静默合并。
+- 领域模型拥有卡片内部结构。learn 不把所有学科强行压成同一个 Card Schema。
+- 代理只能写隔离报告。主 learn skill 是统一输出的唯一合并者。
+- 最终 artifact 必须经过结构、来源、Markdown/LaTeX、实际输出和考试 readiness 检查。
 
-## 与数学专项 skill 的边界
+平台合同见 [common.md](references/common.md)、[knowledge-model.md](references/knowledge-model.md)、[question-model.md](references/question-model.md) 和 [provenance.md](references/provenance.md)。不要把具体学科规则扩写回入口。
 
-`learn` 仍然是跨学科通用学习基础设施，也仍然可以处理普通的数学资料学习。用户明确要求系统数学知识网络、大量数学习题、公式/证明、数学题型或考研数学复习时，路由到同一插件中的 `study-math`，由它定义数学卡片、题库、关系和公式完整性；不要把数学从 `learn` 的通用能力中删除，也不要让两个 skill 生成互相竞争的数学 canonical Markdown、知识网络 HTML 或学习状态。
+## Routing
+
+| 用户目标 | Playbook |
+| --- | --- |
+| 新图片、PDF、教材或笔记进入学习系统 | [ingest-material.md](playbooks/ingest-material.md) |
+| 系统学习一个章节或主题 | [learn-topic.md](playbooks/learn-topic.md) |
+| 整理一组题目或题目照片 | [organize-questions.md](playbooks/organize-questions.md) |
+| 向已有 Subject 加入新材料 | [update-existing-subject.md](playbooks/update-existing-subject.md) |
+| 修复混乱、重复或不可达的知识库 | [repair-knowledge-base.md](playbooks/repair-knowledge-base.md) |
+| 检查是否可以用于考试 | [validate-readiness.md](playbooks/validate-readiness.md) |
+
+先按用户目标选择 playbook，再按 Subject 选择领域模型。数学任务读取 study-math 的数学合同和对应 playbook；learn 不复制数学卡片、公式或题型规则。未来其他学科可以接入自己的领域模型。
+
+## Shared contract
+
+1. 读取目标项目的 AGENTS.md、.codex/task-state.md、learner_state.md 和 design_memory.md（存在时）。
+2. 保持同一份 Subject 记录和统一输出。领域中间层不能成为第二份学科真相。
+3. 复杂批次读取 [agent-contract.md](references/agent-contract.md)，把每个代理报告保存到隔离目录。
+4. 只在当前 playbook 需要时读取 source-model.md、knowledge-model.md、question-model.md、provenance.md 或领域 skill 的 references。
+5. 学习状态写入持久文件，不依赖对话记忆。来源、排除项、映射和完成状态变化及时写入 task-state。
+
+## Done gate
+
+运行当前 playbook 和领域模型要求的 validator。至少检查 source coverage、entity classification、stable IDs、question mappings、relations、provenance、Markdown/LaTeX 和真实输出。任一核心 Gate 失败时报告 学习未完成，列出具体缺口，并把缺口传给 exam。只有真实 artifact 和必要 Gate 全部通过时，才能报告 可用于考试。

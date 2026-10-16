@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "check.finding.v1",
+  "readOnly": true,
+  "subject": {
+    "id": "math-1",
+    "title": "数学一"
+  },
+  "run": {
+    "mode": "source-integrity",
+    "artifactVersion": "example-1"
+  },
+  "summary": {
+    "blocker": 1,
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "findings": [
+    {
+      "id": "finding-001",
+      "code": "META_AS_QUESTION",
+      "severity": "blocker",
+      "subject": "数学一",
+      "entityType": "question",
+      "entityId": "series-overview",
+      "observed": "chapter_metadata was used as a Question source",
+      "expected": "chapter_metadata must stay out of Question Bank",
+      "evidence": [
+        {
+          "path": "records/sources.json",
+          "locator": "sources[series-overview]",
+          "detail": "entityType=chapter_metadata"
+        }
+      ],
+      "layer": "source-classification",
+      "repairOwner": "learn/source-classification",
+      "status": "open"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "exam-record.v1",
+  "examId": "math-1-demo-001",
+  "state": "CLOSED",
+  "readOnlyDuringMeasurement": true,
+  "subject": {
+    "id": "math-1",
+    "title": "数学一"
+  },
+  "snapshot": {
+    "id": "math-1-snapshot-2026-10-16",
+    "subjectId": "math-1",
+    "artifactVersion": "math-records.example.v1",
+    "graphPath": "subject/index.html",
+    "frozenAt": "2026-10-16T08:00:00+08:00",
+    "frozen": true
+  },
+  "questionSource": {
+    "path": "exam/questions.pdf",
+    "version": "questions-v1"
+  },
+  "questions": [
+    {
+      "questionId": "series-mcq-12",
+      "originalNumber": 12,
+      "type": "multiple_choice",
+      "firstPass": {
+        "answer": "B",
+        "confidence": 0.7,
+        "reasoningSummary": "比值极限为 1 时停止使用比值判别法。",
+        "knowledgeCardsUsed": ["ratio-test"],
+        "retrievalResult": {
+          "status": "found",
+          "matchedCardIds": ["ratio-test"]
+        },
+        "order": 1
+      },
+      "firstPassFrozen": true,
+      "official": {
+        "answer": "B",
+        "sourceId": "answer-key-page-1",
+        "solutionStatus": "COMPLETE"
+      },
+      "grading": {
+        "result": "correct",
+        "score": 1,
+        "errorTypes": []
+      },
+      "revisions": []
+    },
+    {
+      "questionId": "series-mcq-17",
+      "originalNumber": 17,
+      "type": "multiple_choice",
+      "firstPass": {
+        "answer": "A",
+        "confidence": 0.4,
+        "reasoningSummary": "先按正项级数处理，但没有识别相邻项比值结构。",
+        "knowledgeCardsUsed": ["positive-series"],
+        "retrievalResult": {
+          "status": "found",
+          "matchedCardIds": ["positive-series"]
+        },
+        "order": 2
+      },
+      "firstPassFrozen": true,
+      "official": {
+        "answer": "C",
+        "sourceId": "answer-key-page-1",
+        "solutionStatus": "COMPLETE"
+      },
+      "grading": {
+        "result": "wrong",
+        "score": 0,
+        "errorTypes": ["METHOD_SELECTION_ERROR"],
+        "expectedCards": ["ratio-test"]
+      },
+      "revisions": []
+    }
+  ],
+  "accessLog": [
+    {
+      "phase": "FIRST_PASS",
+      "source": "snapshot",
+      "detail": "read frozen Subject graph"
+    },
+    {
+      "phase": "FIRST_PASS",
+      "source": "question",
+      "detail": "read exam question source"
+    },
+    {
+      "phase": "SOLUTION_RELEASED",
+      "source": "solution",
+      "detail": "read official explanation after answer freeze"
+    }
+  ],
+  "officialAnswersReleasedAt": "2026-10-16T09:00:00+08:00",
+  "gradingCompletedAt": "2026-10-16T09:15:00+08:00",
+  "closedAt": "2026-10-16T09:30:00+08:00",
+  "performance": {
+    "correct": 1,
+    "total": 2,
+    "percentage": 50,
+    "unanswered": 0,
+    "partial": 0
+  },
+  "knowledgeCoverage": {
+    "cardsInExam": 2,
+    "correctlyUsedCards": 1,
+    "incorrectlyUsedCards": 1,
+    "unretrievedCards": 0
+  },
+  "graphEffectiveness": {
+    "questionsNeedingKnowledge": 2,
+    "knowledgeFound": 2,
+    "knowledgeCorrectlyApplied": 1,
+    "retrievalSuccessRate": 1,
+    "applicationSuccessRate": 0.5
+  },
+  "errorProfile": {
+    "METHOD_SELECTION_ERROR": 1
+  },
+  "repairRequests": [
+    {
+      "questionId": "series-mcq-17",
+      "owner": "study-math",
+      "reason": "缺少从正项级数结构到比值判别法的识别路径。",
+      "evidence": "firstPass used positive-series; grading expected ratio-test",
+      "suggestedOperation": "检查或增强 method/bridge card"
+    }
+  ]
+}
