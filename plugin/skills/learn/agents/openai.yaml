@@ -1,0 +1,4 @@
+interface:
+  display_name: "学习"
+  short_description: "建立可考试的知识图谱"
+  default_prompt: "Use $learn to turn the supplied study materials into one exam-ready subject graph."

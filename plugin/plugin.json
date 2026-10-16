@@ -1,0 +1,27 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "chinese-student",
+  "version": "0.1.0",
+  "description": "A local-file study plugin that builds exam-ready subject knowledge graphs, runs graph-only PDF exams, and checks whether each concept is immediately findable.",
+  "author": {
+    "name": "夜桜月花"
+  },
+  "repository": "https://github.com/Mryan2005/gpt-skill-chinese-student",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "中式学生",
+        "shortDescription": "知识图谱学习、考试、检查",
+        "longDescription": "三个指令：学习，把图片和资料整理成可考试的学科知识图谱；考试，只调用当前图谱并在解析后复盘；检查，验证知识点能否唯一定位到主卡或关联卡。",
+        "developerName": "夜桜月花",
+        "category": "Education",
+        "capabilities": [],
+        "defaultPrompt": [
+          "学习：把指定资料整理成一个学科知识图谱。",
+          "考试：只用当前学科图谱完成试卷并在解析后复盘。",
+          "检查：检查每个知识点能否立即定位到唯一知识卡。"
+        ]
+      }
+    }
+  }
+}
