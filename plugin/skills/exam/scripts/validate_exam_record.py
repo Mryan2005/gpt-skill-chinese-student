@@ -119,6 +119,10 @@ def validate_record(record: Any) -> list[str]:
                 errors.append(f"snapshot.{field} is required")
         if state_index >= STATES.index("SNAPSHOT_FROZEN") and snapshot.get("frozen") is not True:
             errors.append("snapshot.frozen must be true after SNAPSHOT_FROZEN")
+        if state_index >= STATES.index("SNAPSHOT_FROZEN") and snapshot.get("migrationStatus") != "UP_TO_DATE":
+            errors.append("UPDATE_REQUIRED_BEFORE_EXAM: snapshot.migrationStatus must be UP_TO_DATE")
+    if record.get("updateAppliedAfterFreeze") is True:
+        errors.append("UPDATE_MUTATED_FROZEN_EXAM: update cannot alter a frozen exam")
     _validate_pdf_reading(record, state_index, errors)
 
     questions = record.get("questions")

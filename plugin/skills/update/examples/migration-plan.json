@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "update-plan.v1",
+  "subject": {
+    "id": "math-1",
+    "domain": "math"
+  },
+  "status": "MIGRATION_REQUIRED",
+  "current": {
+    "pluginVersion": "0.2.0",
+    "contentSchemaVersion": 1,
+    "domainSchemaVersion": 1,
+    "rendererVersion": 1,
+    "sourceVersion": 1,
+    "derivedVersion": 7
+  },
+  "target": {
+    "pluginVersion": "0.3.0",
+    "contentSchemaVersion": 2,
+    "domainSchemaVersion": 2,
+    "rendererVersion": 2,
+    "sourceVersion": 1,
+    "derivedVersion": 8
+  },
+  "steps": [
+    {
+      "id": "source-derived-separation",
+      "kind": "generic",
+      "owner": "update",
+      "fromVersion": 1,
+      "toVersion": 2,
+      "idempotent": true,
+      "sourceMutation": "forbidden",
+      "requiresSourceReread": false,
+      "requiresArtifactRebuild": true,
+      "status": "planned"
+    },
+    {
+      "id": "typed-relations-v2",
+      "kind": "domain",
+      "owner": "study-math",
+      "fromVersion": 1,
+      "toVersion": 2,
+      "idempotent": true,
+      "sourceMutation": "forbidden",
+      "requiresSourceReread": false,
+      "requiresArtifactRebuild": true,
+      "status": "planned"
+    }
+  ],
+  "snapshot": {
+    "id": "migration-snapshot-math-1-001",
+    "beforeCounts": {
+      "sources": 14,
+      "derived": 10,
+      "questions": 1
+    },
+    "beforeHashes": {
+      "sources": "sha256:source-before",
+      "derived": "sha256:derived-before"
+    }
+  },
+  "impact": {
+    "affectedDomains": ["generic", "math"],
+    "requiresArtifactRebuild": true,
+    "requiresSourceReread": false
+  },
+  "finalGate": "check"
+}

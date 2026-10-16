@@ -82,6 +82,18 @@ class ExamStructureTests(unittest.TestCase):
         errors = validate_record(record)
         self.assertTrue(any("PDF_SOURCE_INTEGRITY_GATE" in error for error in errors))
 
+    def test_outdated_subject_cannot_start_frozen_exam(self) -> None:
+        record = copy.deepcopy(load_example())
+        record["snapshot"]["migrationStatus"] = "MIGRATION_REQUIRED"
+        errors = validate_record(record)
+        self.assertTrue(any("UPDATE_REQUIRED_BEFORE_EXAM" in error for error in errors))
+
+    def test_update_cannot_mutate_frozen_exam(self) -> None:
+        record = copy.deepcopy(load_example())
+        record["updateAppliedAfterFreeze"] = True
+        errors = validate_record(record)
+        self.assertTrue(any("UPDATE_MUTATED_FROZEN_EXAM" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

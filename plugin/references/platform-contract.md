@@ -79,6 +79,27 @@ If the original question is complete enough, a domain model may independently so
 
 If a key condition, formula, option, figure, or sub-question is missing, do not generate a conclusion. Preserve the question gap and leave derived_answer and derived_solution empty. A conflict between official, historical, and derived results is reported, never resolved by overwriting one result.
 
+## Subject migration metadata
+
+Every persisted Subject should expose the versions required by update:
+
+~~~json
+{
+  "subjectId": "math-1",
+  "pluginVersion": "0.3.0",
+  "contentSchemaVersion": 2,
+  "domain": "math",
+  "domainSchemaVersion": 2,
+  "rendererVersion": 2,
+  "sourceVersion": 1,
+  "derivedVersion": 8
+}
+~~~
+
+update compares these values with the current contracts. It migrates Derived and artifacts in small idempotent steps, keeps Source unchanged, and runs check before declaring success.
+
+An exam snapshot records migrationStatus=UP_TO_DATE. Once SNAPSHOT_FROZEN, no update may alter that snapshot or its measured Derived state.
+
 ## Ownership
 
 - learn owns source intake, Subject routing, persistence, and the common output boundary;

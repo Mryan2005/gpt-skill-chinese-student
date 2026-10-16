@@ -9,6 +9,7 @@ chinese-student 是一个面向本地学习资料的 Agent Plugin。它把教材
 | Skill | 用途 |
 | --- | --- |
 | learn | 通用学习流程。整理任意学科的来源、知识卡、关系、canonical Markdown 和知识网络 HTML。 |
+| update | 插件版本迁移器。迁移旧 Subject 的 Derived、schema、artifact 和 progress，不修改 Source。 |
 | study-math | 数学专项流程。支持数学卡片类型、结构化题库、公式完整性、数学关系和考试可用性闸门。 |
 | study-politics | 政治领域模型。保存教材原文与派生内容的 provenance，并支持概念、原理、标准表述、比较和易混点卡。 |
 | exam | Assessment/Evaluation Runner。在冻结 Subject 上完成闭卷首轮、评分、错误分析和 Learning Gap Report。 |
@@ -82,6 +83,12 @@ plugin/
 └─ skills/
    ├─ learn/
    │  ├─ SKILL.md
+   │  ├─ playbooks/
+   │  ├─ references/
+   │  └─ scripts/
+   ├─ update/
+   │  ├─ SKILL.md
+   │  ├─ migrations/
    │  ├─ playbooks/
    │  ├─ references/
    │  └─ scripts/

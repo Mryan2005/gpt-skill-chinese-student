@@ -13,6 +13,8 @@ READY → SNAPSHOT_FROZEN → FIRST_PASS → ANSWERS_FROZEN
 
 States only move forward. A resumed task loads the existing record and continues from its state.
 
+Before SNAPSHOT_FROZEN, an outdated Subject must be migrated by update. The snapshot must record migrationStatus=UP_TO_DATE. After SNAPSHOT_FROZEN, update cannot alter the snapshot or its Derived state; a later migration starts a separate exam.
+
 ## Access policy
 
 During FIRST_PASS, allowed inputs are:

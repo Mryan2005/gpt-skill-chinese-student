@@ -11,6 +11,7 @@
     "id": "math-1-snapshot-2026-10-16",
     "subjectId": "math-1",
     "artifactVersion": "math-records.example.v1",
+    "migrationStatus": "UP_TO_DATE",
     "graphPath": "subject/index.html",
     "frozenAt": "2026-10-16T08:00:00+08:00",
     "frozen": true
