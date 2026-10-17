@@ -16,6 +16,8 @@ from validate_learner_model import (  # noqa: E402
     validate_explanation_model,
     validate_mastery,
     validate_observation,
+    validate_self_report,
+    validate_self_report_correction,
     validate_sort_state,
     validate_strategy_state,
 )
@@ -28,6 +30,8 @@ def load(name: str) -> dict:
 class LearnerModelTests(unittest.TestCase):
     def test_examples_pass(self) -> None:
         self.assertEqual(validate_observation(load("observation.json")), [])
+        self.assertEqual(validate_self_report(load("self-report.json")), [])
+        self.assertEqual(validate_self_report_correction(load("self-report-correction.json")), [])
         self.assertEqual(validate_error_model(load("error-model.json")), [])
         self.assertEqual(validate_explanation_model(load("explanation-model.json")), [])
         self.assertEqual(validate_mastery(load("mastery.json")), [])
@@ -39,6 +43,18 @@ class LearnerModelTests(unittest.TestCase):
         observation["learningStyle"] = "visual"
         errors = validate_observation(observation)
         self.assertTrue(any("forbidden inference" in error for error in errors))
+
+    def test_self_report_has_no_ai_confidence_or_inference(self) -> None:
+        report = copy.deepcopy(load("self-report.json"))
+        report["claims"][0]["confidence"] = 0.9
+        errors = validate_self_report(report)
+        self.assertTrue(any("confidence" in error for error in errors))
+
+    def test_self_report_correction_requires_user_provenance(self) -> None:
+        correction = copy.deepcopy(load("self-report-correction.json"))
+        correction["reportedBy"] = "system"
+        errors = validate_self_report_correction(correction)
+        self.assertTrue(any("reportedBy must be user" in error for error in errors))
 
     def test_single_error_does_not_create_confident_pattern(self) -> None:
         model = copy.deepcopy(load("error-model.json"))

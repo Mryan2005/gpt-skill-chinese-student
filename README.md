@@ -6,7 +6,7 @@ chinese-student 是一个面向本地学习资料的 Agent Plugin。它把教材
 
 插件提供方：Mryan2005。
 
-Learner Model 是独立的本地层。它保存观察、错误模式、解释策略、掌握度和个人复习排序，
+Learner Model 是独立的本地层。它分开保存用户自述、系统观察、错误模式、解释策略、掌握度和个人复习排序，
 默认位于 `.local/learner/`，不会进入 Source、公共 HTML 或 Git。
 
 ## 核心 skills
@@ -22,6 +22,7 @@ Learner Model 是独立的本地层。它保存观察、错误模式、解释策
 | check | 独立的只读多代理 QA/Auditor。由来源、结构、内容、覆盖、题目、解法、数学、LaTeX、关系、provenance、渲染和检索审计代理并行检查，再由 Finding Merger 去重并定位根因。 |
 | sort | 安全的复习优先级投影。按考试价值、风险、依赖、薄弱度和近期错误生成带理由的 review order，不修改知识内容或 canonical structure。 |
 | fix | 消费最新 check findings，自动修复允许修改的 Derived、Runtime 和 Generated Artifact，并输出 Fix Report 供下一次 check 验收。 |
+| profile | 用户主动输入薄弱点、思维习惯、解释偏好和自我观察；自述与系统观察分开保存。 |
 
 learn 是跨学科平台，不是“非数学 skill”。普通数学资料仍可使用 learn。当任务需要系统数学网络、大量数学习题、公式与证明、数学题型或考研数学复习时，使用 study-math。
 
@@ -153,6 +154,9 @@ plugin/
    │  └─ scripts/
    ├─ schemas/
    │  └─ learner/
+   ├─ profile/
+   │  ├─ SKILL.md
+   │  └─ agents/openai.yaml
    └─ exam/
       ├─ SKILL.md
       ├─ playbooks/

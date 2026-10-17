@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/learner/self-report-correction.v1.json",
+  "title": "Explicit Local Learner Self-Report Correction",
+  "type": "object",
+  "required": ["id", "reportedAt", "targetClaimId", "action", "source", "reportedBy"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "reportedAt": {"type": "string", "minLength": 1},
+    "targetClaimId": {"type": "string", "minLength": 1},
+    "action": {"enum": ["clarify", "correct", "withdraw"]},
+    "replacementClaim": {"type": "string", "minLength": 1},
+    "reason": {"type": "string", "minLength": 1},
+    "source": {"const": "self_report"},
+    "reportedBy": {"const": "user"}
+  },
+  "additionalProperties": false
+}

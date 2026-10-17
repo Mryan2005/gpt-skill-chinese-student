@@ -7,8 +7,8 @@ the learning content.
 
 - the current canonical cards, questions, relations, and source references;
 - the selected domain contract and its importance or frequency signals;
-- the local Learner Model: Error Model, Explanation Model, Observations, Mastery,
-  and the current learning epoch;
+- the local Learner Model: explicit self-report claims, Error Model, Explanation
+  Model, Observations, Mastery, and the current learning epoch;
 - the current closed `exam` result, or an exam-gap record already accepted by
   `learn` into the learner state;
 - current `check` findings for the same artifact version;
@@ -32,6 +32,12 @@ projection may contain:
 - the mode, weights, confidence, and input versions.
 
 The projection is a view. It is not a second copy of card content.
+
+Self-reported weaknesses may seed `user_weakness` when behavioral evidence is
+not yet sufficient. Store the claim path and ID as evidence, label the reason
+`self_reported_weakness`, and give repeated observed errors or mastery evidence
+precedence when signals conflict. Explanation preferences affect how a review
+is presented, not whether a card is factually correct.
 
 ## Forbidden writes
 

@@ -1,8 +1,9 @@
 # Local Learner Model contract
 
-The Local Learner Model is a private, local, evidence-based state layer. It
-describes observed learning events and derived learning signals. It is not a
-personality profile and it is not a second knowledge base.
+The Local Learner Model is a private, local state layer with two separate
+evidence streams: what the learner explicitly reports and what the system
+observes during real learning. It is not a personality profile and it is not a
+second knowledge base.
 
 ## Layers
 
@@ -14,7 +15,8 @@ Derived Knowledge
   cards, relations, mappings, derived answers, solutions, and generated output
 
 Learner
-  observations, error model, explanation model, mastery, and sort state
+  explicit self-report, implicit observations, error model, explanation model,
+  mastery, and sort state
 ~~~
 
 The Learner layer must not write into Source, card provenance, public HTML,
@@ -28,10 +30,15 @@ Use this default layout:
 .local/
 └── learner/
     ├── global/
+    │   ├── profile/
+    │   │   ├── self-report.json
+    │   │   └── corrections.jsonl
     │   ├── explanation-model.json
     │   └── preferences.json
     └── subjects/
         └── <subject-id>/
+            ├── profile/
+            │   └── self-report.json
             ├── observations.jsonl
             ├── error-model.json
             ├── mastery.json
@@ -42,6 +49,22 @@ Use this default layout:
 `.local/learner/` is persistent state. `.check/current/`, `.exam/current/`, and
 `.fix/current/` are disposable workspaces. Their cleanup must never delete the
 Learner layer.
+
+## Explicit and implicit evidence
+
+`profile` owns the explicit self-report layer. A self-report records a claim the
+user chose to make about their own weakness, thinking habit, explanation
+preference, or self-observation. Each claim must carry `reportedBy: "user"`
+and `source: "self_report"`. It does not carry an AI confidence score.
+
+Implicit observations belong in subject `observations.jsonl` and are produced
+by actual learning, recall, explanation, or exam events. They may be aggregated
+into Error Model, Explanation Model, Mastery, and strategy state, but they must
+not be written into `profile/self-report.json`.
+
+Corrections to a self-report append to `corrections.jsonl`. They do not delete
+the original statement. Reports must show self-report and observation evidence
+as separate sections when they agree or conflict.
 
 ## Evidence rules
 
@@ -56,7 +79,8 @@ successes and long periods without recurrence decrease confidence through
 
 Explanation effectiveness requires outcomes such as independent correctness,
 follow-up count, hint count, self-recall, or transfer success. A user statement
-about preference is evidence, but it is not the only evidence.
+about preference is explicit evidence, but it is not an implicit observation
+and must not be silently converted into one.
 
 User corrections do not delete historical observations. They add counter-
 evidence and reduce the confidence of the affected derived claim.
@@ -71,7 +95,10 @@ be imposed on politics or English.
 ## Ownership
 
 - `learn` reads the model before teaching and records new observations after a
-  learning interaction.
+  learning interaction. It may use explicit self-reports to choose initial
+  scaffolding, but it keeps that input separate from observations.
+- `profile` appends explicit self-reports and user corrections only to the
+  profile layer.
 - `exam` may read the model before a snapshot is frozen. It must not expose
   learner hints during first-pass measurement. After grading, it records local
   observations and updates derived aggregates.
@@ -85,5 +112,5 @@ be imposed on politics or English.
 ## Privacy gate
 
 Learner data is local-only by default. Do not commit, upload, publish, or embed
-observations, mastery, error reasons, explanation effectiveness, or sort scores
-in public artifacts. A public-artifact leak is a blocker.
+self-reports, observations, mastery, error reasons, explanation effectiveness,
+or sort scores in public artifacts. A public-artifact leak is a blocker.

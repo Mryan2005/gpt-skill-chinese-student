@@ -1,0 +1,10 @@
+{
+  "id": "self-correction-001",
+  "reportedAt": "2026-10-18T10:05:00+08:00",
+  "targetClaimId": "self-001",
+  "action": "clarify",
+  "replacementClaim": "概率题中含参数时，我更容易不会确定积分上下限。",
+  "reason": "补充原先自述的适用范围。",
+  "source": "self_report",
+  "reportedBy": "user"
+}

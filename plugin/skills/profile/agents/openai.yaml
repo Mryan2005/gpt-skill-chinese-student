@@ -1,4 +1,4 @@
 interface:
   display_name: "$中式学生:profile"
-  short_description: "查看本地证据型学习者模型"
-  default_prompt: "Use $chinese-student:profile to show evidence-backed learner error patterns, explanation strategies, mastery signals, and improvement without inferring personality traits."
+  short_description: "记录用户自述的薄弱点与学习偏好"
+  default_prompt: "Use $chinese-student:profile as the explicit self-report intake. Append the user's stated weaknesses, thinking habits, explanation preferences, and self-observations to the local self-report layer, keep observations separate, and never infer personality traits."

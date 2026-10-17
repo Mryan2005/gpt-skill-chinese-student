@@ -12,6 +12,9 @@ from typing import Any
 STAGES = {"PERCEPTION", "INTERPRETATION", "RETRIEVAL", "METHOD_SELECTION", "CONDITION_CHECK", "SETUP", "EXECUTION", "INTEGRATION", "VERIFICATION", "EXPRESSION"}
 EVENTS = {"incorrect", "correct", "hinted_correct", "independent_correct", "recall", "user_correction", "explanation_feedback"}
 ERROR_STATUSES = {"active", "improving", "dormant", "resolved"}
+SELF_REPORT_CATEGORIES = {"weakness", "thinking_habit", "explanation_preference", "self_observation"}
+SELF_REPORT_STATUSES = {"active", "superseded", "withdrawn"}
+CORRECTION_ACTIONS = {"clarify", "correct", "withdraw"}
 FORBIDDEN_INFERENCE_KEYS = {"personality", "learningStyle", "intelligence", "memoryAbility", "visualLearner", "logicalAbility"}
 
 
@@ -47,6 +50,68 @@ def validate_observation(observation: Any) -> list[str]:
     if "hintCount" in observation and not _int(observation["hintCount"]):
         errors.append("hintCount must be a non-negative integer")
     errors.extend(f"forbidden inference field: {key}" for key in _forbidden(observation))
+    return errors
+
+
+def validate_self_report(report: Any) -> list[str]:
+    if not isinstance(report, dict):
+        return ["self-report must be an object"]
+    errors: list[str] = []
+    if report.get("schemaVersion") != "self-report.v1":
+        errors.append("schemaVersion must be self-report.v1")
+    if not _text(report.get("scope")):
+        errors.append("scope must be non-empty")
+    if report.get("source") != "self_report":
+        errors.append("source must be self_report")
+    if report.get("reportedBy") != "user":
+        errors.append("reportedBy must be user")
+    if not _text(report.get("updatedAt")):
+        errors.append("updatedAt must be non-empty")
+    claims = report.get("claims")
+    if not isinstance(claims, list):
+        return errors + ["claims must be a list"]
+    seen: set[str] = set()
+    for index, claim in enumerate(claims):
+        path = f"claims[{index}]"
+        if not isinstance(claim, dict):
+            errors.append(f"{path} must be an object")
+            continue
+        for field in ("id", "reportedAt", "claim"):
+            if not _text(claim.get(field)):
+                errors.append(f"{path}.{field} must be non-empty")
+        claim_id = claim.get("id")
+        if _text(claim_id):
+            if claim_id in seen:
+                errors.append(f"{path}.id is duplicated")
+            seen.add(claim_id)
+        if claim.get("category") not in SELF_REPORT_CATEGORIES:
+            errors.append(f"{path}.category is invalid")
+        if claim.get("source") != "self_report":
+            errors.append(f"{path}.source must be self_report")
+        if claim.get("reportedBy") != "user":
+            errors.append(f"{path}.reportedBy must be user")
+        if "status" in claim and claim["status"] not in SELF_REPORT_STATUSES:
+            errors.append(f"{path}.status is invalid")
+        errors.extend(f"{path}.{key} is forbidden" for key in claim if key in FORBIDDEN_INFERENCE_KEYS or key in {"confidence", "inferred", "inference"})
+    return errors
+
+
+def validate_self_report_correction(correction: Any) -> list[str]:
+    if not isinstance(correction, dict):
+        return ["self-report correction must be an object"]
+    errors: list[str] = []
+    for field in ("id", "reportedAt", "targetClaimId"):
+        if not _text(correction.get(field)):
+            errors.append(f"{field} must be non-empty")
+    if correction.get("action") not in CORRECTION_ACTIONS:
+        errors.append("action is invalid")
+    if correction.get("action") in {"clarify", "correct"} and not _text(correction.get("replacementClaim")):
+        errors.append("replacementClaim must be non-empty for clarify or correct")
+    if correction.get("source") != "self_report":
+        errors.append("source must be self_report")
+    if correction.get("reportedBy") != "user":
+        errors.append("reportedBy must be user")
+    errors.extend(f"{key} is forbidden" for key in correction if key in FORBIDDEN_INFERENCE_KEYS or key in {"confidence", "inferred", "inference"})
     return errors
 
 
@@ -176,12 +241,14 @@ def validate_strategy_state(state: Any) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate local learner-model records.")
-    parser.add_argument("kind", choices=["observation", "error-model", "explanation-model", "mastery", "strategy-state", "sort-state"])
+    parser.add_argument("kind", choices=["observation", "self-report", "correction", "error-model", "explanation-model", "mastery", "strategy-state", "sort-state"])
     parser.add_argument("path", type=Path)
     args = parser.parse_args(argv)
     data = json.loads(args.path.read_text(encoding="utf-8"))
     validators = {
         "observation": validate_observation,
+        "self-report": validate_self_report,
+        "correction": validate_self_report_correction,
         "error-model": validate_error_model,
         "explanation-model": validate_explanation_model,
         "mastery": validate_mastery,

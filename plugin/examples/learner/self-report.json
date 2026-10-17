@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "self-report.v1",
+  "scope": "global",
+  "source": "self_report",
+  "reportedBy": "user",
+  "updatedAt": "2026-10-18T10:00:00+08:00",
+  "claims": [
+    {
+      "id": "self-001",
+      "reportedAt": "2026-10-18T09:55:00+08:00",
+      "category": "weakness",
+      "domain": "math",
+      "subjectId": "math-1",
+      "topicIds": ["probability"],
+      "claim": "概率题经常不会确定积分上下限。",
+      "source": "self_report",
+      "reportedBy": "user",
+      "status": "active"
+    },
+    {
+      "id": "self-002",
+      "reportedAt": "2026-10-18T09:56:00+08:00",
+      "category": "thinking_habit",
+      "domain": "math",
+      "claim": "遇到极限题时通常先考虑洛必达。",
+      "source": "self_report",
+      "reportedBy": "user",
+      "status": "active"
+    },
+    {
+      "id": "self-003",
+      "reportedAt": "2026-10-18T09:57:00+08:00",
+      "category": "explanation_preference",
+      "claim": "一步一步讲比一次性给完整解析更容易理解。",
+      "source": "self_report",
+      "reportedBy": "user",
+      "status": "active"
+    }
+  ]
+}

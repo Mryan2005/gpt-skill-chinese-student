@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/learner/self-report.v1.json",
+  "title": "Explicit Local Learner Self-Report",
+  "type": "object",
+  "required": ["schemaVersion", "scope", "source", "reportedBy", "updatedAt", "claims"],
+  "properties": {
+    "schemaVersion": {"const": "self-report.v1"},
+    "scope": {"type": "string", "minLength": 1},
+    "source": {"const": "self_report"},
+    "reportedBy": {"const": "user"},
+    "updatedAt": {"type": "string", "minLength": 1},
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "reportedAt", "category", "claim", "source", "reportedBy"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "reportedAt": {"type": "string", "minLength": 1},
+          "category": {"enum": ["weakness", "thinking_habit", "explanation_preference", "self_observation"]},
+          "domain": {"type": "string", "minLength": 1},
+          "subjectId": {"type": "string", "minLength": 1},
+          "topicIds": {"type": "array", "items": {"type": "string"}},
+          "claim": {"type": "string", "minLength": 1},
+          "source": {"const": "self_report"},
+          "reportedBy": {"const": "user"},
+          "status": {"enum": ["active", "superseded", "withdrawn"]},
+          "correctionIds": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

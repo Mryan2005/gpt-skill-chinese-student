@@ -30,10 +30,12 @@ Source Records
 provenance
 
 The Learner Layer is separate from Derived. Preserve
-`.local/learner/global/observations.jsonl` and global explanation evidence.
-Keep subject observations with a new `learningEpoch`; rebuild subject Error
-Model, Mastery, Explanation Strategy state, and `sort-state.json` from the
-preserved local evidence. Do not delete the Learner Layer during Derived reset.
+`.local/learner/global/profile/self-report.json`,
+`.local/learner/global/profile/corrections.jsonl`, global observations, and
+global explanation evidence. Keep subject self-reports and observations with a
+new `learningEpoch`; rebuild subject Error Model, Mastery, Explanation Strategy
+state, and `sort-state.json` from the preserved local evidence. Do not delete
+the Learner Layer during Derived reset.
 ~~~
 
 ## Confirmation
