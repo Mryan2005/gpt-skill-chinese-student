@@ -2,7 +2,7 @@
 
 ## Use this playbook when
 
-The user asks for `sort tonight` or a bounded review queue for one study
+The user asks for `chinese-student: sort tonight` or a bounded review queue for one study
 session.
 
 ## Procedure

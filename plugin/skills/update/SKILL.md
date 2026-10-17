@@ -14,7 +14,7 @@ update 是插件版本迁移器和 Content Schema Migration Runner。它不是 l
 - 每次迁移先 Detect/Plan，再 Snapshot，然后执行连续的小迁移。
 - 每个 migration 必须有稳定 ID、前置版本、目标版本、owner 和 idempotent 声明。
 - 无法确定性迁移时报告 NEEDS_REDERIVATION 或 BLOCKED_BY_SOURCE，不猜、不静默丢数据。
-- 迁移后必须重建受影响 artifact，并调用 `check full-audit` 作为最终 Gate。
+- 迁移后必须重建受影响 artifact，并调用 `chinese-student: check full-audit` 作为最终 Gate。
 - SNAPSHOT_FROZEN 之后，update 不得影响正在进行的 exam。
 
 平台版本合同见 [platform-contract.md](../../references/platform-contract.md)。迁移合同见 [update-contract.md](references/update-contract.md)、[migration-plan.md](references/migration-plan.md) 和 [change-impact.md](references/change-impact.md)。
@@ -51,5 +51,5 @@ REPORT
 ## Done gate
 
 只有目标版本 metadata 已写入、Source hash/版本保持不变、Derived/artifact 迁移完成、
-迁移可重复执行、`check full-audit` 返回 `PASS` 或 `PASS_WITH_WARNINGS`，并且所有
+迁移可重复执行、`chinese-student: check full-audit` 返回 `PASS` 或 `PASS_WITH_WARNINGS`，并且所有
 rederivation/source blockers 已列出时，才能报告迁移完成。

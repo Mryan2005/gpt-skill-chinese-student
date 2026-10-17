@@ -46,6 +46,6 @@ RELEARN_REQUESTED
 ## Done gate
 
 reset manifest 已确认、Source 未变、Derived 已清空并重建、当前领域模型已加载、
-`check full-audit` 返回 `PASS` 或 `PASS_WITH_WARNINGS`，且 learner_state 由 learn
+`chinese-student: check full-audit` 返回 `PASS` 或 `PASS_WITH_WARNINGS`，且 learner_state 由 learn
 重新生成后，才能报告 RELEARN_COMPLETE。任何 blocker、error 或 BLOCKED 都必须报告
 RELEARN_WITH_ERRORS。

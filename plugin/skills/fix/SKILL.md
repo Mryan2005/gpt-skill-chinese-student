@@ -5,9 +5,9 @@ description: Use as the write-enabled repair orchestrator for the latest valid c
 
 # 中式学生：修复入口
 
-`fix` consumes the latest valid `check` report and repairs the reported defects.
-Calling `fix` authorizes all allowed automatic repairs for that report. It does
-not ask for per-finding confirmation. The user runs `check` afterward to accept
+`chinese-student: fix` consumes the latest valid `check` report and repairs the reported defects.
+Calling `chinese-student: fix` authorizes all allowed automatic repairs for that report. It does
+not ask for per-finding confirmation. The user runs `chinese-student: check` afterward to accept
 or reject the result.
 
 ## Non-negotiables
@@ -24,7 +24,7 @@ or reject the result.
 - Learner repairs may recalculate aggregates, indexes, mastery projections, and
   sort state, but may never rewrite historical Observations.
 - Run local validation only. Do not silently run or claim a full `check`.
-- Never invoke `relearn` or `update` silently. Emit `RELEARN_RECOMMENDED` or
+- Never invoke `chinese-student: relearn` or `chinese-student: update` silently. Emit `RELEARN_RECOMMENDED` or
   `REQUIRES_UPDATE` instead.
 - Stop on a stale report, source blockage, destructive escalation, unresolved
   write conflict, or repeated no-progress rounds.
@@ -68,5 +68,5 @@ NEW_FIX_REQUEST
 ## Done gate
 
 Write a `fix.report.v1` report with resolved, remaining, blocked, changes,
-execution mode, local validation, and escalation fields. End with `请运行 check
-验收当前结果。` Do not claim full-audit success inside `fix`.
+execution mode, local validation, and escalation fields. End with `请运行
+chinese-student: check 验收当前结果。` Do not claim full-audit success inside `fix`.

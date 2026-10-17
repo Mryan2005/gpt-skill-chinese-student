@@ -9,19 +9,21 @@ chinese-student 是一个面向本地学习资料的 Agent Plugin。它把教材
 Learner Model 是独立的本地层。它保存观察、错误模式、解释策略、掌握度和个人复习排序，
 默认位于 `.local/learner/`，不会进入 Source、公共 HTML 或 Git。
 
+用户可见命令统一使用 [Command Display Contract](D:/A2564/projects/gpt-skill-chinese-student/plugin/references/command-display-contract.md) 中的 `chinese-student:` 命名空间。内部 Skill ID 和目录保持短名称不变。
+
 ## 核心 skills
 
 | Skill | 用途 |
 | --- | --- |
-| learn | 通用学习流程。整理任意学科的来源、知识卡、关系、canonical Markdown 和知识网络 HTML。 |
-| update | 插件版本迁移器。迁移旧 Subject 的 Derived、schema、artifact 和 progress，不修改 Source。 |
-| relearn | 破坏性重建流程。确认后删除 Derived，保留 Source，再从头调用 learn 和领域模型。 |
+| chinese-student: learn | 通用学习流程。整理任意学科的来源、知识卡、关系、canonical Markdown 和知识网络 HTML。 |
+| chinese-student: update | 插件版本迁移器。迁移旧 Subject 的 Derived、schema、artifact 和 progress，不修改 Source。 |
+| chinese-student: relearn | 破坏性重建流程。确认后删除 Derived，保留 Source，再从头调用 `chinese-student: learn` 和领域模型。 |
 | study-math | 数学专项流程。支持数学卡片类型、结构化题库、公式完整性、数学关系和考试可用性闸门。 |
 | study-politics | 政治领域模型。保存教材原文与派生内容的 provenance，并支持概念、原理、标准表述、比较和易混点卡。 |
-| exam | Assessment/Evaluation Runner。在冻结 Subject 上完成闭卷首轮、评分、错误分析和 Learning Gap Report。 |
-| check | 独立的只读多代理 QA/Auditor。由来源、结构、内容、覆盖、题目、解法、数学、LaTeX、关系、provenance、渲染和检索审计代理并行检查，再由 Finding Merger 去重并定位根因。 |
-| sort | 安全的复习优先级投影。按考试价值、风险、依赖、薄弱度和近期错误生成带理由的 review order，不修改知识内容或 canonical structure。 |
-| fix | 消费最新 check findings，自动修复允许修改的 Derived、Runtime 和 Generated Artifact，并输出 Fix Report 供下一次 check 验收。 |
+| chinese-student: exam | Assessment/Evaluation Runner。在冻结 Subject 上完成闭卷首轮、评分、错误分析和 Learning Gap Report。 |
+| chinese-student: check | 独立的只读多代理 QA/Auditor。由来源、结构、内容、覆盖、题目、解法、数学、LaTeX、关系、provenance、渲染和检索审计代理并行检查，再由 Finding Merger 去重并定位根因。 |
+| chinese-student: sort | 安全的复习优先级投影。按考试价值、风险、依赖、薄弱度和近期错误生成带理由的 review order，不修改知识内容或 canonical structure。 |
+| chinese-student: fix | 消费最新 `chinese-student: check` findings，自动修复允许修改的 Derived、Runtime 和 Generated Artifact，并输出 Fix Report 供下一次 `chinese-student: check` 验收。 |
 
 learn 是跨学科平台，不是“非数学 skill”。普通数学资料仍可使用 learn。当任务需要系统数学网络、大量数学习题、公式与证明、数学题型或考研数学复习时，使用 study-math。
 
@@ -41,9 +43,9 @@ sort 不参与知识构建或正确性审计。它读取当前 artifact、领域
 exam gap 和 check findings，只写独立的 review-priority projection。canonical card
 内容、章节树、关系和学习状态保持不变。
 
-fix 消费 check 报告并执行允许的自动修复。它不修改 Source，不逐项询问确认，
-不自动调用 relearn 或 update，也不把局部 validator 冒充完整 check。修复结束后由
-用户再次运行 check 验收。
+fix 消费 `chinese-student: check` 报告并执行允许的自动修复。它不修改 Source，不逐项询问确认，
+不自动调用 `chinese-student: relearn` 或 `chinese-student: update`，也不把局部 validator 冒充完整 check。修复结束后由
+用户再次运行 `chinese-student: check` 验收。
 
 exam 直接读取原始试卷和解析 PDF。禁止 OCR、OCR 中间文本、外部 OCR 服务和委托 OCR；看不清的内容必须记录为不可读。
 

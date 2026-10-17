@@ -44,8 +44,8 @@ def validate_report(report: Any) -> list[str]:
     for field in ("fixRunId", "nextAction"):
         if not _text(report.get(field)):
             errors.append(f"{field} must be non-empty")
-    if report.get("nextAction") != "run check":
-        errors.append("nextAction must be run check")
+    if report.get("nextAction") != "chinese-student: check":
+        errors.append("nextAction must be chinese-student: check")
     based = report.get("basedOnCheck")
     if not isinstance(based, dict):
         errors.append("basedOnCheck is required")
