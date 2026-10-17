@@ -16,6 +16,15 @@
     "version": "math-records.example.v1",
     "checkedAt": "2026-10-16T10:02:00+08:00"
   },
+  "execution": {
+    "requestedMode": "multi-agent",
+    "actualMode": "parallel-agent",
+    "maxParallel": 3,
+    "maxConsecutiveSpawnFailures": 2,
+    "spawnFailures": 0,
+    "spawningDisabled": false,
+    "fallbackReason": null
+  },
   "subject": {
     "id": "math-1",
     "title": "数学一"
@@ -23,37 +32,21 @@
   "run": {
     "mode": "full-audit",
     "artifactVersion": "example-1",
-    "agents": {
-      "dispatched": [
-        "source-auditor",
-        "structure-auditor",
-        "content-auditor",
-        "coverage-auditor",
-        "question-auditor",
-        "solution-auditor",
-        "math-auditor",
-        "latex-auditor",
-        "relation-auditor",
-        "provenance-auditor",
-        "rendering-auditor",
-        "retrieval-auditor"
-      ],
-      "completed": [
-        "source-auditor",
-        "structure-auditor",
-        "content-auditor",
-        "coverage-auditor",
-        "question-auditor",
-        "solution-auditor",
-        "math-auditor",
-        "latex-auditor",
-        "relation-auditor",
-        "provenance-auditor",
-        "rendering-auditor",
-        "retrieval-auditor"
-      ],
-      "skipped": []
-    }
+    "auditStatuses": [
+      {"auditor": "source", "auditStatus": "FAIL", "executionMode": "parallel-agent", "workerBundle": "structure"},
+      {"auditor": "provenance", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "structure"},
+      {"auditor": "structure", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "structure"},
+      {"auditor": "content", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "domain"},
+      {"auditor": "coverage", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "coverage"},
+      {"auditor": "question", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "structure"},
+      {"auditor": "solution", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "domain"},
+      {"auditor": "math", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "domain"},
+      {"auditor": "latex", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "presentation"},
+      {"auditor": "relation", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "domain"},
+      {"auditor": "rendering", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "presentation"},
+      {"auditor": "retrieval", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "presentation"},
+      {"auditor": "readiness", "auditStatus": "FAIL", "executionMode": "parallel-agent", "workerBundle": "coverage"}
+    ]
   },
   "rootCauses": [
     {

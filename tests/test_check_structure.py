@@ -15,6 +15,7 @@ sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from validate_findings import validate_report  # noqa: E402
 from validate_agent_reports import validate_agent_report  # noqa: E402
+from plan_execution import plan_execution  # noqa: E402
 from validate_source_derived import validate_record as validate_source_derived  # noqa: E402
 from reset_check_workspace import reset_workspace, validate_target  # noqa: E402
 
@@ -39,6 +40,7 @@ PLAYBOOKS = {
 REFERENCES = {
     "common.md",
     "audit-contract.md",
+    "execution-contract.md",
     "check-workspace.md",
     "finding-schema.md",
     "severity.md",
@@ -80,6 +82,17 @@ class CheckStructureTests(unittest.TestCase):
         for name in AGENTS:
             self.assertTrue((SKILL_ROOT / "agents" / name).is_file(), name)
 
+    def test_execution_planner_degrades_without_skipping_roles(self) -> None:
+        self.assertEqual(plan_execution(3)["actualMode"], "parallel-agent")
+        self.assertEqual(plan_execution(2)["actualMode"], "batched-agent")
+        self.assertEqual(plan_execution(1)["actualMode"], "shared-agent")
+        fallback = plan_execution(0)
+        self.assertEqual(fallback["actualMode"], "orchestrator-fallback")
+        self.assertEqual(fallback["batches"], [["structure", "domain", "presentation", "coverage"]])
+        disabled = plan_execution(3, 2)
+        self.assertTrue(disabled["spawningDisabled"])
+        self.assertEqual(disabled["actualMode"], "orchestrator-fallback")
+
     def test_entrypoint_and_playbook_links_resolve(self) -> None:
         documents = [SKILL_ROOT / "SKILL.md"] + sorted((SKILL_ROOT / "playbooks").glob("*.md"))
         for document in documents:
@@ -111,6 +124,22 @@ class CheckStructureTests(unittest.TestCase):
         errors = validate_report(report)
         self.assertTrue(any("rootLayer" in error for error in errors))
         self.assertTrue(any("expected FAIL" in error for error in errors))
+
+    def test_capacity_fallback_does_not_block_a_completed_audit(self) -> None:
+        report_path = SKILL_ROOT / "examples" / "finding-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["execution"].update(
+            {
+                "actualMode": "orchestrator-fallback",
+                "maxParallel": 0,
+                "spawnFailures": 2,
+                "spawningDisabled": True,
+                "fallbackReason": "spawn-failure-threshold",
+            }
+        )
+        for audit in report["run"]["auditStatuses"]:
+            audit["executionMode"] = "orchestrator-fallback"
+        self.assertEqual(validate_report(report), [])
 
     def test_finding_report_rejects_residual_workspace(self) -> None:
         report_path = SKILL_ROOT / "examples" / "finding-report.json"

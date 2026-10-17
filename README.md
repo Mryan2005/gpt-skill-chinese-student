@@ -28,7 +28,8 @@ study-politics 是由 learn 加载的政治领域模型。它区分教材原文�
 check 不参与构建或修复。它读取统一 Subject 和领域 contract，先重置一次性
 `.check/current` 工作区，再由隔离审计代理验证真实 artifact，最后报告 severity、
 证据、根因和 repairOwner。代理只能写自己的临时报告；Finding Merger 只合并和
-验证，不执行 repair。
+验证，不执行 repair。Agent thread 容量只改变并行度，不改变 required audit
+范围；容量不足时 check 会分批、共享 worker，或由 orchestrator 顺序执行。
 
 sort 不参与知识构建或正确性审计。它读取当前 artifact、领域重要性、learner_state、
 exam gap 和 check findings，只写独立的 review-priority projection。canonical card

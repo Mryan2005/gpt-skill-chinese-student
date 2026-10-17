@@ -3,6 +3,34 @@
 The final merged report uses `check.finding.v1`. Individual auditors use the
 same finding object inside an isolated `check.agent-report.v1` envelope.
 
+The merged report also records an execution plan. It separates the audit result
+from the worker that executed it.
+
+~~~json
+{
+  "execution": {
+    "requestedMode": "multi-agent",
+    "actualMode": "orchestrator-fallback",
+    "maxParallel": 0,
+    "maxConsecutiveSpawnFailures": 2,
+    "spawnFailures": 2,
+    "spawningDisabled": true,
+    "fallbackReason": "spawn-failure-threshold"
+  },
+  "run": {
+    "mode": "full-audit",
+    "auditStatuses": [
+      {
+        "auditor": "math",
+        "auditStatus": "PASS",
+        "executionMode": "orchestrator-fallback",
+        "workerBundle": "domain"
+      }
+    ]
+  }
+}
+~~~
+
 Each finding has the following shape:
 
 ~~~json
@@ -57,9 +85,10 @@ that attribution in the final report.
 }
 ~~~
 
-`status=skipped` or `status=failed` must include a reason in
-`skippedChecks`. The merger must not consume a report with another run ID or
-artifact version.
+`status=skipped` or `status=failed` in an isolated worker report must include a
+reason in `skippedChecks`. The final merged report must instead record every
+required auditor's `auditStatus` and `executionMode`. Agent capacity is never a
+reason to omit a required auditor.
 
 ## Final result
 
@@ -68,7 +97,8 @@ The merged report has one `result`:
 - `PASS`: no blocker, error, or warning remains;
 - `PASS_WITH_WARNINGS`: warnings remain, but no blocker or error remains;
 - `FAIL`: at least one blocker or error was found;
-- `BLOCKED`: the workspace was not clean or a required auditor did not run.
+- `BLOCKED`: the workspace was not clean or a required auditor was blocked by a
+  missing or unreadable input.
 
 An unexecuted required audit is never reported as a pass.
 

@@ -12,6 +12,34 @@ from typing import Any
 
 SEVERITIES = {"blocker", "error", "warning", "info"}
 RESULTS = {"PASS", "PASS_WITH_WARNINGS", "FAIL", "BLOCKED"}
+AUDIT_STATUSES = {"PASS", "WARNING", "FAIL", "BLOCKED"}
+EXECUTION_MODES = {"parallel-agent", "batched-agent", "shared-agent", "orchestrator-fallback"}
+WORKER_BUNDLES = {"structure", "domain", "presentation", "coverage"}
+AUDITORS = {
+    "source",
+    "provenance",
+    "structure",
+    "content",
+    "coverage",
+    "question",
+    "solution",
+    "math",
+    "latex",
+    "relation",
+    "rendering",
+    "retrieval",
+    "readiness",
+}
+REQUIRED_BY_MODE = {
+    "full-audit": AUDITORS,
+    "source-audit": {"source", "provenance"},
+    "content-audit": {"content", "coverage"},
+    "question-audit": {"question", "solution", "provenance", "math"},
+    "latex-audit": {"latex"},
+    "relation-audit": {"relation"},
+    "rendering-audit": {"rendering"},
+    "retrieval-audit": {"retrieval"},
+}
 REPORTERS = {
     "source-auditor",
     "structure-auditor",
@@ -76,6 +104,26 @@ def validate_report(report: Any) -> list[str]:
     artifact = report.get("artifact")
     if not isinstance(artifact, dict) or not _text(artifact.get("version")) or not _text(artifact.get("checkedAt")):
         errors.append("artifact.version and artifact.checkedAt are required")
+    execution = report.get("execution")
+    if not isinstance(execution, dict):
+        errors.append("execution is required")
+    else:
+        if execution.get("requestedMode") != "multi-agent":
+            errors.append("execution.requestedMode must be multi-agent")
+        if execution.get("actualMode") not in EXECUTION_MODES:
+            errors.append("execution.actualMode is invalid")
+        for field in ("maxParallel", "maxConsecutiveSpawnFailures", "spawnFailures"):
+            value = execution.get(field)
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                errors.append(f"execution.{field} must be a non-negative integer")
+        if execution.get("maxParallel", 0) > 3:
+            errors.append("execution.maxParallel cannot exceed 3")
+        if not isinstance(execution.get("spawningDisabled"), bool):
+            errors.append("execution.spawningDisabled must be boolean")
+        if execution.get("spawnFailures", 0) >= 2 and execution.get("spawningDisabled") is not True:
+            errors.append("execution.spawningDisabled must be true after two spawn failures")
+        if execution.get("actualMode") == "orchestrator-fallback" and not _text(execution.get("fallbackReason")):
+            errors.append("execution.fallbackReason is required for orchestrator-fallback")
     findings = report.get("findings")
     if not isinstance(findings, list):
         return errors + ["findings must be a list"]
@@ -120,16 +168,52 @@ def validate_report(report: Any) -> list[str]:
             errors.append(f"summary.{severity} must be a non-negative integer")
         elif declared != actual[severity]:
             errors.append(f"summary.{severity}={declared} does not match findings ({actual[severity]})")
+    run = report.get("run")
+    audit_statuses = run.get("auditStatuses") if isinstance(run, dict) else None
+    observed_auditors: set[str] = set()
+    audit_has_fail = False
+    audit_has_warning = False
+    audit_has_blocked = False
+    if not isinstance(audit_statuses, list):
+        errors.append("run.auditStatuses must be a list")
+    else:
+        for index, audit in enumerate(audit_statuses):
+            path = f"run.auditStatuses[{index}]"
+            if not isinstance(audit, dict):
+                errors.append(f"{path} must be an object")
+                continue
+            auditor = audit.get("auditor")
+            if auditor not in AUDITORS:
+                errors.append(f"{path}.auditor is invalid")
+            elif auditor in observed_auditors:
+                errors.append(f"{path}.auditor is duplicated: {auditor}")
+            else:
+                observed_auditors.add(auditor)
+            status = audit.get("auditStatus")
+            if status not in AUDIT_STATUSES:
+                errors.append(f"{path}.auditStatus is invalid")
+            elif status == "FAIL":
+                audit_has_fail = True
+            elif status == "WARNING":
+                audit_has_warning = True
+            elif status == "BLOCKED":
+                audit_has_blocked = True
+            if audit.get("executionMode") not in EXECUTION_MODES:
+                errors.append(f"{path}.executionMode is invalid")
+            if audit.get("workerBundle") not in WORKER_BUNDLES:
+                errors.append(f"{path}.workerBundle is invalid")
+        mode = run.get("mode") if isinstance(run, dict) else None
+        required = REQUIRED_BY_MODE.get(mode)
+        if required and required - observed_auditors:
+            errors.append(f"AUDIT_SCOPE_INCOMPLETE: missing {', '.join(sorted(required - observed_auditors))}")
     result = report.get("result")
     if result not in RESULTS:
         errors.append("result must be PASS, PASS_WITH_WARNINGS, FAIL, or BLOCKED")
     else:
         workspace_invalid = not isinstance(workspace, dict) or workspace.get("residualPaths") != []
-        agents = report.get("run", {}).get("agents", {}) if isinstance(report.get("run"), dict) else {}
-        has_unexecuted = bool(agents.get("skipped") or agents.get("failed")) if isinstance(agents, dict) else False
-        expected_result = "BLOCKED" if workspace_invalid or has_unexecuted else (
-            "FAIL" if actual["blocker"] or actual["error"] else (
-                "PASS_WITH_WARNINGS" if actual["warning"] else "PASS"
+        expected_result = "BLOCKED" if workspace_invalid or audit_has_blocked else (
+            "FAIL" if actual["blocker"] or actual["error"] or audit_has_fail else (
+                "PASS_WITH_WARNINGS" if actual["warning"] or audit_has_warning else "PASS"
             )
         )
         if result != expected_result:

@@ -20,9 +20,11 @@ Finding Merger 去重并定位根因。
 - “没有发现错误”不等于“内容正确”；未执行的检查必须明确报告。
 - 通用检查机制不定义数学或其他学科的卡片正确性。领域规则来自对应 domain contract。
 - 代理只能写入自己的隔离报告；Finding Merger 只能合并报告，不能修复内容。
+- Agent capacity 只影响并行度，不得缩小 required audit scope。容量不足时必须分批、共享 worker 或由 orchestrator 顺序执行。
+- 连续两次无法创建 agent 后，本轮停止继续 spawn，剩余审计全部进入 fallback queue。
 - 发现根因后停止在报告，不在 check 内自动修复。
 
-读取 [audit-contract.md](references/audit-contract.md)、[check-workspace.md](references/check-workspace.md)、[finding-schema.md](references/finding-schema.md) 和 [severity.md](references/severity.md) 了解统一报告合同。
+读取 [audit-contract.md](references/audit-contract.md)、[execution-contract.md](references/execution-contract.md)、[check-workspace.md](references/check-workspace.md)、[finding-schema.md](references/finding-schema.md) 和 [severity.md](references/severity.md) 了解统一报告合同。
 
 ## Routing
 
@@ -60,7 +62,9 @@ NEW_CHECK_REQUEST
 → CLEANUP_PREVIOUS_CHECK_RUN
 → WORKSPACE_VERIFIED_CLEAN
 → LOAD_CURRENT_CANONICAL_STATE
-→ RUN_AUDITS
+→ RUN_DETERMINISTIC_VALIDATORS
+→ PLAN_AUDIT_EXECUTION
+→ RUN_AUDIT_QUEUE
 → MERGE_FINDINGS
 → WRITE_FINDINGS
 → REPORT

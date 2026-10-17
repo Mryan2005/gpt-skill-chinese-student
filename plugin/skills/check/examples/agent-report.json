@@ -5,6 +5,7 @@
   "artifactVersion": "math-records.example.v1",
   "readOnly": true,
   "status": "completed",
+  "executionMode": "parallel-agent",
   "checkedPaths": [
     "records/sources.json"
   ],

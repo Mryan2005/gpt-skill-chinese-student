@@ -25,6 +25,7 @@ AGENTS = {
 }
 SEVERITIES = {"blocker", "error", "warning", "info"}
 STATUSES = {"completed", "skipped", "failed"}
+EXECUTION_MODES = {"parallel-agent", "batched-agent", "shared-agent", "orchestrator-fallback"}
 REQUIRED_FINDING_FIELDS = {
     "id",
     "reportedBy",
@@ -77,6 +78,8 @@ def validate_agent_report(
         errors.append("readOnly must be true")
     if report.get("status") not in STATUSES:
         errors.append("status must be completed, skipped, or failed")
+    if report.get("executionMode") not in EXECUTION_MODES:
+        errors.append("executionMode is invalid")
     for field in ("checkedPaths", "executedChecks", "skippedChecks"):
         if not isinstance(report.get(field), list):
             errors.append(f"{field} must be a list")
