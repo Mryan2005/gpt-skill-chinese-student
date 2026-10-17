@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "fix.report.v1",
+  "fixRunId": "math-one-fix-20261017-001",
+  "status": "PARTIAL",
+  "basedOnCheck": {
+    "checkRunId": "math-one-check-20261017-0800",
+    "artifactVersion": "math-records.v1",
+    "artifactHash": "sha256:before-fix",
+    "schemaVersion": "check.finding.v1"
+  },
+  "currentArtifact": {
+    "artifactVersion": "math-records.v1",
+    "artifactHash": "sha256:before-fix",
+    "schemaVersion": "study-math.v1"
+  },
+  "inputFindings": 4,
+  "resolved": 3,
+  "remaining": 1,
+  "blocked": 0,
+  "changes": {
+    "runtime": 1,
+    "derived-schema": 1,
+    "derived-relations": 1,
+    "learner-state": 0
+  },
+  "writeScopes": ["runtime", "derived-schema", "derived-relations"],
+  "sourceMutation": false,
+  "execution": {
+    "actualMode": "orchestrator-fallback",
+    "maxParallel": 0,
+    "spawnFailures": 2,
+    "spawningDisabled": true,
+    "fallbackReason": "spawn-failure-threshold"
+  },
+  "localValidation": {
+    "status": "PASS",
+    "checks": ["json-parse", "reference-integrity", "javascript-syntax"]
+  },
+  "fullCheckRun": null,
+  "escalations": [
+    {
+      "code": "RELEARN_RECOMMENDED",
+      "reason": "One semantic Derived mapping cannot be safely repaired locally."
+    }
+  ],
+  "findingResults": [
+    {"fingerprint": "RETRIEVAL_INDEX_MISSING|search|runtime", "status": "resolved"},
+    {"fingerprint": "DUPLICATE_ENTITY_ID|card:001|derived-schema", "status": "resolved"},
+    {"fingerprint": "RELATION_ENDPOINT_BROKEN|relation:019|derived-relations", "status": "resolved"},
+    {"fingerprint": "QUESTION_CARD_MISMATCH|question:019|question-mapping", "status": "remaining"}
+  ],
+  "nextAction": "run check"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "修复"
+  short_description: "根据检查报告自动修复问题"
+  default_prompt: "Use $fix to consume the latest valid check report, repair all allowed Derived, Runtime, and Generated Artifact findings without per-finding confirmation, validate locally, and stop with a fix report for the user to verify with check."

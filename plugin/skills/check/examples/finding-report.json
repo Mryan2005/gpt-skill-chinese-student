@@ -14,6 +14,7 @@
   "artifact": {
     "subjectId": "math-1",
     "version": "math-records.example.v1",
+    "hash": "sha256:math-records-example",
     "checkedAt": "2026-10-16T10:02:00+08:00"
   },
   "execution": {

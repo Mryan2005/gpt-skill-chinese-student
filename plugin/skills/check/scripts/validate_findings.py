@@ -102,8 +102,13 @@ def validate_report(report: Any) -> list[str]:
         if workspace.get("residualPaths") != []:
             errors.append("CHECK_WORKSPACE_NOT_CLEAN: residualPaths must be empty")
     artifact = report.get("artifact")
-    if not isinstance(artifact, dict) or not _text(artifact.get("version")) or not _text(artifact.get("checkedAt")):
-        errors.append("artifact.version and artifact.checkedAt are required")
+    if (
+        not isinstance(artifact, dict)
+        or not _text(artifact.get("version"))
+        or not _text(artifact.get("hash"))
+        or not _text(artifact.get("checkedAt"))
+    ):
+        errors.append("artifact.version, artifact.hash, and artifact.checkedAt are required")
     execution = report.get("execution")
     if not isinstance(execution, dict):
         errors.append("execution is required")
