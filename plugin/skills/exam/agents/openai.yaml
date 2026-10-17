@@ -1,4 +1,4 @@
 interface:
-  display_name: "chinese-student: exam"
+  display_name: "$中式学生:exam"
   short_description: "只用图谱完成闭卷考试"
-  default_prompt: "Use $exam to answer every question from the current subject graph, then append a PDF-based review."
+  default_prompt: "Use $chinese-student:exam to answer every question from the current subject graph, then append a PDF-based review."

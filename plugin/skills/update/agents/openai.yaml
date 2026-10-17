@@ -1,4 +1,4 @@
 interface:
-  display_name: "chinese-student: update"
+  display_name: "$中式学生:update"
   short_description: "迁移旧学习内容与 schema"
-  default_prompt: "Use $update as the versioned migration runner for an existing Subject. Detect, plan, snapshot, migrate, rebuild, validate, and report without mutating Source content."
+  default_prompt: "Use $chinese-student:update as the versioned migration runner for an existing Subject. Detect, plan, snapshot, migrate, rebuild, validate, and report without mutating Source content."

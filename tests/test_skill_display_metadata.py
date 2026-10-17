@@ -19,7 +19,12 @@ class SkillDisplayMetadataTests(unittest.TestCase):
             text = metadata.read_text(encoding="utf-8")
             match = re.search(r'^\s*display_name:\s*["\']([^"\']+)["\']', text, re.MULTILINE)
             self.assertIsNotNone(match, skill_dir.name)
-            self.assertEqual(match.group(1), f"chinese-student: {skill_dir.name}")
+            self.assertEqual(match.group(1), f"$中式学生:{skill_dir.name}")
+
+    def test_default_prompt_uses_combined_skill_identity(self) -> None:
+        for skill_dir in sorted(path for path in SKILLS_ROOT.iterdir() if path.is_dir()):
+            text = (skill_dir / "agents" / "openai.yaml").read_text(encoding="utf-8")
+            self.assertIn(f"$chinese-student:{skill_dir.name}", text)
 
     def test_internal_skill_ids_remain_slugs(self) -> None:
         for skill_dir in SKILLS_ROOT.iterdir():

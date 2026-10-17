@@ -1,4 +1,4 @@
 interface:
-  display_name: "chinese-student: study-politics"
+  display_name: "$中式学生:study-politics"
   short_description: "政治领域知识模型"
-  default_prompt: "Use $study-politics as the politics domain model while learn orchestrates the learning workflow."
+  default_prompt: "Use $chinese-student:study-politics as the politics domain model while learn orchestrates the learning workflow."
