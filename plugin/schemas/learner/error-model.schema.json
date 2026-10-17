@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/learner/error-model.v1.json",
+  "title": "Local Learner Error Model",
+  "type": "object",
+  "required": ["subjectId", "learningEpoch", "patterns"],
+  "properties": {
+    "subjectId": {"type": "string", "minLength": 1},
+    "learningEpoch": {"type": "integer", "minimum": 1},
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "stage", "count", "recentCount", "confidence", "status", "firstSeen", "lastSeen", "evidenceIds"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "stage": {"type": "string", "minLength": 1},
+          "count": {"type": "integer", "minimum": 1},
+          "recentCount": {"type": "integer", "minimum": 0},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "status": {"enum": ["active", "improving", "dormant", "resolved"]},
+          "firstSeen": {"type": "string", "minLength": 1},
+          "lastSeen": {"type": "string", "minLength": 1},
+          "evidenceIds": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

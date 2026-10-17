@@ -15,7 +15,8 @@
   "preservePaths": [
     "sources",
     "source-records.json",
-    "originals"
+    "originals",
+    ".local/learner"
   ],
   "confirmation": {
     "required": true,

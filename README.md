@@ -6,6 +6,9 @@ chinese-student 是一个面向本地学习资料的 Agent Plugin。它把教材
 
 插件提供方：Mryan2005。
 
+Learner Model 是独立的本地层。它保存观察、错误模式、解释策略、掌握度和个人复习排序，
+默认位于 `.local/learner/`，不会进入 Source、公共 HTML 或 Git。
+
 ## 核心 skills
 
 | Skill | 用途 |
@@ -148,6 +151,8 @@ plugin/
    │  ├─ references/
    │  ├─ examples/
    │  └─ scripts/
+   ├─ schemas/
+   │  └─ learner/
    └─ exam/
       ├─ SKILL.md
       ├─ playbooks/

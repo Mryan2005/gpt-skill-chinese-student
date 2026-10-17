@@ -35,6 +35,8 @@ PLAYBOOKS = {
     "rendering-audit.md",
     "retrieval-audit.md",
     "readiness-audit.md",
+    "learner-model-audit.md",
+    "sort-audit.md",
 }
 
 REFERENCES = {
@@ -60,6 +62,8 @@ AGENTS = {
     "rendering-auditor.md",
     "retrieval-auditor.md",
     "finding-merger.md",
+    "learner-model-auditor.md",
+    "sort-state-auditor.md",
 }
 
 

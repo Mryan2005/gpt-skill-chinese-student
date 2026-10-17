@@ -33,7 +33,9 @@ Previous findings, audit reports, HTML snapshots, screenshots, render caches, re
 
 ## Preserve boundary
 
-The reset must not delete Source Layer, Derived Layer, canonical Markdown, Knowledge Network, learner_state, or the Subject manifest. check only reads those artifacts and writes the disposable audit result.
+The reset must not delete Source Layer, Derived Layer, canonical Markdown,
+Knowledge Network, `learner_state`, `.local/learner/`, or the Subject manifest.
+check only reads those artifacts and writes the disposable audit result.
 
 ## Clean verification
 

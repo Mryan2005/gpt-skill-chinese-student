@@ -21,6 +21,8 @@ or reject the result.
 - A fixer role does not require a dedicated agent thread. Capacity changes speed,
   never repair coverage.
 - Every mutation maps to one or more input findings.
+- Learner repairs may recalculate aggregates, indexes, mastery projections, and
+  sort state, but may never rewrite historical Observations.
 - Run local validation only. Do not silently run or claim a full `check`.
 - Never invoke `relearn` or `update` silently. Emit `RELEARN_RECOMMENDED` or
   `REQUIRES_UPDATE` instead.

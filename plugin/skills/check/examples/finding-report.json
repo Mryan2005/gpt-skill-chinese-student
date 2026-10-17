@@ -46,7 +46,9 @@
       {"auditor": "relation", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "domain"},
       {"auditor": "rendering", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "presentation"},
       {"auditor": "retrieval", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "presentation"},
-      {"auditor": "readiness", "auditStatus": "FAIL", "executionMode": "parallel-agent", "workerBundle": "coverage"}
+      {"auditor": "readiness", "auditStatus": "FAIL", "executionMode": "parallel-agent", "workerBundle": "coverage"},
+      {"auditor": "learner-model", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "coverage"},
+      {"auditor": "sort-state", "auditStatus": "PASS", "executionMode": "parallel-agent", "workerBundle": "coverage"}
     ]
   },
   "rootCauses": [

@@ -5,20 +5,20 @@ description: Use as the safe review-priority front door to rank existing knowled
 
 # 中式学生：复习排序入口
 
-`sort` 只决定“现在先看什么”。它读取当前 Subject、领域 contract、learner
-state、exam gap 和 check findings，生成一个可解释的 review-priority projection。
+`sort` 只决定“现在先看什么”。它读取当前 Subject、领域 contract、`.local/learner`
+中的 Error Model、Mastery、Observations、Explanation Model、exam gap 和 check findings，生成一个可解释的 review-priority projection。
 它不判断知识是否正确，也不重写卡片或打乱课程结构。
 
 ## Non-negotiables
 
-- 只写 review-priority projection、review order 和 review queue。
+- 只写 `.local/learner/subjects/<subject-id>/sort-state.json` 以及本地 review-priority projection、review order 和 review queue。
 - 不修改 Source、Card 内容、Question、Solution、Relation、canonical Markdown、HTML 或 learner_state。
 - 不改变章节树、父子关系、canonical card order 或 card IDs。
 - 每个分数都必须拆成九个可追溯维度，缺失信号不能静默当成零。
 - 每张进入队列的卡都必须有理由和证据；分数不足时必须标为 `insufficient-signal`。
 - 使用稳定的 card ID 作为同分时的最终排序键。
 - 只使用当前 artifact version 的状态、exam report 和 check findings。
-- `sort` 不修复 check finding，也不把排序结果写回学习状态。
+- `sort` 不修复 check finding，也不把排序结果写回 canonical learner state 或知识内容。
 - 这是可重复、可覆盖的安全操作，不需要破坏性确认。
 
 读取 [sort-contract.md](references/sort-contract.md)、[priority-model.md](references/priority-model.md)、[modes.md](references/modes.md) 和 [build-review-priority.md](playbooks/build-review-priority.md)。

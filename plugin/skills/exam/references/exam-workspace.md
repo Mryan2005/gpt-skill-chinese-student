@@ -41,6 +41,8 @@ The reset must not delete:
 - Derived Knowledge;
 - learner_state already accepted by learn;
 - question mastery or knowledge mastery already accepted by learn;
+- `.local/learner/` observations, global explanation evidence, and subject
+  learning epochs;
 - task-state or design-memory records.
 
 Exam history is not retained by default. A future exam-history feature must use a separate contract and directory.

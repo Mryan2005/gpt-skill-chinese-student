@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/learner/strategy-state.v1.json",
+  "title": "Local Learner Strategy State",
+  "type": "object",
+  "required": ["subjectId", "learningEpoch", "scope", "strategy", "reasonCodes", "evidenceIds", "updatedAt"],
+  "properties": {
+    "subjectId": {"type": "string", "minLength": 1},
+    "learningEpoch": {"type": "integer", "minimum": 1},
+    "scope": {"type": "string", "minLength": 1},
+    "strategy": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "reasonCodes": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "instruction": {"type": "string"},
+    "evidenceIds": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "updatedAt": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": true
+}

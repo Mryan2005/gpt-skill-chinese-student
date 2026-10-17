@@ -71,6 +71,8 @@ The merger reports root causes; it does not repair them.
 | `relation-audit` | relation auditor and applicable domain checks |
 | `rendering-audit` | rendering auditor, with retrieval probes when requested |
 | `retrieval-audit` | retrieval auditor |
+| `learner-model-audit` | Learner Model auditor |
+| `sort-audit` | Sort state auditor |
 | `readiness-audit` | all auditors required by the Subject's readiness contract |
 
 The mode changes scope, not the read-only or evidence requirements.

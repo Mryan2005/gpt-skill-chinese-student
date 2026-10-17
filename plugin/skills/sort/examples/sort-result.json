@@ -9,6 +9,10 @@
     "version": "math-records.example.v1",
     "generatedAt": "2026-10-17T09:00:00+08:00"
   },
+  "output": {
+    "path": ".local/learner/subjects/math-1/sort-state.json",
+    "localOnly": true
+  },
   "mode": "default",
   "model": {
     "version": "priority-model.v1",
@@ -41,13 +45,16 @@
       "path": "subject/math-records.json",
       "version": "math-records.example.v1"
     },
-    "learnerState": {
-      "path": "learner_state.md",
+    "learnerModel": {
+      "observations": ".local/learner/subjects/math-1/observations.jsonl",
+      "errorModel": ".local/learner/subjects/math-1/error-model.json",
+      "explanationModel": ".local/learner/global/explanation-model.json",
+      "mastery": ".local/learner/subjects/math-1/mastery.json",
       "asOf": "2026-10-17T08:30:00+08:00"
     },
     "examReports": [
       {
-        "path": "learner_state.md",
+        "path": ".local/learner/subjects/math-1/observations.jsonl",
         "locator": "accepted-exam-gaps.math-1-demo-001",
         "artifactVersion": "math-records.example.v1",
         "acceptedBy": "learn"
@@ -108,12 +115,12 @@
           {
             "code": "user_weakness",
             "label": "当前薄弱",
-            "evidence": [{"path": "learner_state.md", "locator": "active-gaps.limit-equivalent", "detail": "mastery is below review threshold"}]
+            "evidence": [{"path": ".local/learner/subjects/math-1/mastery.json", "locator": "cards[limit-equivalent]", "detail": "mastery is below review threshold"}]
           },
           {
             "code": "recent_exam_error",
             "label": "最近考试出错",
-            "evidence": [{"path": "learner_state.md", "locator": "accepted-exam-gaps.math-1-demo-001", "detail": "recent error involves this card"}]
+            "evidence": [{"path": ".local/learner/subjects/math-1/observations.jsonl", "locator": "accepted-exam-gaps.math-1-demo-001", "detail": "recent error involves this card"}]
           },
           {
             "code": "often_confused",
@@ -165,7 +172,7 @@
           {
             "code": "hard_to_recall",
             "label": "主动回忆不稳定",
-            "evidence": [{"path": "learner_state.md", "locator": "recall-history.continuous-differentiable", "detail": "recall difficulty=64"}]
+            "evidence": [{"path": ".local/learner/subjects/math-1/observations.jsonl", "locator": "recall-history.continuous-differentiable", "detail": "recall difficulty=64"}]
           }
         ]
       }
@@ -202,7 +209,7 @@
           {
             "code": "hard_to_recall",
             "label": "公式回忆难度高",
-            "evidence": [{"path": "learner_state.md", "locator": "recall-history.taylor-expansion", "detail": "recall difficulty=72"}]
+            "evidence": [{"path": ".local/learner/subjects/math-1/observations.jsonl", "locator": "recall-history.taylor-expansion", "detail": "recall difficulty=72"}]
           }
         ]
       }
@@ -229,7 +236,7 @@
           {
             "code": "high_error_risk",
             "label": "判别法选择易错",
-            "evidence": [{"path": "learner_state.md", "locator": "accepted-exam-gaps.math-1-demo-001", "detail": "method selection needs review"}]
+            "evidence": [{"path": ".local/learner/subjects/math-1/observations.jsonl", "locator": "accepted-exam-gaps.math-1-demo-001", "detail": "method selection needs review"}]
           },
           {
             "code": "often_confused",

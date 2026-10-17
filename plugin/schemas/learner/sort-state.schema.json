@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/learner/sort-state.v1.json",
+  "title": "Local Learner Sort State",
+  "type": "object",
+  "required": ["subjectId", "generatedAt", "artifactVersion", "artifactHash", "ranking"],
+  "properties": {
+    "subjectId": {"type": "string", "minLength": 1},
+    "generatedAt": {"type": "string", "minLength": 1},
+    "artifactVersion": {"type": "string", "minLength": 1},
+    "artifactHash": {"type": "string", "minLength": 1},
+    "ranking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cardId", "priorityScore", "reasons", "evidenceIds"],
+        "properties": {
+          "cardId": {"type": "string", "minLength": 1},
+          "priorityScore": {"type": "number"},
+          "reasons": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "evidenceIds": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

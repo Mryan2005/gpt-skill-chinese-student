@@ -13,7 +13,7 @@ BUNDLES = {
     "structure": ["structure", "source", "provenance", "question"],
     "domain": ["content", "solution", "math", "relation"],
     "presentation": ["latex", "rendering", "retrieval"],
-    "coverage": ["coverage", "readiness"],
+    "coverage": ["coverage", "readiness", "learner-model", "sort-state"],
 }
 
 

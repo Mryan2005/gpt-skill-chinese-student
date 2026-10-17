@@ -31,7 +31,7 @@ policy-framework
 problem-pattern
 ~~~
 
-字段和示例见 [politics-cards.md](references/politics-cards.md)。完整性与 Source/Derived 冲突见 [politics-integrity.md](references/politics-integrity.md)。平台不可变原则见 [platform-contract.md](../../references/platform-contract.md)。
+字段和示例见 [politics-cards.md](references/politics-cards.md)。政治 Learner Error Taxonomy 见 [learner-errors.md](references/learner-errors.md)。完整性与 Source/Derived 冲突见 [politics-integrity.md](references/politics-integrity.md)。平台不可变原则见 [platform-contract.md](../../references/platform-contract.md)。
 
 ## learn integration
 

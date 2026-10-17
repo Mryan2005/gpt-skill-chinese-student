@@ -14,10 +14,12 @@ exam 是 Assessment / Evaluation Runner。它测量冻结知识状态下的学�
 - 考试和解析 PDF 必须由当前 AI 直接读取原始 PDF。禁止 OCR、OCR 包、外部 OCR API、转写替代输入和委托 OCR。
 - FIRST_PASS 只能访问冻结的知识图谱和题目。
 - 首轮禁止 Web、解析、答案表、其他资料和未冻结的新知识。
+- Learner Model may guide coverage or difficulty before snapshot freeze, but it
+  must not provide hints or personalized cues after `SNAPSHOT_FROZEN`.
 - 首轮答案必须先保存并冻结，之后只能追加 revision，不能覆盖。
 - 解析释放、评分和复盘发生在答案冻结之后。
 - exam 不调用 learn 或 study-math 修改被测 artifact。
-- exam 输出 Exam Result、Learning Gap Report 和 Repair Requests，由 learn 或领域模型决定如何修复。
+- exam 输出 Exam Result、Learning Gap Report 和 Repair Requests，由 learn 或领域模型决定如何修复；评分后的错误证据可追加到 `.local/learner/subjects/<subject-id>/observations.jsonl`。
 
 完整状态和记录合同见 [exam-contract.md](references/exam-contract.md)、[exam-workspace.md](references/exam-workspace.md)、[pdf-reading.md](references/pdf-reading.md)、[answer-record.md](references/answer-record.md)、[grading.md](references/grading.md) 和 [error-taxonomy.md](references/error-taxonomy.md)。
 

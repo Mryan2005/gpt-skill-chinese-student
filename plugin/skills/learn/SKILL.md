@@ -16,8 +16,9 @@ learn 是用户学习行为的总入口。它先理解目标，选择 playbook�
 - 领域模型拥有卡片内部结构。learn 不把所有学科强行压成同一个 Card Schema。
 - 代理只能写隔离报告。主 learn skill 是统一输出的唯一合并者。
 - 最终 artifact 必须经过结构、来源、Markdown/LaTeX、实际输出和考试 readiness 检查。
+- Learner Model 只保存本地、证据型学习观察和派生教学信号，不保存人格或心理标签。
 
-平台合同见 [common.md](references/common.md)、[knowledge-model.md](references/knowledge-model.md)、[question-model.md](references/question-model.md)、[provenance.md](references/provenance.md) 和 [platform-contract.md](../../references/platform-contract.md)。不要把具体学科规则扩写回入口。
+平台合同见 [common.md](references/common.md)、[knowledge-model.md](references/knowledge-model.md)、[question-model.md](references/question-model.md)、[provenance.md](references/provenance.md)、[learner-model.md](references/learner-model.md)、[learner-model-contract.md](../../references/learner-model-contract.md) 和 [platform-contract.md](../../references/platform-contract.md)。不要把具体学科规则扩写回入口。
 
 ## Routing
 
@@ -40,6 +41,7 @@ learn 是用户学习行为的总入口。它先理解目标，选择 playbook�
 3. 复杂批次读取 [agent-contract.md](references/agent-contract.md)，把每个代理报告保存到隔离目录。
 4. 只在当前 playbook 需要时读取 source-model.md、knowledge-model.md、question-model.md、provenance.md 或领域 skill 的 references。
 5. 学习状态写入持久文件，不依赖对话记忆。来源、排除项、映射和完成状态变化及时写入 task-state。
+6. 教学后的 Learner Observation 只写入 `.local/learner/`，不写入 Source、公开 HTML 或 canonical knowledge。
 
 ## Done gate
 

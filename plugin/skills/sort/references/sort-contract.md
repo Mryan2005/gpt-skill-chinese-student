@@ -7,7 +7,8 @@ the learning content.
 
 - the current canonical cards, questions, relations, and source references;
 - the selected domain contract and its importance or frequency signals;
-- the current `learner_state` and separate knowledge and question mastery;
+- the local Learner Model: Error Model, Explanation Model, Observations, Mastery,
+  and the current learning epoch;
 - the current closed `exam` result, or an exam-gap record already accepted by
   `learn` into the learner state;
 - current `check` findings for the same artifact version;
@@ -20,7 +21,8 @@ stale instead of mixing it with current state. It never treats a disposable
 
 ## Allowed output
 
-`sort` may replace the review-priority projection for the current Subject. The
+`sort` may replace `.local/learner/subjects/<subject-id>/sort-state.json` and
+the review-priority projection for the current Subject. The
 projection may contain:
 
 - `priority_score` and its dimension breakdown;
@@ -34,9 +36,9 @@ The projection is a view. It is not a second copy of card content.
 ## Forbidden writes
 
 Do not change Source, Derived card text, definitions, formulas, solutions,
-questions, relations, canonical Markdown, HTML, `learner_state`, or the
-canonical chapter order. Do not resolve a check finding or invent a domain
-importance value.
+questions, relations, canonical Markdown, HTML, canonical `learner_state`, or
+the canonical chapter order. Do not resolve a check finding or invent a domain
+importance value. The local sort projection is the only Learner-layer write.
 
 ## Scoring and missing signals
 

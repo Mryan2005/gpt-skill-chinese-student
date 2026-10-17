@@ -1,0 +1,18 @@
+{
+  "subjectId": "math-1",
+  "generatedAt": "2026-10-17T10:10:00+08:00",
+  "artifactVersion": "math-records.v1",
+  "artifactHash": "sha256:math-records-example",
+  "ranking": [
+    {
+      "cardId": "card:ratio-test",
+      "priorityScore": 86,
+      "reasons": [
+        "METHOD_SELECTION_ERROR repeated 3 times",
+        "last error occurred recently",
+        "application mastery below target"
+      ],
+      "evidenceIds": ["obs-001", "obs-014", "obs-027"]
+    }
+  ]
+}

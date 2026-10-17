@@ -13,7 +13,9 @@ from validate_relearn_manifest import validate_manifest
 
 def resolve_safe(root: Path, relative: str) -> Path:
     target = (root / relative).resolve()
-    if not target.is_relative_to(root.resolve()):
+    try:
+        target.relative_to(root.resolve())
+    except ValueError:
         raise ValueError(f"path escapes subject root: {relative}")
     return target
 

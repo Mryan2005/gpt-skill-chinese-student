@@ -1,0 +1,10 @@
+{
+  "subjectId": "math-1",
+  "learningEpoch": 1,
+  "scope": "series",
+  "strategy": ["TRIGGER_FIRST", "STEP_BY_STEP"],
+  "reasonCodes": ["METHOD_SELECTION_ERROR", "recent_hint_success"],
+  "instruction": "先问看到什么结构，再让学习者选择方法。",
+  "evidenceIds": ["obs-001", "obs-014"],
+  "updatedAt": "2026-10-17T10:05:00+08:00"
+}

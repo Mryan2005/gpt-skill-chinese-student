@@ -1,0 +1,19 @@
+{
+  "id": "obs-001",
+  "subjectId": "math-1",
+  "timestamp": "2026-10-17T10:00:00+08:00",
+  "learningEpoch": 1,
+  "entityType": "question",
+  "entityId": "question:series-17",
+  "topicIds": ["card:ratio-test"],
+  "taskStage": "METHOD_SELECTION",
+  "event": "hinted_correct",
+  "observedError": "METHOD_SELECTION_ERROR",
+  "userStrategy": "先尝试洛必达",
+  "expectedStrategy": "先识别级数结构并选择判别法",
+  "hintCount": 1,
+  "correctAfterHint": true,
+  "explanationUsed": ["TRIGGER_FIRST", "STEP_BY_STEP"],
+  "outcome": "understood_after_explanation",
+  "source": "learn"
+}

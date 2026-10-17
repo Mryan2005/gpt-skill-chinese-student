@@ -29,6 +29,8 @@ AUDITORS = {
     "rendering",
     "retrieval",
     "readiness",
+    "learner-model",
+    "sort-state",
 }
 REQUIRED_BY_MODE = {
     "full-audit": AUDITORS,
@@ -53,6 +55,8 @@ REPORTERS = {
     "provenance-auditor",
     "rendering-auditor",
     "retrieval-auditor",
+    "learner-model-auditor",
+    "sort-state-auditor",
     "finding-merger",
 }
 REQUIRED_FINDING_FIELDS = {

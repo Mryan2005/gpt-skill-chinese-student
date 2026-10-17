@@ -43,6 +43,8 @@ Finding Merger 去重并定位根因。
 | 页面、公式或交互显示异常 | [rendering-audit.md](playbooks/rendering-audit.md) |
 | 搜索找不到知识点 | [retrieval-audit.md](playbooks/retrieval-audit.md) |
 | 是否可以拿去复习或考试 | [readiness-audit.md](playbooks/readiness-audit.md) |
+| Learner Model 是否有证据且保持私有 | [learner-model-audit.md](playbooks/learner-model-audit.md) |
+| 个性化排序是否新鲜且可解释 | [sort-audit.md](playbooks/sort-audit.md) |
 
 先按用户目标选择审计 playbook，再按 Subject 选择领域 contract。数学检查读取
 study-math 的 schema、validator 和 readiness contract；check 不复制数学规则。
@@ -52,7 +54,8 @@ study-math 的 schema、validator 和 readiness contract；check 不复制数学
 [question](agents/question-auditor.md)、[solution](agents/solution-auditor.md)、
 [math](agents/math-auditor.md)、[latex](agents/latex-auditor.md)、
 [relation](agents/relation-auditor.md)、[provenance](agents/provenance-auditor.md)、
-[rendering](agents/rendering-auditor.md)、[retrieval](agents/retrieval-auditor.md)。
+[rendering](agents/rendering-auditor.md)、[retrieval](agents/retrieval-auditor.md)、
+[learner-model](agents/learner-model-auditor.md)、[sort-state](agents/sort-state-auditor.md)。
 最终由 [Finding Merger](agents/finding-merger.md) 汇总。
 
 ## State machine
@@ -73,7 +76,5 @@ NEW_CHECK_REQUEST
 
 ## Done gate
 
-使用真实 canonical artifact、Structured Records 和实际 HTML 输出。运行
-reset_check_workspace.py，确认 workspace clean，再生成结构化 findings。汇总
-严重程度、执行和未执行代理、证据路径、rootLayer 和 repairOwner。最终结果只能是
-PASS、PASS_WITH_WARNINGS、FAIL 或 BLOCKED。检查结束时只报告验证结果，不报告已修复内容。
+使用真实 canonical artifact、Structured Records 和实际 HTML 输出。运行 reset_check_workspace.py，确认 workspace clean，再生成结构化 findings；汇总严重程度、执行和未执行代理、证据路径、rootLayer 和 repairOwner。
+最终结果只能是 PASS、PASS_WITH_WARNINGS、FAIL 或 BLOCKED。检查结束时只报告验证结果，不报告已修复内容。

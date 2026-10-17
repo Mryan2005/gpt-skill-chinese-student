@@ -1,0 +1,13 @@
+{
+  "scope": "math",
+  "patterns": [
+    {
+      "strategy": ["TRIGGER_FIRST", "STEP_BY_STEP"],
+      "effectiveness": 0.86,
+      "evidenceCount": 7,
+      "successfulTransfers": 5,
+      "evidenceIds": ["obs-001", "obs-008", "obs-014", "obs-021", "obs-027", "obs-031", "obs-034"],
+      "lastUpdated": "2026-10-17T10:05:00+08:00"
+    }
+  ]
+}

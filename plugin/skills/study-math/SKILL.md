@@ -18,7 +18,7 @@ study-math 是数学学习的 Front Door。它根据用户目标选择 playbook�
 - sourceStatus、questionStatus、solutionStatus、answerStatus 分开保存。
 - 最终输出必须验证真实 artifact，不能只验证文件存在或提示词通过。
 
-完整原则见 [principles.md](references/principles.md)；平台 Source/Derived Contract 见 [platform-contract.md](../../references/platform-contract.md)。不要把这些原则扩写回入口文件。
+完整原则见 [principles.md](references/principles.md)；数学 Learner Error Taxonomy 见 [learner-errors.md](references/learner-errors.md)；平台 Source/Derived Contract 见 [platform-contract.md](../../references/platform-contract.md)。不要把这些原则扩写回入口文件。
 
 ## Routing
 

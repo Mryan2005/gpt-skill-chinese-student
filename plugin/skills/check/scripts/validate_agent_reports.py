@@ -22,6 +22,8 @@ AGENTS = {
     "provenance-auditor",
     "rendering-auditor",
     "retrieval-auditor",
+    "learner-model-auditor",
+    "sort-state-auditor",
 }
 SEVERITIES = {"blocker", "error", "warning", "info"}
 STATUSES = {"completed", "skipped", "failed"}

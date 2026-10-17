@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/learner/observation.v1.json",
+  "title": "Local Learner Observation",
+  "type": "object",
+  "required": ["id", "subjectId", "timestamp", "entityType", "entityId", "taskStage", "event", "source"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "subjectId": {"type": "string", "minLength": 1},
+    "timestamp": {"type": "string", "minLength": 1},
+    "learningEpoch": {"type": "integer", "minimum": 1},
+    "entityType": {"enum": ["card", "question", "relation", "topic"]},
+    "entityId": {"type": "string", "minLength": 1},
+    "topicIds": {"type": "array", "items": {"type": "string"}},
+    "taskStage": {"type": "string", "minLength": 1},
+    "event": {"enum": ["incorrect", "correct", "hinted_correct", "independent_correct", "recall", "user_correction", "explanation_feedback"]},
+    "observedError": {"type": ["string", "null"]},
+    "userStrategy": {"type": ["string", "null"]},
+    "expectedStrategy": {"type": ["string", "null"]},
+    "hintCount": {"type": "integer", "minimum": 0},
+    "correctAfterHint": {"type": ["boolean", "null"]},
+    "explanationUsed": {"type": "array", "items": {"type": "string"}},
+    "outcome": {"type": ["string", "null"]},
+    "counterEvidenceIds": {"type": "array", "items": {"type": "string"}},
+    "source": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": true
+}

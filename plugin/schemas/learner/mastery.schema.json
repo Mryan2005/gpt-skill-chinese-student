@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/learner/mastery.v1.json",
+  "title": "Local Learner Mastery",
+  "type": "object",
+  "required": ["subjectId", "learningEpoch", "updatedAt", "cards"],
+  "properties": {
+    "subjectId": {"type": "string", "minLength": 1},
+    "learningEpoch": {"type": "integer", "minimum": 1},
+    "updatedAt": {"type": "string", "minLength": 1},
+    "cards": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["recognize", "recall", "apply", "transfer", "evidenceIds"],
+        "properties": {
+          "recognize": {"type": "number", "minimum": 0, "maximum": 1},
+          "recall": {"type": "number", "minimum": 0, "maximum": 1},
+          "apply": {"type": "number", "minimum": 0, "maximum": 1},
+          "transfer": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidenceIds": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

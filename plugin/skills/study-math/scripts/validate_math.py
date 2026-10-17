@@ -255,7 +255,7 @@ def _validate_top_level(record: dict[str, Any], report: ValidationReport) -> Non
     for key in required:
         if key not in record:
             report.add("SCHEMA_MISSING_FIELD", key, "top-level collection is required")
-        elif not isinstance(record[key], list | dict):
+        elif not isinstance(record[key], (list, dict)):
             report.add("SCHEMA_WRONG_TYPE", key, "top-level collection has the wrong type")
 
 

@@ -20,7 +20,8 @@ The manifest is a one-time destructive action description:
   "preservePaths": [
     "sources",
     "source-records.json",
-    "originals"
+    "originals",
+    ".local/learner"
   ],
   "confirmation": {
     "required": true,

@@ -1,0 +1,17 @@
+{
+  "subjectId": "math-1",
+  "learningEpoch": 1,
+  "patterns": [
+    {
+      "code": "METHOD_SELECTION_ERROR",
+      "stage": "METHOD_SELECTION",
+      "count": 3,
+      "recentCount": 2,
+      "confidence": 0.72,
+      "status": "active",
+      "firstSeen": "2026-10-10T09:00:00+08:00",
+      "lastSeen": "2026-10-17T10:00:00+08:00",
+      "evidenceIds": ["obs-001", "obs-014", "obs-027"]
+    }
+  ]
+}

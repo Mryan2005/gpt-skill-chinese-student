@@ -29,7 +29,7 @@ required agent thread.
 | `structure` | structure, source, provenance, question |
 | `domain` | content, solution, math, relation |
 | `presentation` | latex, rendering, retrieval |
-| `coverage` | coverage, readiness |
+| `coverage` | coverage, readiness, learner-model, sort-state |
 
 The question role checks identity and storage integrity. Domain auditors check
 the semantic meaning of mappings and solutions. The merger removes overlap.

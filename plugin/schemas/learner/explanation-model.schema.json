@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/learner/explanation-model.v1.json",
+  "title": "Local Learner Explanation Model",
+  "type": "object",
+  "required": ["scope", "patterns"],
+  "properties": {
+    "scope": {"type": "string", "minLength": 1},
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["strategy", "effectiveness", "evidenceCount", "successfulTransfers", "evidenceIds", "lastUpdated"],
+        "properties": {
+          "strategy": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "effectiveness": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidenceCount": {"type": "integer", "minimum": 1},
+          "successfulTransfers": {"type": "integer", "minimum": 0},
+          "evidenceIds": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "lastUpdated": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
