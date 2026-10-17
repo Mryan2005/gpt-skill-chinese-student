@@ -17,12 +17,17 @@ content.
 
 - official, historical, and derived answers are stored separately;
 - an answer is not presented as a solution;
+- a complete question is not left in `SOLUTION_PENDING` without an explicit
+  unreadable or deferred status;
+- a solution contains reasoning, not only a final answer;
 - a derived answer or solution is not claimed when key question content is
   missing;
 - conflicting answer provenance is visible rather than silently overwritten;
 - status fields agree with the available evidence.
 
-Use `SOLUTION_PROVENANCE_CONFLICT`, `ANSWER_PROVENANCE_CONFLICT`,
+Use `QUESTION_COMPLETE_WITHOUT_SOLUTION`, `ANSWER_WITHOUT_REASONING`,
+`DERIVED_MARKED_AS_OFFICIAL`, `SOLUTION_PROVENANCE_CONFLICT`,
+`ANSWER_PROVENANCE_CONFLICT`, `SOLUTION_ANSWER_MISMATCH`,
 `SOLUTION_WITHOUT_COMPLETE_QUESTION`, and domain-specific answer codes.
 
 ## Boundary

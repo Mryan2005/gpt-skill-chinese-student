@@ -24,8 +24,10 @@ Use `RENDERING_FAILURE`, `FORMULA_RENDER_FAILURE`, `SEARCH_CONTROL_FAILURE`,
 
 ## Boundary
 
-Do not hide a content or source defect in the renderer. Do not report a visual
-or interaction check as passed when no actual rendered artifact was inspected.
+Do not hide a content, mapping, or source defect in the renderer. If a page
+shows a pending solution, trace the renderer to the underlying Question and
+solution records and report the earliest wrong layer. Do not report a visual or
+interaction check as passed when no actual rendered artifact was inspected.
 
 ## Output
 

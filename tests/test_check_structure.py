@@ -24,9 +24,11 @@ PLAYBOOKS = {
     "source-audit.md",
     "structure-audit.md",
     "coverage-audit.md",
+    "content-audit.md",
     "question-audit.md",
     "solution-audit.md",
     "math-audit.md",
+    "latex-audit.md",
     "relation-audit.md",
     "provenance-audit.md",
     "rendering-audit.md",
@@ -45,10 +47,12 @@ REFERENCES = {
 AGENTS = {
     "source-auditor.md",
     "structure-auditor.md",
+    "content-auditor.md",
     "coverage-auditor.md",
     "question-auditor.md",
     "solution-auditor.md",
     "math-auditor.md",
+    "latex-auditor.md",
     "relation-auditor.md",
     "provenance-auditor.md",
     "rendering-auditor.md",
@@ -98,6 +102,15 @@ class CheckStructureTests(unittest.TestCase):
         errors = validate_report(mutated)
         self.assertTrue(any("readOnly" in error for error in errors))
         self.assertTrue(any("summary.blocker" in error for error in errors))
+
+    def test_finding_report_requires_root_layer_and_result(self) -> None:
+        report_path = SKILL_ROOT / "examples" / "finding-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["findings"][0].pop("rootLayer")
+        report["result"] = "PASS"
+        errors = validate_report(report)
+        self.assertTrue(any("rootLayer" in error for error in errors))
+        self.assertTrue(any("expected FAIL" in error for error in errors))
 
     def test_finding_report_rejects_residual_workspace(self) -> None:
         report_path = SKILL_ROOT / "examples" / "finding-report.json"

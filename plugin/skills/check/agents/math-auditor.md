@@ -1,9 +1,10 @@
-# Math and LaTeX Auditor
+# Math Domain Auditor
 
 ## Owns
 
-Mathematical notation and structure where the selected domain contract declares
-math-specific rules.
+Mathematical meaning and structure where the selected domain contract declares
+math-specific rules. Syntax and source-preservation checks belong to the
+LaTeX Auditor.
 
 ## Read
 
@@ -14,15 +15,16 @@ math-specific rules.
 
 ## Check
 
-- delimiters and formula syntax are valid;
-- formulas, matrices, cases, limits, bounds, superscripts, and subscripts are
-  not silently lost or flattened;
-- empty options and malformed mathematical structures are explicit;
+- theorem directions, preconditions, conclusions, and failure conditions are
+  semantically consistent;
+- solution operations actually support the recorded answer;
+- empty options and missing mathematical structures are explicit;
 - math Card Types, primary mappings, and typed bridges satisfy the math
   contract, without applying them to another subject.
 
-Use `FORMULA_SYNTAX_ERROR`, `MATH_CONTENT_LOSS`, `EMPTY_MATH_STRUCTURE`,
-`QUESTION_CARD_MISMATCH`, and the domain validator's codes.
+Use `INVALID_MATH_RELATION`, `MATH_SEMANTIC_MISMATCH`,
+`EMPTY_MATH_STRUCTURE`, `MATH_CONTENT_LOSS`, `QUESTION_CARD_MISMATCH`, and the
+domain validator's codes.
 
 ## Boundary
 
@@ -32,5 +34,5 @@ or record location.
 
 ## Output
 
-Write only `math-auditor.json`. Separate static syntax evidence from actual
-rendering evidence and state which math contract rule was applied.
+Write only `math-auditor.json`. State which math contract rule was applied and
+keep semantic evidence separate from LaTeX and rendering evidence.

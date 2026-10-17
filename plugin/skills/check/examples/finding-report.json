@@ -1,6 +1,7 @@
 {
   "schemaVersion": "check.finding.v1",
   "readOnly": true,
+  "result": "FAIL",
   "state": "CLOSED",
   "workspace": {
     "root": ".check/current",
@@ -26,28 +27,38 @@
       "dispatched": [
         "source-auditor",
         "structure-auditor",
+        "content-auditor",
         "coverage-auditor",
         "question-auditor",
         "solution-auditor",
         "math-auditor",
+        "latex-auditor",
         "relation-auditor",
         "provenance-auditor",
         "rendering-auditor",
         "retrieval-auditor"
       ],
-      "completed": ["source-auditor"],
-      "skipped": [
-        {
-          "agentId": "rendering-auditor",
-          "reason": "No rendered HTML was supplied"
-        }
-      ]
+      "completed": [
+        "source-auditor",
+        "structure-auditor",
+        "content-auditor",
+        "coverage-auditor",
+        "question-auditor",
+        "solution-auditor",
+        "math-auditor",
+        "latex-auditor",
+        "relation-auditor",
+        "provenance-auditor",
+        "rendering-auditor",
+        "retrieval-auditor"
+      ],
+      "skipped": []
     }
   },
   "rootCauses": [
     {
       "findingId": "finding-001",
-      "layer": "source-classification",
+      "rootLayer": "source-classification",
       "repairOwner": "learn/source-classification"
     }
   ],
@@ -75,7 +86,7 @@
           "detail": "entityType=chapter_metadata"
         }
       ],
-      "layer": "source-classification",
+      "rootLayer": "source-classification",
       "repairOwner": "learn/source-classification",
       "status": "open"
     }

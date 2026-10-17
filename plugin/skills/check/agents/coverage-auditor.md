@@ -19,8 +19,10 @@ content item. Classify each row as `missing`, `partial`, `covered`,
 `duplicate`, or `uncertain`. Distinguish an explicit exclusion from an
 unexplained gap.
 
-Use `KNOWLEDGE_COVERAGE_GAP` for missing or partial coverage and preserve the
-source evidence that supports the expected item.
+Use `KNOWLEDGE_COVERAGE_GAP` or `SOURCE_KNOWLEDGE_NOT_DERIVED` for missing or
+partial coverage. Preserve the source evidence that supports the expected
+item. A Derived card with no source or reasonable provenance is a separate
+coverage or provenance finding.
 
 ## Boundary
 

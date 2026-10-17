@@ -16,11 +16,11 @@ auditor and it must not repair the Subject.
 
 1. Reject stale, duplicate, malformed, or cross-run agent reports.
 2. Preserve every distinct finding with its original evidence and agent.
-3. Deduplicate only repeated observations of the same code, layer, entity, and
+3. Deduplicate only repeated observations of the same code, rootLayer, entity, and
    evidence.
 4. Trace findings through source, provenance, knowledge, question, relation,
    canonical-output, rendering, and retrieval layers.
-5. Select the earliest wrong layer as the primary root cause when one upstream
+5. Select the earliest wrong rootLayer as the primary root cause when one upstream
    defect explains downstream symptoms. Keep related downstream findings in the
    report rather than hiding them.
 6. Keep the highest applicable severity and record executed, skipped, and failed

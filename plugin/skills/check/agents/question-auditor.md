@@ -16,11 +16,18 @@ Question identity, completeness, grouping, duplication, and mapping integrity.
 - original number, type, stem, options, figures, and subparts are preserved;
 - incomplete or unreadable question regions are explicit;
 - duplicate fingerprints and group boundaries are correct;
-- every required question has the allowed primary-card mapping;
+- every required question has exactly one primary card;
+- the primary card represents the core operation, not only a related topic;
+- secondary tags are supported by the actual stem or solution and have
+  mapping evidence;
+- a complete question has a separate solution path or is reported to the
+  Solution Auditor;
 - question mastery is separate from knowledge-card mastery.
 
 Use `QUESTION_DUPLICATED`, `QUESTION_INCOMPLETE`, `QUESTION_CARD_MISMATCH`,
-`MATH_CONTENT_LOSS`, and the applicable domain codes.
+`PRIMARY_CARD_NOT_CORE_OPERATION`, `SECONDARY_TAG_UNSUPPORTED`,
+`MISSING_MAPPING_EVIDENCE`, `MATH_CONTENT_LOSS`, and the applicable domain
+codes. A non-null primary card is not a passing result by itself.
 
 ## Boundary
 

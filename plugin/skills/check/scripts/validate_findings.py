@@ -11,13 +11,16 @@ from typing import Any
 
 
 SEVERITIES = {"blocker", "error", "warning", "info"}
+RESULTS = {"PASS", "PASS_WITH_WARNINGS", "FAIL", "BLOCKED"}
 REPORTERS = {
     "source-auditor",
     "structure-auditor",
+    "content-auditor",
     "coverage-auditor",
     "question-auditor",
     "solution-auditor",
     "math-auditor",
+    "latex-auditor",
     "relation-auditor",
     "provenance-auditor",
     "rendering-auditor",
@@ -35,7 +38,7 @@ REQUIRED_FINDING_FIELDS = {
     "observed",
     "expected",
     "evidence",
-    "layer",
+    "rootLayer",
     "repairOwner",
 }
 
@@ -104,7 +107,7 @@ def validate_report(report: Any) -> list[str]:
             actual[severity] += 1
         if finding.get("reportedBy") not in REPORTERS:
             errors.append(f"{path}.reportedBy is invalid")
-        for field in ("reportedBy", "code", "subject", "entityType", "entityId", "observed", "expected", "layer", "repairOwner"):
+        for field in ("reportedBy", "code", "subject", "entityType", "entityId", "observed", "expected", "rootLayer", "repairOwner"):
             if not _text(finding.get(field)):
                 errors.append(f"{path}.{field} must be non-empty")
         if not _evidence(finding.get("evidence")):
@@ -117,6 +120,20 @@ def validate_report(report: Any) -> list[str]:
             errors.append(f"summary.{severity} must be a non-negative integer")
         elif declared != actual[severity]:
             errors.append(f"summary.{severity}={declared} does not match findings ({actual[severity]})")
+    result = report.get("result")
+    if result not in RESULTS:
+        errors.append("result must be PASS, PASS_WITH_WARNINGS, FAIL, or BLOCKED")
+    else:
+        workspace_invalid = not isinstance(workspace, dict) or workspace.get("residualPaths") != []
+        agents = report.get("run", {}).get("agents", {}) if isinstance(report.get("run"), dict) else {}
+        has_unexecuted = bool(agents.get("skipped") or agents.get("failed")) if isinstance(agents, dict) else False
+        expected_result = "BLOCKED" if workspace_invalid or has_unexecuted else (
+            "FAIL" if actual["blocker"] or actual["error"] else (
+                "PASS_WITH_WARNINGS" if actual["warning"] else "PASS"
+            )
+        )
+        if result != expected_result:
+            errors.append(f"result={result} does not match expected {expected_result}")
     return errors
 
 

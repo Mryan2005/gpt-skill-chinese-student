@@ -23,14 +23,14 @@ Each finding has the following shape:
       "detail": "entityType=chapter_metadata"
     }
   ],
-  "layer": "source-classification",
+  "rootLayer": "source-classification",
   "repairOwner": "learn/source-classification",
   "status": "open"
 }
 ~~~
 
 Required fields are id, reportedBy, code, severity, subject, entityType,
-entityId, observed, expected, evidence, layer, and repairOwner. `reportedBy`
+entityId, observed, expected, evidence, rootLayer, and repairOwner. `reportedBy`
 must identify the isolated auditor or `finding-merger` that owns the report
 entry. Evidence must point to a real file, record, node, question, URL, or
 rendered location. status is open unless the audit is comparing a previously
@@ -61,6 +61,17 @@ that attribution in the final report.
 `skippedChecks`. The merger must not consume a report with another run ID or
 artifact version.
 
+## Final result
+
+The merged report has one `result`:
+
+- `PASS`: no blocker, error, or warning remains;
+- `PASS_WITH_WARNINGS`: warnings remain, but no blocker or error remains;
+- `FAIL`: at least one blocker or error was found;
+- `BLOCKED`: the workspace was not clean or a required auditor did not run.
+
+An unexecuted required audit is never reported as a pass.
+
 ## Common codes
 
 Use existing domain validator codes when available, including META_AS_QUESTION,
@@ -72,5 +83,12 @@ KNOWLEDGE_COVERAGE_GAP, CARD_TOO_BROAD, CARD_TOO_LARGE, CHAPTER_AS_CARD,
 INVALID_CARD_TYPE, QUESTION_INCOMPLETE, SOLUTION_PROVENANCE_CONFLICT,
 ANSWER_PROVENANCE_CONFLICT, FORMULA_SYNTAX_ERROR, RELATION_WRONG_DIRECTION,
 PROVENANCE_AMBIGUOUS, RENDERING_FAILURE, RETRIEVAL_ZERO_HIT,
-RETRIEVAL_AMBIGUOUS, and RETRIEVAL_WRONG_TARGET. Use a new code only when the
+RETRIEVAL_AMBIGUOUS, and RETRIEVAL_WRONG_TARGET. The extended QA vocabulary
+also includes CARD_NOT_ATOMIC, GROUP_USED_AS_REVIEW_CARD, DUPLICATE_ENTITY_ID,
+QUESTION_COMPLETE_WITHOUT_SOLUTION, ANSWER_WITHOUT_REASONING,
+DERIVED_MARKED_AS_OFFICIAL, SOLUTION_ANSWER_MISMATCH, INVALID_MATH_RELATION,
+RELATION_REASON_TOO_GENERIC, RELATION_HEURISTIC_UNREVIEWED,
+SOURCE_MUTATED_BY_DERIVATION, SOURCE_REFERENCE_BROKEN, LATEX_SYNTAX_ERROR,
+FORMULA_SOURCE_MISMATCH, SOURCE_KNOWLEDGE_NOT_DERIVED, CONTENT_INCOMPLETE,
+CONTENT_TOO_SHALLOW, and CONDITION_MISSING. Use a new code only when the
 existing contract cannot express the finding.

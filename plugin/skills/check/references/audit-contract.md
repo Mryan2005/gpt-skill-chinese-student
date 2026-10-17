@@ -8,7 +8,7 @@ the current canonical Subject, then uses one merger to produce the final report.
 1. Reset `.check/current/` and verify that it is empty.
 2. Freeze one canonical artifact version and one check `runId`.
 3. Dispatch only the auditors required by the selected mode. Full audit dispatches
-   all ten specialized auditors in parallel when the runtime supports it.
+   all specialized auditors in parallel when the runtime supports it.
 4. Give every auditor the same frozen artifact, domain contract, and run ID.
 5. Allow each auditor to write only its own report under
    `.check/current/subagent-reports/`. Auditors must not write canonical content,
@@ -22,7 +22,7 @@ the current canonical Subject, then uses one merger to produce the final report.
 
 Every auditor must declare:
 
-- `agentId` and the layer it owns;
+- `agentId` and the root layer it owns;
 - the exact input paths and domain contract it inspected;
 - checks executed, skipped, and their reason;
 - evidence locations for every finding;
@@ -38,8 +38,8 @@ version. It must:
 
 - reject stale, duplicate, or cross-run reports;
 - preserve distinct findings even when they mention the same entity;
-- deduplicate repeated observations using code, layer, entity, and evidence;
-- trace dependencies to the earliest wrong layer;
+- deduplicate repeated observations using code, rootLayer, entity, and evidence;
+- trace dependencies to the earliest wrong rootLayer;
 - select one primary root cause when a single upstream defect explains downstream
   findings, while retaining the downstream findings as related evidence;
 - preserve the highest applicable severity;
@@ -47,7 +47,7 @@ version. It must:
 
 For example, lost formula source evidence is one upstream blocker. A question
 answer mismatch, an empty solution, and a rendering failure may be related
-findings, but the merger must point repair to the source or classification layer
+findings, but the merger must point repair to the source or classification rootLayer
 when that is where the loss first occurred.
 
 The merger reports root causes; it does not repair them.
@@ -56,10 +56,12 @@ The merger reports root causes; it does not repair them.
 
 | Mode | Auditors |
 | --- | --- |
-| `full-audit` | all ten specialized auditors, then readiness aggregation |
+| `full-audit` | all specialized auditors, then readiness aggregation |
 | `source-audit` | source and provenance auditors |
-| `structure-audit` | structure, coverage, and applicable math auditor |
+| `structure-audit` | structure, content, coverage, and applicable domain auditors |
+| `content-audit` | content and coverage auditors, plus the applicable domain auditor |
 | `question-audit` | question, solution, provenance, and applicable math auditors |
+| `latex-audit` | LaTeX auditor, plus math or rendering auditors when needed |
 | `relation-audit` | relation auditor and applicable domain checks |
 | `rendering-audit` | rendering auditor, with retrieval probes when requested |
 | `retrieval-audit` | retrieval auditor |

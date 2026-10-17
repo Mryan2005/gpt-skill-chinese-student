@@ -16,14 +16,17 @@ card types, required fields, and duplicate concepts.
 
 - IDs and parent or child links are stable and valid;
 - cards contain one coherent learning object at the declared granularity;
-- broad, oversized, duplicate, chapter-level, and invalid-type cards are
-  identified;
+- broad, oversized, duplicate, chapter-level, group-level, and invalid-type
+  cards are identified;
 - required domain fields are present without applying a different domain's
   schema;
+- Question and Source entities remain separate from Card entities;
+- IDs are unique across the entity registry;
 - knowledge mastery is not confused with question mastery.
 
-Use codes such as `CARD_TOO_BROAD`, `CARD_TOO_LARGE`, `CHAPTER_AS_CARD`,
-`INVALID_CARD_TYPE`, and `KNOWLEDGE_DUPLICATED`.
+Use codes such as `CARD_NOT_ATOMIC`, `CARD_TOO_BROAD`, `CARD_TOO_LARGE`,
+`CHAPTER_AS_CARD`, `GROUP_USED_AS_REVIEW_CARD`, `SOURCE_AND_DERIVED_COLLAPSED`,
+`DUPLICATE_ENTITY_ID`, `INVALID_CARD_TYPE`, and `KNOWLEDGE_DUPLICATED`.
 
 ## Boundary
 

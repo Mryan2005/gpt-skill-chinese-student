@@ -21,9 +21,10 @@ between Source and Derived records.
 - Derived records do not appear as Source records;
 - every source-backed entity can be traced to a source record.
 
-Use codes such as `SOURCE_MISSING`, `SOURCE_MUTATED`, `META_AS_QUESTION`,
-`AI_TEXT_MARKED_AS_SOURCE`, `DERIVED_WITHOUT_PROVENANCE`, and
-`SOURCE_ENTITY_UNMAPPED`.
+Use codes such as `SOURCE_MISSING`, `SOURCE_MUTATED`,
+`SOURCE_MUTATED_BY_DERIVATION`, `META_AS_QUESTION`,
+`AI_TEXT_MARKED_AS_SOURCE`, `DERIVED_WITHOUT_PROVENANCE`,
+`SOURCE_REFERENCE_BROKEN`, and `SOURCE_ENTITY_UNMAPPED`.
 
 ## Boundary
 

@@ -11,7 +11,7 @@ enough for one audit. This is the default mode.
 - [check-workspace.md](../references/check-workspace.md)
 - [finding-schema.md](../references/finding-schema.md)
 - [severity.md](../references/severity.md)
-- all ten specialized auditor instructions
+- all specialized auditor instructions
 - [readiness-audit.md](readiness-audit.md)
 
 ## Procedure
@@ -21,18 +21,19 @@ enough for one audit. This is the default mode.
 2. Verify that `residualPaths` is empty before loading the Subject.
 3. Freeze the current canonical artifact version and create one `runId`.
 4. Dispatch these isolated auditors against the same frozen inputs:
-   source, structure, coverage, question, solution, math, relation,
-   provenance, rendering, and retrieval.
+   source, structure, content, coverage, question, solution, math, LaTeX,
+   relation, provenance, rendering, and retrieval.
 5. Let each dispatched auditor write only its own report under
    `.check/current/subagent-reports/`. A failed or unavailable auditor is
    recorded as skipped or failed, never silently omitted.
 6. Run the Finding Merger to deduplicate observations, preserve related
-   symptoms, and identify the earliest wrong layer as the root cause.
+   symptoms, and identify the earliest wrong rootLayer as the root cause.
 7. Run the [readiness-audit](readiness-audit.md) aggregation against the
    merged findings and the Subject readiness contract.
 8. Validate the final report with `validate_findings.py`.
 9. Return severity counts, executed and skipped auditors, root causes, related
-   findings, repair owners, and the final audit status.
+   findings, repair owners, and one final status: `PASS`, `PASS_WITH_WARNINGS`,
+   `FAIL`, or `BLOCKED`.
 
 ## Gate
 

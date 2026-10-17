@@ -14,7 +14,8 @@ chinese-student 是一个面向本地学习资料的 Agent Plugin。它把教材
 | study-math | 数学专项流程。支持数学卡片类型、结构化题库、公式完整性、数学关系和考试可用性闸门。 |
 | study-politics | 政治领域模型。保存教材原文与派生内容的 provenance，并支持概念、原理、标准表述、比较和易混点卡。 |
 | exam | Assessment/Evaluation Runner。在冻结 Subject 上完成闭卷首轮、评分、错误分析和 Learning Gap Report。 |
-| check | 独立的只读多代理 QA/Auditor。由十个专业审计代理分别检查来源、结构、覆盖、题目、解法、数学、关系、provenance、渲染和检索，再由 Finding Merger 去重并定位根因。 |
+| check | 独立的只读多代理 QA/Auditor。由来源、结构、内容、覆盖、题目、解法、数学、LaTeX、关系、provenance、渲染和检索审计代理并行检查，再由 Finding Merger 去重并定位根因。 |
+| sort | 安全的复习优先级投影。按考试价值、风险、依赖、薄弱度和近期错误生成带理由的 review order，不修改知识内容或 canonical structure。 |
 
 learn 是跨学科平台，不是“非数学 skill”。普通数学资料仍可使用 learn。当任务需要系统数学网络、大量数学习题、公式与证明、数学题型或考研数学复习时，使用 study-math。
 
@@ -28,6 +29,10 @@ check 不参与构建或修复。它读取统一 Subject 和领域 contract，�
 `.check/current` 工作区，再由隔离审计代理验证真实 artifact，最后报告 severity、
 证据、根因和 repairOwner。代理只能写自己的临时报告；Finding Merger 只合并和
 验证，不执行 repair。
+
+sort 不参与知识构建或正确性审计。它读取当前 artifact、领域重要性、learner_state、
+exam gap 和 check findings，只写独立的 review-priority projection。canonical card
+内容、章节树、关系和学习状态保持不变。
 
 exam 直接读取原始试卷和解析 PDF。禁止 OCR、OCR 中间文本、外部 OCR 服务和委托 OCR；看不清的内容必须记录为不可读。
 
@@ -119,6 +124,13 @@ plugin/
    │  ├─ agents/
    │  ├─ playbooks/
    │  ├─ references/
+   │  └─ scripts/
+   ├─ sort/
+   │  ├─ SKILL.md
+   │  ├─ agents/openai.yaml
+   │  ├─ playbooks/
+   │  ├─ references/
+   │  ├─ examples/
    │  └─ scripts/
    └─ exam/
       ├─ SKILL.md

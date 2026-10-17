@@ -12,10 +12,12 @@ from typing import Any
 AGENTS = {
     "source-auditor",
     "structure-auditor",
+    "content-auditor",
     "coverage-auditor",
     "question-auditor",
     "solution-auditor",
     "math-auditor",
+    "latex-auditor",
     "relation-auditor",
     "provenance-auditor",
     "rendering-auditor",
@@ -34,7 +36,7 @@ REQUIRED_FINDING_FIELDS = {
     "observed",
     "expected",
     "evidence",
-    "layer",
+    "rootLayer",
     "repairOwner",
 }
 
@@ -104,7 +106,7 @@ def validate_agent_report(
             errors.append(f"{path}.severity is invalid")
         if finding.get("reportedBy") != report.get("agentId"):
             errors.append(f"{path}.reportedBy must match the report agentId")
-        for field in ("reportedBy", "code", "subject", "entityType", "entityId", "observed", "expected", "layer", "repairOwner"):
+        for field in ("reportedBy", "code", "subject", "entityType", "entityId", "observed", "expected", "rootLayer", "repairOwner"):
             if not _text(finding.get(field)):
                 errors.append(f"{path}.{field} must be non-empty")
         if not _evidence(finding.get("evidence")):

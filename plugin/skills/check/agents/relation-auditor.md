@@ -18,10 +18,12 @@ domain-specific bridge requirements.
 - semantic relations are typed, directed, and justified;
 - hierarchy edges are not confused with semantic relations;
 - bridge relations are non-empty and point to the intended concepts;
-- duplicates and generic edges do not hide missing semantics.
+- relation reasons describe the actual endpoints and are not generic templates;
+- heuristic provenance is explicitly marked for review.
 
 Use `RELATION_MISSING_TYPE`, `RELATION_WRONG_DIRECTION`, `RELATION_DANGLING`,
-`EMPTY_BRIDGE`, and `RELATION_DUPLICATED`.
+`EMPTY_BRIDGE`, `RELATION_REASON_TOO_GENERIC`, `RELATION_HEURISTIC_UNREVIEWED`,
+and `RELATION_DUPLICATED`.
 
 ## Boundary
 

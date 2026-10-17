@@ -31,7 +31,7 @@
           "detail": "entityType=chapter_metadata"
         }
       ],
-      "layer": "source-classification",
+      "rootLayer": "source-classification",
       "repairOwner": "learn/source-classification"
     }
   ]
