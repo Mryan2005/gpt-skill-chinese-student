@@ -1,4 +1,4 @@
 interface:
-  display_name: "学习"
+  display_name: "chinese-student: learn"
   short_description: "建立可考试的知识图谱"
   default_prompt: "Use $learn as the cross-subject learning front door. Route the user's goal to the right playbook and domain model, then validate the shared Subject graph."

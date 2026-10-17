@@ -49,5 +49,5 @@
     {"fingerprint": "RELATION_ENDPOINT_BROKEN|relation:019|derived-relations", "status": "resolved"},
     {"fingerprint": "QUESTION_CARD_MISMATCH|question:019|question-mapping", "status": "remaining"}
   ],
-  "nextAction": "chinese-student: check"
+  "nextAction": "run check"
 }

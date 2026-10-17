@@ -18,11 +18,11 @@
         "category": "Education",
         "capabilities": [],
         "defaultPrompt": [
-          "chinese-student: learn：把指定资料整理成一个学科知识图谱。",
-          "chinese-student: exam：只用当前学科图谱完成试卷并在解析后复盘。",
-          "chinese-student: check：检查每个知识点能否立即定位到唯一知识卡。",
-          "chinese-student: sort：根据学习价值与风险生成优先复习队列，不修改知识内容。",
-          "chinese-student: fix：根据最新检查报告自动修复允许修改的问题，完成后请运行 chinese-student: check 验收。"
+          "学习：把指定资料整理成一个学科知识图谱。",
+          "考试：只用当前学科图谱完成试卷并在解析后复盘。",
+          "检查：检查每个知识点能否立即定位到唯一知识卡。",
+          "排序：根据学习价值与风险生成优先复习队列，不修改知识内容。",
+          "修复：根据最新检查报告自动修复允许修改的问题，完成后请运行检查验收。"
         ]
       }
     }

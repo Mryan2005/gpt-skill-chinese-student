@@ -30,7 +30,7 @@ learn 是用户学习行为的总入口。它先理解目标，选择 playbook�
 | 向已有 Subject 加入新材料 | [update-existing-subject.md](playbooks/update-existing-subject.md) |
 | 修复混乱、重复或不可达的知识库 | [repair-knowledge-base.md](playbooks/repair-knowledge-base.md) |
 | 检查是否可以用于考试 | [validate-readiness.md](playbooks/validate-readiness.md) |
-| 生成复习优先级或短复习队列 | 使用独立的 `chinese-student: sort`，不在 learn 内重排 canonical cards |
+| 生成复习优先级或短复习队列 | 使用独立的 [sort](../sort/SKILL.md)，不在 learn 内重排 canonical cards |
 
 先按用户目标选择 playbook，再按 Subject 选择领域模型。数学任务读取 study-math 的数学合同；政治任务读取 study-politics 的政治合同。learn 不复制数学或政治的卡片、措辞、公式或题型规则。未来其他学科可以接入自己的领域模型。
 

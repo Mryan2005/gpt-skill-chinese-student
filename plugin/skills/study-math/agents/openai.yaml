@@ -1,4 +1,4 @@
 interface:
-  display_name: "数学学习"
+  display_name: "chinese-student: study-math"
   short_description: "数学专项知识网络与题库"
   default_prompt: "Use $study-math as the mathematics learning front door. Route the user's goal to the right playbook, then build or validate the shared exam-ready subject graph."

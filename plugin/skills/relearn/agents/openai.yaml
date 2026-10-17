@@ -1,4 +1,4 @@
 interface:
-  display_name: "重学"
+  display_name: "chinese-student: relearn"
   short_description: "确认后从原始材料重建"
   default_prompt: "Use $relearn only after explicit confirmation to discard a Subject's Derived state and rebuild it from preserved Source records."

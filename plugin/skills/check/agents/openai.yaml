@@ -1,4 +1,4 @@
 interface:
-  display_name: "检查"
+  display_name: "chinese-student: check"
   short_description: "多代理只读审计学习产物"
   default_prompt: "Use $check as a read-only multi-agent auditor. Route the goal to the right audit playbook, run isolated evidence-backed auditors, merge findings by root cause, and never repair the learning artifact."

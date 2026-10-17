@@ -60,11 +60,11 @@ phase at a time after merging proposals and resolving path conflicts.
 `fix` may run JSON parsing, schema checks, duplicate-ID checks, reference checks,
 JavaScript syntax checks, HTML structure checks, and targeted markup checks. It
 must report these as local validation. It must not present them as a complete
-`chinese-student: check full-audit`, and it must not silently run one.
+`check full-audit`, and it must not silently run one.
 
 ## Completion
 
 The final report is `COMPLETE` when all input findings are resolved and local
 validation passes. It is `PARTIAL` when progress was made but findings remain.
 It is `BLOCKED` or `FAILED` when freshness, source, conflict, or validation
-guards stop the run. Every report tells the user to run `chinese-student: check` next.
+guards stop the run. Every report tells the user to run `check` next.

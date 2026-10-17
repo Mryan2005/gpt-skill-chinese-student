@@ -2,7 +2,7 @@
 
 ## Use this playbook when
 
-The user invokes `chinese-student: fix` or asks to repair the latest check findings.
+The user invokes `fix` or asks to repair the latest check findings.
 
 ## Procedure
 
@@ -15,9 +15,9 @@ The user invokes `chinese-student: fix` or asks to repair the latest check findi
    orchestrator execution when capacity is low.
 7. Merge proposals, resolve conflicts, and apply writes in phase order.
 8. Run targeted local validators.
-9. Write a Fix Report and stop. Tell the user to run `chinese-student: check`.
+9. Write a Fix Report and stop. Tell the user to run `check`.
 
 ## Gate
 
 Do not ask for per-finding confirmation. Do not run a full check automatically.
-Do not invoke `chinese-student: relearn` or `chinese-student: update`.
+Do not invoke `relearn` or `update`.

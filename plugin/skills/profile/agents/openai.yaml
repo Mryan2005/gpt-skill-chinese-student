@@ -1,0 +1,4 @@
+interface:
+  display_name: "chinese-student: profile"
+  short_description: "查看本地证据型学习者模型"
+  default_prompt: "Use $profile to show evidence-backed learner error patterns, explanation strategies, mastery signals, and improvement without inferring personality traits."

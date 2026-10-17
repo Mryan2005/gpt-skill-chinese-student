@@ -1,4 +1,4 @@
 interface:
-  display_name: "排序"
+  display_name: "chinese-student: sort"
   short_description: "按复习价值生成优先队列"
   default_prompt: "Use $sort as a safe review-priority projection. Rank current cards with versioned signals, explain every rank with evidence, preserve canonical structure, and never modify learning content or learner state."
