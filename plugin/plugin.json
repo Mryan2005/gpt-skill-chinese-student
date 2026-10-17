@@ -5,7 +5,7 @@
   "description": "A local-file study plugin that builds exam-ready subject knowledge graphs, provides math and politics domain models, runs graph-only PDF exams, and checks whether each concept is immediately findable.",
   "license": "Proprietary - All Rights Reserved",
   "author": {
-    "name": "夜桜月花"
+    "name": "Mryan2005"
   },
   "repository": "https://github.com/Mryan2005/gpt-skill-chinese-student",
   "extensions": {
@@ -14,7 +14,7 @@
         "displayName": "中式学生",
         "shortDescription": "知识图谱学习、考试、检查",
         "longDescription": "七个工作流：学习，把图片和资料整理成可考试的学科知识图谱；更新，迁移旧 Subject 的插件和内容 schema；重学，在确认后丢弃 Derived 并从 Source 重建；数学学习，使用数学专属卡片、题库、关系和公式完整性模型；考试，只调用当前图谱并在解析后复盘；检查，验证知识点能否唯一定位到主卡或关联卡；排序，按学习价值与风险生成可解释的复习优先级。政治学习作为 learn 加载的政治领域模型，区分教材原文与派生内容。",
-        "developerName": "夜桜月花",
+        "developerName": "Mryan2005",
         "category": "Education",
         "capabilities": [],
         "defaultPrompt": [
