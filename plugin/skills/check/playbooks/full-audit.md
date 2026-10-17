@@ -2,27 +2,39 @@
 
 ## Use this playbook when
 
-Use it when the user asks to check a whole Subject or the scope is not narrow enough for one audit.
+Use it when the user asks to check a whole Subject or the scope is not narrow
+enough for one audit. This is the default mode.
 
 ## Read
 
-- [check-contract.md](../references/check-contract.md)
+- [audit-contract.md](../references/audit-contract.md)
 - [check-workspace.md](../references/check-workspace.md)
 - [finding-schema.md](../references/finding-schema.md)
 - [severity.md](../references/severity.md)
-- all narrower audit playbooks
+- all ten specialized auditor instructions
+- [readiness-audit.md](readiness-audit.md)
 
 ## Procedure
 
-1. Reset the exact .check/current workspace with reset_check_workspace.py --apply.
-2. Verify that residualPaths is empty before loading the Subject.
-3. Freeze the current canonical artifact version and record every path that will be inspected.
-4. Run source, knowledge, question, relation, retrieval, rendering, and readiness audits as read-only checks.
-5. Deduplicate findings by code, layer, entity, and evidence.
-6. Trace each blocker and error to its earliest wrong layer.
-7. Validate the findings report with validate_findings.py.
-8. Return counts by severity, executed and skipped checks, root causes, repair owners, and the final audit status.
+1. Reset the exact `.check/current` workspace with
+   `reset_check_workspace.py --apply`.
+2. Verify that `residualPaths` is empty before loading the Subject.
+3. Freeze the current canonical artifact version and create one `runId`.
+4. Dispatch these isolated auditors against the same frozen inputs:
+   source, structure, coverage, question, solution, math, relation,
+   provenance, rendering, and retrieval.
+5. Let each dispatched auditor write only its own report under
+   `.check/current/subagent-reports/`. A failed or unavailable auditor is
+   recorded as skipped or failed, never silently omitted.
+6. Run the Finding Merger to deduplicate observations, preserve related
+   symptoms, and identify the earliest wrong layer as the root cause.
+7. Run the [readiness-audit](readiness-audit.md) aggregation against the
+   merged findings and the Subject readiness contract.
+8. Validate the final report with `validate_findings.py`.
+9. Return severity counts, executed and skipped auditors, root causes, related
+   findings, repair owners, and the final audit status.
 
 ## Gate
 
-Full audit never repairs the Subject. A failed audit remains failed until learn or the domain model produces a new artifact and check runs again.
+Full audit never repairs the Subject. A failed audit remains failed until learn
+or the domain model produces a new artifact and check runs again.

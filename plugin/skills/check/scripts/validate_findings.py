@@ -11,8 +11,22 @@ from typing import Any
 
 
 SEVERITIES = {"blocker", "error", "warning", "info"}
+REPORTERS = {
+    "source-auditor",
+    "structure-auditor",
+    "coverage-auditor",
+    "question-auditor",
+    "solution-auditor",
+    "math-auditor",
+    "relation-auditor",
+    "provenance-auditor",
+    "rendering-auditor",
+    "retrieval-auditor",
+    "finding-merger",
+}
 REQUIRED_FINDING_FIELDS = {
     "id",
+    "reportedBy",
     "code",
     "severity",
     "subject",
@@ -88,7 +102,9 @@ def validate_report(report: Any) -> list[str]:
             errors.append(f"{path}.severity is invalid: {severity}")
         else:
             actual[severity] += 1
-        for field in ("code", "subject", "entityType", "entityId", "observed", "expected", "layer", "repairOwner"):
+        if finding.get("reportedBy") not in REPORTERS:
+            errors.append(f"{path}.reportedBy is invalid")
+        for field in ("reportedBy", "code", "subject", "entityType", "entityId", "observed", "expected", "layer", "repairOwner"):
             if not _text(finding.get(field)):
                 errors.append(f"{path}.{field} must be non-empty")
         if not _evidence(finding.get("evidence")):

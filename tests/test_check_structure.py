@@ -14,27 +14,46 @@ SKILL_ROOT = REPO_ROOT / "plugin" / "skills" / "check"
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from validate_findings import validate_report  # noqa: E402
+from validate_agent_reports import validate_agent_report  # noqa: E402
 from validate_source_derived import validate_record as validate_source_derived  # noqa: E402
 from reset_check_workspace import reset_workspace, validate_target  # noqa: E402
 
 
 PLAYBOOKS = {
     "full-audit.md",
-    "source-integrity.md",
-    "knowledge-structure.md",
-    "question-integrity.md",
-    "relation-integrity.md",
-    "retrieval-integrity.md",
-    "rendering-integrity.md",
-    "readiness.md",
+    "source-audit.md",
+    "structure-audit.md",
+    "coverage-audit.md",
+    "question-audit.md",
+    "solution-audit.md",
+    "math-audit.md",
+    "relation-audit.md",
+    "provenance-audit.md",
+    "rendering-audit.md",
+    "retrieval-audit.md",
+    "readiness-audit.md",
 }
 
 REFERENCES = {
     "common.md",
-    "check-contract.md",
+    "audit-contract.md",
     "check-workspace.md",
     "finding-schema.md",
     "severity.md",
+}
+
+AGENTS = {
+    "source-auditor.md",
+    "structure-auditor.md",
+    "coverage-auditor.md",
+    "question-auditor.md",
+    "solution-auditor.md",
+    "math-auditor.md",
+    "relation-auditor.md",
+    "provenance-auditor.md",
+    "rendering-auditor.md",
+    "retrieval-auditor.md",
+    "finding-merger.md",
 }
 
 
@@ -52,6 +71,10 @@ class CheckStructureTests(unittest.TestCase):
     def test_audit_references_exist(self) -> None:
         for name in REFERENCES:
             self.assertTrue((SKILL_ROOT / "references" / name).is_file(), name)
+
+    def test_specialized_auditors_and_merger_exist(self) -> None:
+        for name in AGENTS:
+            self.assertTrue((SKILL_ROOT / "agents" / name).is_file(), name)
 
     def test_entrypoint_and_playbook_links_resolve(self) -> None:
         documents = [SKILL_ROOT / "SKILL.md"] + sorted((SKILL_ROOT / "playbooks").glob("*.md"))
@@ -82,6 +105,31 @@ class CheckStructureTests(unittest.TestCase):
         report["workspace"]["residualPaths"] = ["findings.json"]
         errors = validate_report(report)
         self.assertTrue(any("CHECK_WORKSPACE_NOT_CLEAN" in error for error in errors))
+
+    def test_isolated_agent_report_passes(self) -> None:
+        report_path = SKILL_ROOT / "examples" / "agent-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            validate_agent_report(
+                report,
+                expected_run_id="math-1-check-001",
+                expected_artifact_version="math-records.example.v1",
+            ),
+            [],
+        )
+
+    def test_isolated_agent_report_rejects_stale_run(self) -> None:
+        report_path = SKILL_ROOT / "examples" / "agent-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        errors = validate_agent_report(report, expected_run_id="new-run")
+        self.assertTrue(any("STALE_AGENT_REPORT" in error for error in errors))
+
+    def test_isolated_agent_report_rejects_misattribution(self) -> None:
+        report_path = SKILL_ROOT / "examples" / "agent-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["findings"][0]["reportedBy"] = "structure-auditor"
+        errors = validate_agent_report(report)
+        self.assertTrue(any("reportedBy must match" in error for error in errors))
 
     def test_source_derived_sample_passes(self) -> None:
         report_path = SKILL_ROOT / "examples" / "source-derived-record.json"

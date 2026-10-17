@@ -20,9 +20,37 @@
     "title": "数学一"
   },
   "run": {
-    "mode": "source-integrity",
-    "artifactVersion": "example-1"
+    "mode": "full-audit",
+    "artifactVersion": "example-1",
+    "agents": {
+      "dispatched": [
+        "source-auditor",
+        "structure-auditor",
+        "coverage-auditor",
+        "question-auditor",
+        "solution-auditor",
+        "math-auditor",
+        "relation-auditor",
+        "provenance-auditor",
+        "rendering-auditor",
+        "retrieval-auditor"
+      ],
+      "completed": ["source-auditor"],
+      "skipped": [
+        {
+          "agentId": "rendering-auditor",
+          "reason": "No rendered HTML was supplied"
+        }
+      ]
+    }
   },
+  "rootCauses": [
+    {
+      "findingId": "finding-001",
+      "layer": "source-classification",
+      "repairOwner": "learn/source-classification"
+    }
+  ],
   "summary": {
     "blocker": 1,
     "error": 0,
@@ -32,6 +60,7 @@
   "findings": [
     {
       "id": "finding-001",
+      "reportedBy": "source-auditor",
       "code": "META_AS_QUESTION",
       "severity": "blocker",
       "subject": "数学一",

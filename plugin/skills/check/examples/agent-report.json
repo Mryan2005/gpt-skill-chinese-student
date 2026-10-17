@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "check.agent-report.v1",
+  "agentId": "source-auditor",
+  "runId": "math-1-check-001",
+  "artifactVersion": "math-records.example.v1",
+  "readOnly": true,
+  "status": "completed",
+  "checkedPaths": [
+    "records/sources.json"
+  ],
+  "executedChecks": [
+    "source-manifest",
+    "source-derived-boundary"
+  ],
+  "skippedChecks": [],
+  "findings": [
+    {
+      "id": "source-finding-001",
+      "reportedBy": "source-auditor",
+      "code": "META_AS_QUESTION",
+      "severity": "blocker",
+      "subject": "数学一",
+      "entityType": "question",
+      "entityId": "series-overview",
+      "observed": "chapter_metadata was used as a Question source",
+      "expected": "chapter_metadata must stay out of Question Bank",
+      "evidence": [
+        {
+          "path": "records/sources.json",
+          "locator": "sources[series-overview]",
+          "detail": "entityType=chapter_metadata"
+        }
+      ],
+      "layer": "source-classification",
+      "repairOwner": "learn/source-classification"
+    }
+  ]
+}

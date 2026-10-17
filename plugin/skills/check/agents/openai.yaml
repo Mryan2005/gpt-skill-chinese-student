@@ -1,4 +1,4 @@
 interface:
   display_name: "检查"
-  short_description: "检查知识点能否立即定位"
-  default_prompt: "Use $check as a read-only QA front door. Route the goal to the right audit playbook, produce evidence-backed findings, and do not repair the learning artifact."
+  short_description: "多代理只读审计学习产物"
+  default_prompt: "Use $check as a read-only multi-agent auditor. Route the goal to the right audit playbook, run isolated evidence-backed auditors, merge findings by root cause, and never repair the learning artifact."
