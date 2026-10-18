@@ -1,4 +1,4 @@
 interface:
   display_name: "$中式学生:heal"
-  short_description: "循环检查并自动修复学习产物"
-  default_prompt: "Use $chinese-student:heal as the iterative check-fix convergence loop. Reuse one read-only Checker and one writable Fixer, re-check the current artifact after every repair, stop safely on convergence, no progress, regressions, blockers, or the ten-round limit, and never invoke relearn or duplicate update logic."
+  short_description: "用冷启动新手优化学习体验"
+  default_prompt: "Use $chinese-student:heal as the learning-experience optimizer. Run a fresh cold-start novice through the user-facing artifact, record learning friction, let an independent Maintainer accept, refine, reject, or block each finding, repair only validated issues, and repeat with a new novice for at most ten rounds without contaminating the real Learner Model."

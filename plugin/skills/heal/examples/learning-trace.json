@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "heal.learning-trace.v1",
+  "traceId": "math-1-heal-001-round-1-trace",
+  "noviceContextId": "fresh-novice-001",
+  "artifactVersion": "math-records.v1",
+  "source": "synthetic_novice",
+  "synthetic": true,
+  "externalKnowledgeUsed": false,
+  "completedLearningPath": true,
+  "understandingCoverage": 0.86,
+  "friction": [
+    {
+      "id": "friction-001",
+      "entityId": "card:ratio-test",
+      "frictionCode": "TRIGGER_MISSING",
+      "attempt": "I understand that the ratio test compares neighboring terms.",
+      "reason": "I still do not know what question pattern should make me choose this method.",
+      "needed": "Add factorial, exponential, and product-form trigger signals and contrast them with the root test.",
+      "severity": "high",
+      "source": "synthetic_novice",
+      "synthetic": true
+    },
+    {
+      "id": "friction-002",
+      "entityId": "card:continuity",
+      "frictionCode": "MISSING_PREREQUISITE",
+      "attempt": "The next card uses one-sided limits.",
+      "reason": "The learning path has not introduced one-sided limits yet.",
+      "needed": "Add the prerequisite card or reorder the path.",
+      "severity": "medium",
+      "source": "synthetic_novice",
+      "synthetic": true
+    }
+  ]
+}

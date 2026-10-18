@@ -1,91 +1,126 @@
 # Heal contract
 
-`heal` is a bounded orchestration layer over `check` and `fix`.
+`heal` is a Learning Experience Optimizer. It asks a synthetic first-time
+learner to learn from the artifact, captures learning friction, and lets an
+independent Maintainer decide whether the friction justifies a repair.
 
 ## Round contract
 
-One repair round is:
+Each round has six stages:
 
 ~~~text
-CHECK(n) against current canonical and generated state
-→ evaluate findings and stop conditions
-→ FIX(n) using only CHECK(n)'s fresh report
-→ local validation
-→ compare fingerprints and artifact hashes
+COLD_START
+→ LEARN
+→ REFLECT
+→ MAINTAINER_EVALUATE
+→ REPAIR
+→ LOCAL_VALIDATE
 ~~~
 
-The next check must reload current Source, Derived, Learner Model, and generated
-artifacts. A previous report may be used only to calculate `resolved`,
-`persisted`, `new`, and `regressed`; it is never a substitute for current
-evidence.
+The next round creates a new novice context and reloads the current user-facing
+artifact. The previous trace is comparison data, not current truth.
 
-`fix(n).basedOnCheckRound` must equal `n`, and
-`fix(n).artifactHashBefore` must equal the artifact hash checked by `check(n)`.
-The Fixer must not consume an older report after a new check has completed.
+The novice must continue through the complete available learning path after
+recording friction. It must not stop at the first problem or use outside
+knowledge to fill a missing explanation.
 
 ## Role boundary
 
 | Role | Permission | Responsibility |
 | --- | --- | --- |
-| Checker | read-only | invoke existing check playbooks, validators, and domain contracts; produce current findings |
-| Fixer | write-enabled | consume current findings and existing fix contract; produce repair report and local validation |
-| Heal orchestrator | coordinates | reset workspace, sequence roles, compare progress, enforce stop conditions, write heal report |
+| Novice Learner | read-only | learn from the user-facing artifact and record a trace of understanding and friction |
+| Maintainer | write-enabled | evaluate the trace against Source, domain contracts, schemas, and current artifacts; repair validated issues |
+| Heal orchestrator | coordinates | reset isolated workspaces, create fresh novices, sequence rounds, compare progress, and report the result |
 
-The Checker cannot edit to make its own findings disappear. The Fixer cannot
-declare the artifact clean. Only a later Checker result can satisfy the quality
-gate.
+The Novice is not a checklist auditor. It does not inspect implementation
+details, Source provenance, code, schemas, validators, old reports, or the real
+Learner Model. The Maintainer must not blindly follow a novice suggestion.
 
-## Bounds and stop conditions
+The Maintainer chooses one decision for each friction finding:
 
-- `MAX_ROUNDS = 10`. After the tenth fix, run `FINAL_CHECK` and stop.
-- Stop on `PASS`.
-- Stop on `PASS_WITH_WARNINGS` when blocker and error counts are zero and no
-  auto-fixable error or blocker remains.
-- Stop on an unfixable source blocker, unparsable artifact, unsafe state, or
-  required authentication/input that the current run cannot provide.
-- Stop and report `RELEARN_REQUIRED` when safe local repair would require
-  deleting and rebuilding Derived state. Do not bypass relearn confirmation.
-- Stop and report `UPDATE_REQUIRED` when the defect is a schema/plugin migration
-  rather than a repair. Do not copy migration logic into heal.
-- Stop after two consecutive rounds with no meaningful finding elimination.
-- Stop when repair repeatedly recreates the same findings or introduces
-  unacceptable regressions.
+- `ACCEPT`: the finding is valid and the proposed repair is safe;
+- `REFINE`: the friction is valid, but the correct repair differs from the
+  novice's suggestion;
+- `REJECT`: the suggestion is not a valid content change, although the trace is
+  retained as evidence for this run;
+- `BLOCKED`: current Source or contracts cannot support a safe decision.
 
-Warnings are not automatically defects. A warning may remain in a successful
-`PASS_WITH_WARNINGS` result when the stronger gates are clean.
+## Synthetic learner isolation
 
-## Progress comparison
-
-Use the stable finding fingerprint:
+Novice traces are synthetic test data. They must never update:
 
 ~~~text
-code + entityId + rootLayer
+.local/learner/
+learner_state.md
+user profile or self-report
+subject mastery
+error model
+explanation model
+sort state
 ~~~
 
-For each round report:
+Store them only under `.heal/current/round-<n>/learner/`. Do not present a
+synthetic observation as a user observation.
 
-~~~json
-{
-  "resolved": 80,
-  "persisted": 20,
-  "new": 79,
-  "regressed": 12
-}
+## Learning friction taxonomy
+
+Use stable friction codes so that repeated novice runs can be compared:
+
+~~~text
+NOT_UNDERSTOOD
+MISSING_PREREQUISITE
+STEP_TOO_LARGE
+NEEDS_DETAIL
+TOO_VERBOSE
+REDUNDANT
+MERGE_CANDIDATE
+SPLIT_NEEDED
+ORDERING_PROBLEM
+TERM_INTRODUCED_TOO_EARLY
+TRIGGER_MISSING
+CONDITION_MISSING
+COMPARISON_MISSING
+EXAMPLE_MISSING
+EXAMPLE_NOT_REPRESENTATIVE
+QUESTION_TOO_EARLY
+RETRIEVAL_FRICTION
+DEAD_END
+COGNITIVE_OVERLOAD
 ~~~
 
-`resolved` means a prior fingerprint is absent from the next fresh report.
-`new` means a current fingerprint was absent from the prior report.
-`regressed` records a previously clean or resolved entity that now fails again.
-Do not call a run healthy merely because the total count fell by one.
+Each friction record needs an entity or edge, the learner's attempted
+understanding, a concrete reason, a needed improvement, a severity, and a
+synthetic provenance marker. A trace must capture both friction and continued
+progress after the friction.
 
-## Escalation boundary
+## Maintainer repairs
 
-The following are terminal unless the current Source or authorized external
-input makes them safe to resolve: missing/corrupted Source, unreadable required
-question material, ambiguous official answers, required PDFs that are absent,
-authentication gates, unsafe or unparsable artifacts. Record the concrete
-evidence and stop; do not infer or fabricate missing content.
+The Maintainer may update Derived content, question mappings, typed relations,
+generated artifacts, or validated learner-derived projections. It must preserve
+Source, official answers, official solutions, historical observations, and
+user-owned Learner Model data.
 
-`heal` may read and preserve fix reports, but its final report must record the
-current artifact hash, all round identities, the final check, and the exact
-reason it stopped.
+Use the existing `check` and `fix` contracts for technical validation or repair
+when useful. A technical `PASS` does not prove that the artifact is easy to
+learn, and a novice complaint does not prove that cards should be merged.
+
+## Convergence and stop conditions
+
+Track at least:
+
+- understanding coverage;
+- learning dead ends;
+- high- and medium-friction counts;
+- unresolved `NOT_UNDERSTOOD` findings;
+- missing prerequisites;
+- redundancy, merge, and split candidates.
+
+Stop with `HEALED` when high friction, dead ends, and unresolved
+`NOT_UNDERSTOOD` findings are zero. Stop with `HEALED_WITH_WARNINGS` when only
+optional medium-friction refinements remain. Stop with `STALLED` after two
+rounds without meaningful pedagogical improvement. Stop with `BLOCKED` when
+Source is missing, corrupted, unreadable, or insufficient for a safe repair.
+Stop with `MAX_ROUNDS_REACHED` after ten rounds.
+
+`relearn` and `update` remain explicit escalation paths. Emit
+`RELEARN_REQUIRED` or `UPDATE_REQUIRED` instead of invoking them.

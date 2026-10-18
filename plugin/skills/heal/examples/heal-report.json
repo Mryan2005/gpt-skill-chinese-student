@@ -1,8 +1,8 @@
 {
-  "schemaVersion": "heal.report.v1",
+  "schemaVersion": "heal.report.v2",
   "healRunId": "math-1-heal-001",
-  "status": "SUCCESS",
-  "stopReason": "QUALITY_GATE_REACHED",
+  "status": "HEALED_WITH_WARNINGS",
+  "stopReason": "PEDAGOGICAL_GATE_REACHED",
   "maxRounds": 10,
   "roundsExecuted": 1,
   "workspace": {
@@ -12,47 +12,95 @@
     "residualPaths": []
   },
   "roles": {
-    "checker": {"readOnly": true, "reusedAgent": true},
-    "fixer": {"writeEnabled": true, "reusedAgent": true}
+    "novice": {
+      "readOnly": true,
+      "coldStart": true,
+      "synthetic": true,
+      "userFacingOnly": true,
+      "reusedAgent": false
+    },
+    "maintainer": {
+      "writeEnabled": true,
+      "reusedAgent": true
+    }
   },
-  "initialSummary": {"blocker": 1, "error": 2, "warning": 4, "info": 0},
-  "finalSummary": {"blocker": 0, "error": 0, "warning": 2, "info": 0},
+  "initialPedagogy": {
+    "understandingCoverage": 0.62,
+    "deadEnds": 2,
+    "highFriction": 3,
+    "mediumFriction": 4,
+    "unresolvedNotUnderstood": 1,
+    "missingPrerequisites": 2,
+    "redundancyCandidates": 1
+  },
+  "finalPedagogy": {
+    "understandingCoverage": 0.94,
+    "deadEnds": 0,
+    "highFriction": 0,
+    "mediumFriction": 2,
+    "unresolvedNotUnderstood": 0,
+    "missingPrerequisites": 0,
+    "redundancyCandidates": 0
+  },
   "rounds": [
     {
       "round": 1,
-      "check": {
-        "checkRunId": "math-1-check-001",
+      "novice": {
+        "traceId": "math-1-heal-001-round-1-trace",
+        "tracePath": ".heal/current/round-1/learner/trace.jsonl",
+        "freshContext": true,
         "artifactVersion": "math-records.v1",
-        "artifactHash": "sha256:before",
-        "result": "FAIL",
-        "summary": {"blocker": 1, "error": 2, "warning": 4, "info": 0},
-        "findingFingerprints": [
-          "RELATION_ENDPOINT_BROKEN|relation:019|relation-model",
-          "DUPLICATE_ENTITY_ID|card:001|derived-schema",
-          "RETRIEVAL_INDEX_MISSING|search|runtime"
-        ]
+        "completedLearningPath": true,
+        "externalKnowledgeUsed": false,
+        "frictionFingerprints": [
+          "TRIGGER_MISSING|card:ratio-test",
+          "MISSING_PREREQUISITE|card:continuity"
+        ],
+        "understandingCoverage": 0.86,
+        "deadEnds": 0,
+        "highFriction": 1,
+        "mediumFriction": 1,
+        "unresolvedNotUnderstood": 0
       },
-      "fix": {
-        "fixRunId": "math-1-fix-001",
-        "fixRound": 1,
-        "basedOnCheckRound": 1,
-        "artifactHashBefore": "sha256:before",
-        "artifactHashAfter": "sha256:after",
-        "status": "COMPLETE",
+      "maintainer": {
+        "evaluationPath": ["Source", "study-math contract", "card schema", "question mappings"],
+        "decisions": [
+          {
+            "frictionId": "friction-001",
+            "decision": "REFINE",
+            "reason": "The trigger gap is valid, but the card must add a comparison rather than a new card.",
+            "repair": "Add trigger signals and a contrast relation."
+          },
+          {
+            "frictionId": "friction-002",
+            "decision": "ACCEPT",
+            "reason": "The path uses one-sided limits before introducing them.",
+            "repair": "Insert the prerequisite before the continuity card."
+          }
+        ],
         "sourceMutation": false,
-        "localValidation": {"status": "PASS", "checks": ["json-parse", "reference-integrity"]},
-        "escalations": []
+        "learnerModelMutation": false,
+        "syntheticDataPersisted": false,
+        "localValidation": {
+          "status": "PASS",
+          "checks": ["target-ids", "card-schema", "relation-integrity", "path-order"]
+        }
       },
-      "progress": {"resolved": 3, "persisted": 0, "new": 0, "regressed": 0, "noProgress": false}
+      "progress": {
+        "resolvedPedagogical": 3,
+        "persisted": 0,
+        "new": 0,
+        "regressed": 0,
+        "noProgress": false
+      },
+      "technicalValidation": {
+        "checkResult": "PASS_WITH_WARNINGS",
+        "fixStatus": "COMPLETE"
+      }
     }
   ],
-  "finalCheck": {
-    "checkRunId": "math-1-check-002",
-    "round": 2,
-    "artifactVersion": "math-records.v1",
-    "artifactHash": "sha256:after",
+  "finalTechnicalCheck": {
     "result": "PASS_WITH_WARNINGS",
-    "summary": {"blocker": 0, "error": 0, "warning": 2, "info": 0},
-    "findingFingerprints": ["LOW_CONFIDENCE_RELATION|relation:021|relation-model"]
+    "summary": {"blocker": 0, "error": 0, "warning": 2, "info": 0}
   }
 }

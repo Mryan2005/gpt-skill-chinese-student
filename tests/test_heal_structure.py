@@ -15,6 +15,7 @@ sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from reset_heal_workspace import reset_workspace, validate_target  # noqa: E402
 from validate_heal_report import validate_report  # noqa: E402
+from validate_learning_trace import validate_trace  # noqa: E402
 
 
 def links_in(path: Path) -> list[str]:
@@ -42,14 +43,24 @@ class HealStructureTests(unittest.TestCase):
         report = json.loads((SKILL_ROOT / "examples" / "heal-report.json").read_text(encoding="utf-8"))
         self.assertEqual(validate_report(report), [])
 
-    def test_report_rejects_stale_fix_and_source_mutation(self) -> None:
+    def test_learning_trace_passes(self) -> None:
+        trace = json.loads((SKILL_ROOT / "examples" / "learning-trace.json").read_text(encoding="utf-8"))
+        self.assertEqual(validate_trace(trace), [])
+
+    def test_report_rejects_source_or_learner_mutation(self) -> None:
         report = json.loads((SKILL_ROOT / "examples" / "heal-report.json").read_text(encoding="utf-8"))
         mutated = copy.deepcopy(report)
-        mutated["rounds"][0]["fix"]["artifactHashBefore"] = "sha256:stale"
-        mutated["rounds"][0]["fix"]["sourceMutation"] = True
+        mutated["rounds"][0]["maintainer"]["sourceMutation"] = True
+        mutated["rounds"][0]["maintainer"]["learnerModelMutation"] = True
         errors = validate_report(mutated)
-        self.assertTrue(any("STALE_CHECK_REPORT" in error for error in errors))
         self.assertTrue(any("sourceMutation" in error for error in errors))
+        self.assertTrue(any("learnerModelMutation" in error for error in errors))
+
+    def test_trace_rejects_external_knowledge(self) -> None:
+        trace = json.loads((SKILL_ROOT / "examples" / "learning-trace.json").read_text(encoding="utf-8"))
+        trace["externalKnowledgeUsed"] = True
+        errors = validate_trace(trace)
+        self.assertTrue(any("externalKnowledgeUsed" in error for error in errors))
 
     def test_report_rejects_more_than_ten_rounds(self) -> None:
         report = json.loads((SKILL_ROOT / "examples" / "heal-report.json").read_text(encoding="utf-8"))

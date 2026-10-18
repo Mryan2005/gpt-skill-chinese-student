@@ -1,35 +1,53 @@
 ---
 name: heal
-description: Use as the iterative check-fix convergence loop for learning artifacts when one check and one fix are not enough. Reuse isolated Checker and Fixer roles, re-check after every repair, and stop safely on convergence, no progress, regressions, blockers, or the ten-round limit.
+description: Use as the learning-experience optimizer for a learning artifact. Run a fresh cold-start novice through the user-facing study path, record learning friction, let a maintainer evaluate it, repair only validated problems, and repeat with a new novice for at most ten rounds.
 ---
 
 # Heal
 
-`heal` is orchestration. It repeatedly invokes the existing `check` and `fix`
-contracts; it does not create a second audit system or a second repair system.
-One round is exactly one fresh check followed by at most one fix.
+`heal` tests whether the artifact can teach a first-time learner. It creates a
+fresh cold-start Novice Learner for each round, records the learner's path and
+friction, and gives that evidence to a Maintainer. The Maintainer checks the
+feedback against Source, domain contracts, schemas, mappings, relations, and
+the existing `check` and `fix` contracts before making a repair.
+
+`check` and `fix` remain available as technical verification and repair tools.
+They do not replace the novice learning trace.
 
 ## Non-negotiables
 
-- The Checker is read-only. It may inspect Source, Derived, Learner Model,
-  validators, HTML, and current generated artifacts, but it never edits them.
-- The Fixer is write-enabled only within the existing `fix` contract. It may
-  consume the current round's findings, but it may not redefine the diagnosis.
-- Reuse one Checker role and one Fixer role for the whole run. Agent capacity
-  changes execution mode, not audit scope or repair scope.
+- The Novice Learner is read-only and cold-start. It may see only the normal
+  user-facing learning artifact, navigation, search, and question bank.
+- The Novice Learner must not read Source provenance, code, schemas, validators,
+  `.check/`, `.fix/`, previous heal rounds, or the user's Learner Model.
+- Create a genuinely fresh novice context for every round. Never reuse a novice
+  that has already learned the subject.
+- The Novice Learner may use no outside knowledge to fill a gap. It records the
+  friction, then continues learning through the full path.
+- Synthetic novice traces are not user evidence. Never write them to
+  `.local/learner/`.
+- The Maintainer is independent from the novice. It may read Source, domain
+  contracts, schemas, validators, current artifacts, and the trace. It decides
+  `ACCEPT`, `REFINE`, `REJECT`, or `BLOCKED` for each friction finding.
+- Only validated Maintainer repairs may write Derived, Runtime, or generated
+  artifacts. Source and official provenance remain immutable.
 - Reset and verify `.heal/current/` before loading the current artifact. Keep
-  checker, fixer, and state files isolated inside that workspace.
-- Every fix must be followed by a fresh check against the current artifact.
-  Previous findings are for progress comparison only, never current truth.
+  each round's learner trace and maintainer report isolated inside that
+  workspace.
+- Every repair must be followed by local validation. A later fresh novice must
+  learn the changed artifact; previous friction is comparison data only.
 - Never invoke `relearn` or duplicate `update` inside the loop. Emit
   `RELEARN_REQUIRED` or `UPDATE_REQUIRED` and stop.
 - Preserve Source and official material. A missing or corrupted required Source
   is a blocker, not an invitation to guess or fabricate.
-- Use at most 10 repair rounds, then run one final check. Warnings may remain
-  when blocker and error counts are zero and no auto-fixable issue remains.
+- Use at most 10 rounds. Stop on pedagogical convergence, two rounds with no
+  meaningful friction reduction, unsafe regressions, a blocker, or the limit.
 
-Read [heal-contract.md](references/heal-contract.md) before running the loop
-and [run-state.md](references/run-state.md) when writing the progress report.
+Read [heal-contract.md](references/heal-contract.md) and
+[run-state.md](references/run-state.md) before running the loop. Use
+[validate_learning_trace.py](scripts/validate_learning_trace.py) for synthetic
+trace records and [validate_heal_report.py](scripts/validate_heal_report.py)
+for the final report.
 Use [reset_heal_workspace.py](scripts/reset_heal_workspace.py) to reset the
 disposable workspace and [validate_heal_report.py](scripts/validate_heal_report.py)
 to validate the final report.
@@ -41,24 +59,26 @@ NEW_HEAL_REQUEST
 → RESET_HEAL_WORKSPACE
 → WORKSPACE_VERIFIED_CLEAN
 → LOAD_CURRENT_ARTIFACT
-→ REUSE_CHECKER_AND_FIXER
-→ CHECK_CURRENT_ARTIFACT
-→ EVALUATE_STOP_CONDITIONS
-├─ PASS / acceptable PASS_WITH_WARNINGS → SUCCESS
-├─ unfixable blocker / escalation → STOP_BLOCKED
-├─ no progress / regression → STOPPED
-└─ fixable FAIL → FIX_CURRENT_FINDINGS
-                → LOCAL_VALIDATE
-                → CHECK_CURRENT_ARTIFACT
-                → ...
-→ FINAL_CHECK
+→ FRESH_COLD_START_NOVICE
+→ LEARN_USER_FACING_PATH
+→ RECORD_LEARNING_FRICTION
+→ MAINTAINER_EVALUATION
+├─ ACCEPT / REFINE → REPAIR
+├─ REJECT → KEEP_TRACE_ONLY
+├─ BLOCKED → STOP_BLOCKED
+└─ no pedagogical progress → STOP_STALLED
+→ LOCAL_VALIDATE
+→ NEXT_FRESH_NOVICE
+→ ...
+→ PEDAGOGICAL_FINAL_EVALUATION
 → REPORT
 → CLOSED
 ~~~
 
 ## Done gate
 
-Write a `heal.report.v1` report containing every check/fix round, artifact
-hashes, finding fingerprints, resolved/persisted/new/regressed counts, local
-validation, stop reason, and the final check. Never report success from a fixer
-claim alone.
+Write a `heal.report.v2` report containing every novice trace, friction
+fingerprint, Maintainer decision, repair, learning-progress summary, local
+validation, and stop reason. Report `HEALED`, `HEALED_WITH_WARNINGS`,
+`STALLED`, `BLOCKED`, or `MAX_ROUNDS_REACHED`; do not report success from a
+technical check or Maintainer claim alone.

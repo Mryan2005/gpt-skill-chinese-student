@@ -1,4 +1,4 @@
-"""Validate a bounded check-fix convergence report."""
+"""Validate a cold-start learning-experience heal report."""
 
 from __future__ import annotations
 
@@ -9,9 +9,8 @@ from pathlib import Path
 from typing import Any
 
 
-STATUSES = {"SUCCESS", "STOPPED", "BLOCKED", "FAILED"}
-CHECK_RESULTS = {"FAIL", "PASS", "PASS_WITH_WARNINGS", "BLOCKED"}
-FIX_STATUSES = {"COMPLETE", "PARTIAL", "FAILED", "BLOCKED"}
+STATUSES = {"HEALED", "HEALED_WITH_WARNINGS", "STALLED", "BLOCKED", "MAX_ROUNDS_REACHED"}
+DECISIONS = {"ACCEPT", "REFINE", "REJECT", "BLOCKED"}
 SEVERITIES = ("blocker", "error", "warning", "info")
 
 
@@ -29,18 +28,16 @@ def _summary(value: Any, path: str) -> list[str]:
     return [f"{path}.{field} must be a non-negative integer" for field in SEVERITIES if not _non_negative_int(value.get(field))]
 
 
-def _check_round(check: Any, round_number: int) -> list[str]:
+def _pedagogy(value: Any, path: str) -> list[str]:
     errors: list[str] = []
-    if not isinstance(check, dict):
-        return [f"rounds[{round_number - 1}].check must be an object"]
-    for field in ("checkRunId", "artifactVersion", "artifactHash"):
-        if not _text(check.get(field)):
-            errors.append(f"rounds[{round_number - 1}].check.{field} must be non-empty")
-    if check.get("result") != "FAIL":
-        errors.append(f"rounds[{round_number - 1}].check.result must be FAIL before a fix")
-    errors.extend(_summary(check.get("summary"), f"rounds[{round_number - 1}].check.summary"))
-    if not isinstance(check.get("findingFingerprints"), list) or any(not _text(item) for item in check["findingFingerprints"]):
-        errors.append(f"rounds[{round_number - 1}].check.findingFingerprints must contain strings")
+    if not isinstance(value, dict):
+        return [f"{path} must be an object"]
+    coverage = value.get("understandingCoverage")
+    if not isinstance(coverage, (int, float)) or isinstance(coverage, bool) or not 0 <= coverage <= 1:
+        errors.append(f"{path}.understandingCoverage must be between 0 and 1")
+    for field in ("deadEnds", "highFriction", "mediumFriction", "unresolvedNotUnderstood", "missingPrerequisites", "redundancyCandidates"):
+        if not _non_negative_int(value.get(field)):
+            errors.append(f"{path}.{field} must be a non-negative integer")
     return errors
 
 
@@ -48,8 +45,8 @@ def validate_report(report: Any) -> list[str]:
     if not isinstance(report, dict):
         return ["report must be an object"]
     errors: list[str] = []
-    if report.get("schemaVersion") != "heal.report.v1":
-        errors.append("schemaVersion must be heal.report.v1")
+    if report.get("schemaVersion") != "heal.report.v2":
+        errors.append("schemaVersion must be heal.report.v2")
     for field in ("healRunId", "stopReason"):
         if not _text(report.get(field)):
             errors.append(f"{field} must be non-empty")
@@ -84,87 +81,93 @@ def validate_report(report: Any) -> list[str]:
     if not isinstance(roles, dict):
         errors.append("roles is required")
     else:
-        checker = roles.get("checker")
-        fixer = roles.get("fixer")
-        if not isinstance(checker, dict) or checker.get("readOnly") is not True or checker.get("reusedAgent") is not True:
-            errors.append("checker must be reused and read-only")
-        if not isinstance(fixer, dict) or fixer.get("writeEnabled") is not True or fixer.get("reusedAgent") is not True:
-            errors.append("fixer must be reused and write-enabled")
+        novice = roles.get("novice")
+        maintainer = roles.get("maintainer")
+        if not isinstance(novice, dict) or any(novice.get(field) is not True for field in ("readOnly", "coldStart", "synthetic", "userFacingOnly")):
+            errors.append("novice must be read-only, cold-start, synthetic, and user-facing-only")
+        if not isinstance(maintainer, dict) or maintainer.get("writeEnabled") is not True or maintainer.get("reusedAgent") is not True:
+            errors.append("maintainer must be reused and write-enabled")
 
-    errors.extend(_summary(report.get("initialSummary"), "initialSummary"))
-    errors.extend(_summary(report.get("finalSummary"), "finalSummary"))
+    errors.extend(_pedagogy(report.get("initialPedagogy"), "initialPedagogy"))
+    errors.extend(_pedagogy(report.get("finalPedagogy"), "finalPedagogy"))
 
-    previous_after_hash: str | None = None
     for index, item in enumerate(rounds):
         path = f"rounds[{index}]"
-        expected_round = index + 1
-        if not isinstance(item, dict) or item.get("round") != expected_round:
-            errors.append(f"{path}.round must be {expected_round}")
+        expected = index + 1
+        if not isinstance(item, dict) or item.get("round") != expected:
+            errors.append(f"{path}.round must be {expected}")
             continue
-        errors.extend(_check_round(item.get("check"), expected_round))
-        check = item.get("check") if isinstance(item.get("check"), dict) else {}
-        fix = item.get("fix")
-        if not isinstance(fix, dict):
-            errors.append(f"{path}.fix is required")
+        novice = item.get("novice")
+        if not isinstance(novice, dict):
+            errors.append(f"{path}.novice is required")
         else:
-            for field in ("fixRunId", "artifactHashBefore", "artifactHashAfter"):
-                if not _text(fix.get(field)):
-                    errors.append(f"{path}.fix.{field} must be non-empty")
-            if fix.get("fixRound") != expected_round or fix.get("basedOnCheckRound") != expected_round:
-                errors.append(f"{path}.fix must be based on the same check round")
-            if _text(check.get("artifactHash")) and fix.get("artifactHashBefore") != check.get("artifactHash"):
-                errors.append(f"STALE_CHECK_REPORT: {path}.fix.artifactHashBefore differs from check artifactHash")
-            if fix.get("status") not in FIX_STATUSES:
-                errors.append(f"{path}.fix.status is invalid")
-            if fix.get("sourceMutation") is not False:
-                errors.append(f"{path}.fix.sourceMutation must be false")
-            validation = fix.get("localValidation")
+            for field in ("traceId", "tracePath", "artifactVersion"):
+                if not _text(novice.get(field)):
+                    errors.append(f"{path}.novice.{field} must be non-empty")
+            for field in ("freshContext", "completedLearningPath"):
+                if novice.get(field) is not True:
+                    errors.append(f"{path}.novice.{field} must be true")
+            if novice.get("externalKnowledgeUsed") is not False:
+                errors.append(f"{path}.novice.externalKnowledgeUsed must be false")
+            value = novice.get("understandingCoverage")
+            if not isinstance(value, (int, float)) or isinstance(value, bool) or not 0 <= value <= 1:
+                errors.append(f"{path}.novice.understandingCoverage must be between 0 and 1")
+            for field in ("deadEnds", "highFriction", "mediumFriction", "unresolvedNotUnderstood"):
+                if not _non_negative_int(novice.get(field)):
+                    errors.append(f"{path}.novice.{field} must be a non-negative integer")
+            fingerprints = novice.get("frictionFingerprints")
+            if not isinstance(fingerprints, list) or any(not _text(value) for value in fingerprints):
+                errors.append(f"{path}.novice.frictionFingerprints must contain strings")
+
+        maintainer = item.get("maintainer")
+        if not isinstance(maintainer, dict):
+            errors.append(f"{path}.maintainer is required")
+        else:
+            if not isinstance(maintainer.get("evaluationPath"), list) or not maintainer["evaluationPath"]:
+                errors.append(f"{path}.maintainer.evaluationPath must be non-empty")
+            decisions = maintainer.get("decisions")
+            if not isinstance(decisions, list):
+                errors.append(f"{path}.maintainer.decisions must be a list")
+            else:
+                for decision in decisions:
+                    if not isinstance(decision, dict) or decision.get("decision") not in DECISIONS or not _text(decision.get("reason")):
+                        errors.append(f"{path}.maintainer.decisions contains an invalid decision")
+            if maintainer.get("sourceMutation") is not False:
+                errors.append(f"{path}.maintainer.sourceMutation must be false")
+            if maintainer.get("learnerModelMutation") is not False:
+                errors.append(f"{path}.maintainer.learnerModelMutation must be false")
+            if maintainer.get("syntheticDataPersisted") is not False:
+                errors.append(f"{path}.maintainer.syntheticDataPersisted must be false")
+            validation = maintainer.get("localValidation")
             if not isinstance(validation, dict) or validation.get("status") not in {"PASS", "FAIL"}:
-                errors.append(f"{path}.fix.localValidation.status must be PASS or FAIL")
-            if not isinstance(fix.get("escalations"), list):
-                errors.append(f"{path}.fix.escalations must be a list")
-            previous_after_hash = fix.get("artifactHashAfter") if _text(fix.get("artifactHashAfter")) else previous_after_hash
+                errors.append(f"{path}.maintainer.localValidation.status must be PASS or FAIL")
         progress = item.get("progress")
         if not isinstance(progress, dict):
             errors.append(f"{path}.progress is required")
         else:
-            for field in ("resolved", "persisted", "new", "regressed"):
+            for field in ("resolvedPedagogical", "persisted", "new", "regressed"):
                 if not _non_negative_int(progress.get(field)):
                     errors.append(f"{path}.progress.{field} must be a non-negative integer")
             if not isinstance(progress.get("noProgress"), bool):
                 errors.append(f"{path}.progress.noProgress must be boolean")
-            elif progress.get("noProgress") and progress.get("resolved") != 0:
-                errors.append(f"{path}.progress.noProgress cannot have resolved findings")
 
-    final = report.get("finalCheck")
-    if not isinstance(final, dict):
-        errors.append("finalCheck is required")
-    else:
-        for field in ("checkRunId", "artifactVersion", "artifactHash"):
-            if not _text(final.get(field)):
-                errors.append(f"finalCheck.{field} must be non-empty")
-        if final.get("round") != len(rounds) + 1:
-            errors.append("finalCheck.round must be roundsExecuted + 1")
-        if final.get("result") not in CHECK_RESULTS:
-            errors.append("finalCheck.result is invalid")
-        errors.extend(_summary(final.get("summary"), "finalCheck.summary"))
-        if not isinstance(final.get("findingFingerprints"), list) or any(not _text(item) for item in final["findingFingerprints"]):
-            errors.append("finalCheck.findingFingerprints must contain strings")
-        if previous_after_hash is not None and final.get("artifactHash") != previous_after_hash:
-            errors.append("finalCheck.artifactHash must match the last fix artifactHashAfter")
+    final_check = report.get("finalTechnicalCheck")
+    if final_check is not None:
+        if not isinstance(final_check, dict) or final_check.get("result") not in {"PASS", "PASS_WITH_WARNINGS", "FAIL", "BLOCKED"}:
+            errors.append("finalTechnicalCheck.result is invalid")
+        elif final_check.get("summary") is not None:
+            errors.extend(_summary(final_check["summary"], "finalTechnicalCheck.summary"))
 
-    final_summary = report.get("finalSummary")
-    if isinstance(final_summary, dict) and isinstance(final, dict) and final_summary != final.get("summary"):
-        errors.append("finalSummary must equal finalCheck.summary")
-    if report.get("status") == "SUCCESS" and isinstance(final, dict):
-        summary = final.get("summary", {})
-        if final.get("result") not in {"PASS", "PASS_WITH_WARNINGS"} or summary.get("blocker") != 0 or summary.get("error") != 0:
-            errors.append("SUCCESS requires a clean PASS or PASS_WITH_WARNINGS final check")
+    final_pedagogy = report.get("finalPedagogy", {})
+    if report.get("status") == "HEALED" and any(final_pedagogy.get(field) != 0 for field in ("deadEnds", "highFriction", "unresolvedNotUnderstood")):
+        errors.append("HEALED requires no dead ends, high friction, or unresolved NOT_UNDERSTOOD findings")
+    if report.get("status") == "HEALED_WITH_WARNINGS" and any(final_pedagogy.get(field) != 0 for field in ("deadEnds", "highFriction", "unresolvedNotUnderstood")):
+        errors.append("HEALED_WITH_WARNINGS requires no blocking pedagogical friction")
     return errors
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate a heal report.")
+    parser = argparse.ArgumentParser(description="Validate a cold-start learning-experience heal report.")
     parser.add_argument("report", type=Path)
     args = parser.parse_args()
     try:

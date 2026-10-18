@@ -35,7 +35,7 @@ schemas and validators, and verify the real artifact before reporting success.
 | `sort` | Review-priority projection based on exam value, risk, dependencies, weakness, and recent errors. It does not change knowledge content. |
 | `fix` | Repairs allowed Derived, Runtime, and Generated Artifact defects from a current `check` report. |
 | `profile` | Records user-reported weaknesses, thinking habits, explanation preferences, and self-observations. It keeps self-reports separate from system observations. |
-| `heal` | Reuses a read-only Checker and a writable Fixer in a bounded `check → fix → check` loop. It stops on convergence, no progress, regressions, or blockers. |
+| `heal` | Runs a fresh cold-start novice through the user-facing artifact, records learning friction, and lets a Maintainer repair validated pedagogical problems for up to ten rounds. |
 | `amend` | Applies explicit user feedback to supplement or correct an existing learning artifact. It preserves Source and official provenance and runs local validation. |
 
 `learn` is the cross-subject front door. Use `study-math` when a task needs a
@@ -57,10 +57,11 @@ scope.
 modify Source, ask for per-finding confirmation, invoke `relearn`, or duplicate
 the migration logic in `update`. Run `check` after `fix` to verify the result.
 
-`heal` orchestrates the existing `check` and `fix` contracts. It keeps one
-read-only Checker and one writable Fixer for the run, rechecks the current
-artifact after every repair, and stops after at most ten repair rounds plus a
-final check.
+`heal` optimizes learning experience. It creates a fresh synthetic novice for
+each round, records learning friction, and lets an independent Maintainer
+accept, refine, reject, or block each finding. Synthetic traces never update
+the real Learner Model. The run stops after pedagogical convergence, no
+progress, a blocker, or at most ten rounds.
 
 `exam` reads the original exam and explanation PDFs directly. It does not use
 OCR, OCR output, external OCR services, or delegated OCR. If a page cannot be
