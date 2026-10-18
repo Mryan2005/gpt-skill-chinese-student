@@ -1,4 +1,4 @@
-"""Validate material-review output without attributing agent errors to users."""
+"""Validate material-review output at the material/learner boundary."""
 
 from __future__ import annotations
 
@@ -9,40 +9,113 @@ from pathlib import Path
 from typing import Any
 
 
+MATERIAL_SCHEMA_VERSIONS = {"material-review.report.v1", "material-review.report.v2"}
+MATERIAL_HIGHLIGHTS = {"confirmed_weakness", "suspected_weakness"}
+
+
+def _text(value: Any) -> bool:
+    return isinstance(value, str) and bool(value.strip())
+
+
+def _validate_overlay(overlay: Any, errors: list[str]) -> None:
+    if not isinstance(overlay, dict):
+        errors.append("annotationOverlay must be an object")
+        return
+    if overlay.get("schemaVersion") != "review.annotation-overlay.v1":
+        errors.append("annotationOverlay.schemaVersion is invalid")
+    annotations = overlay.get("annotations")
+    if not isinstance(annotations, list):
+        errors.append("annotationOverlay.annotations must be a list")
+        return
+    seen: set[str] = set()
+    for index, annotation in enumerate(annotations):
+        path = f"annotationOverlay.annotations[{index}]"
+        if not isinstance(annotation, dict):
+            errors.append(f"{path} must be an object")
+            continue
+        highlight_id = annotation.get("highlightId")
+        if not _text(highlight_id):
+            errors.append(f"{path}.highlightId must be non-empty")
+        elif highlight_id in seen:
+            errors.append(f"{path}.highlightId is duplicated")
+        seen.add(highlight_id)
+        for field in ("targetType", "targetId", "highlightType", "reason", "renderHint"):
+            if not _text(annotation.get(field)):
+                errors.append(f"{path}.{field} must be non-empty")
+        if not isinstance(annotation.get("evidenceRefs"), list) or not annotation["evidenceRefs"]:
+            errors.append(f"{path}.evidenceRefs must be non-empty")
+        if annotation.get("highlightType") in MATERIAL_HIGHLIGHTS:
+            errors.append(f"{path} cannot contain learner-weakness highlight {annotation['highlightType']}")
+        if annotation.get("status") == "unresolved_anchor" and (annotation.get("anchor") or {}).get("status") == "resolved":
+            errors.append(f"{path}.unresolved_anchor cannot have a resolved anchor")
+
+
 def validate_material_review(report: Any) -> list[str]:
     if not isinstance(report, dict):
         return ["material review must be an object"]
     errors: list[str] = []
-    if report.get("schemaVersion") != "material-review.report.v1":
-        errors.append("schemaVersion must be material-review.report.v1")
+    if report.get("schemaVersion") not in MATERIAL_SCHEMA_VERSIONS:
+        errors.append("schemaVersion must be a material-review report version")
+    if report.get("schemaVersion") == "material-review.report.v2":
+        if report.get("reviewMode") != "material":
+            errors.append("reviewMode must be material")
+        if report.get("learnerModelMutation") is not False:
+            errors.append("learnerModelMutation must be false")
+        if report.get("artifactMutation") is not False:
+            errors.append("artifactMutation must be false")
+        if report.get("sourceMutation") is not False:
+            errors.append("sourceMutation must be false")
+        for field in ("coverage", "blockerAnalysis", "unansweredAnalysis", "focuses", "questionIndex", "learningOrder", "learningTasks", "retestPlans", "learnerModel", "annotationOverlay", "examResultIntegrity", "studyGuideHtml"):
+            if field not in report:
+                errors.append(f"{field} is required for material-review.report.v2")
     for field in ("reviewRunId", "examRunId", "subjectId"):
-        if not isinstance(report.get(field), str) or not report[field].strip():
+        if not _text(report.get(field)):
             errors.append(f"{field} must be non-empty")
     if report.get("answererType") not in {"human", "agent", "model", "unknown"}:
         errors.append("answererType is invalid")
-    if report.get("answererType") != "human" and report.get("learnerModelWriteAllowed") is not False:
-        errors.append("non-human material review cannot write Learner Model")
+    if report.get("learnerModelWriteAllowed") is not False:
+        errors.append("Material Review cannot write the Learner Model")
     if report.get("examResultMutation") is not False:
         errors.append("examResultMutation must be false")
-    for field in ("counts", "blockers", "annotations", "studyGuideMarkdown", "routes"):
-        if field not in report:
-            errors.append(f"{field} is required")
-    if not isinstance(report.get("blockers"), list):
-        errors.append("blockers must be a list")
-    if not isinstance(report.get("annotations"), list):
-        errors.append("annotations must be a list")
+    if not isinstance(report.get("studyGuideMarkdown"), str) or not report["studyGuideMarkdown"].strip():
+        errors.append("studyGuideMarkdown must be non-empty")
+    if not isinstance(report.get("studyGuideHtml"), str) or not report["studyGuideHtml"].strip():
+        errors.append("studyGuideHtml must be non-empty")
+    for field in ("counts", "blockers", "annotations", "routes"):
+        if field in report and not isinstance(report[field], (dict, list)):
+            errors.append(f"{field} has an invalid type")
+    focuses = report.get("focuses", [])
+    if not isinstance(focuses, list):
+        errors.append("focuses must be a list")
     else:
-        for index, annotation in enumerate(report["annotations"]):
-            path = f"annotations[{index}]"
-            if not isinstance(annotation, dict):
+        seen_cards: set[str] = set()
+        for index, focus in enumerate(focuses):
+            path = f"focuses[{index}]"
+            if not isinstance(focus, dict):
                 errors.append(f"{path} must be an object")
                 continue
-            if not annotation.get("evidenceRefs"):
+            card_id = focus.get("cardId")
+            if not _text(card_id) or card_id == "__unmapped__":
+                errors.append(f"{path}.cardId must be a real canonical card ID")
+            elif card_id in seen_cards:
+                errors.append(f"{path}.cardId is duplicated")
+            seen_cards.add(card_id)
+            if not isinstance(focus.get("questionIds"), list):
+                errors.append(f"{path}.questionIds must be a list")
+            if not isinstance(focus.get("evidenceRefs"), list) or not focus["evidenceRefs"]:
                 errors.append(f"{path}.evidenceRefs must be non-empty")
-            if annotation.get("targetType") == "card" and not annotation.get("targetId"):
-                errors.append(f"{path}.targetId is required for a card annotation")
-            if annotation.get("status") == "active" and annotation.get("anchor", {}).get("status") == "unresolved":
-                errors.append(f"{path} must expose unresolved_anchor status")
+    if not isinstance(report.get("learningOrder", []), list):
+        errors.append("learningOrder must be a list")
+    _validate_overlay(report.get("annotationOverlay"), errors)
+    learner_model = report.get("learnerModel")
+    if isinstance(learner_model, dict):
+        for field in ("observationsAppended", "masteryChanges", "selfReportChanges"):
+            if learner_model.get(field, 0) != 0:
+                errors.append(f"learnerModel.{field} must be 0 for Material Review")
+    integrity = report.get("examResultIntegrity")
+    if isinstance(integrity, dict):
+        if integrity.get("mutation") is not False or integrity.get("unchanged") is not True:
+            errors.append("examResultIntegrity must prove an unchanged Exam Result")
     return errors
 
 

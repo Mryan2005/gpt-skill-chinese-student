@@ -45,25 +45,24 @@ conflicts, while `check`, `fix`, and `heal` handle artifact defects.
   `heal`. A student mistake alone is not an artifact defect.
 - Run local Learner Model validation only. Do not run a full `check` silently.
 
-Run [postmortem.md](playbooks/postmortem.md) for the standard workflow,
-[reset_review_workspace.py](scripts/reset_review_workspace.py) before a new
-run, and [validate_exam_result.py](scripts/validate_exam_result.py) before
-diagnosis. Read [review-contract.md](references/review-contract.md) before
-processing an Exam Result. Validate the output with
-[validate_review_report.py](scripts/validate_review_report.py). Apply local
-observation updates with
-[apply_review_update.py](scripts/apply_review_update.py); the script is
-idempotent and requires `--apply` before writing.
-Validate overlays with [validate_annotations.py](scripts/validate_annotations.py)
-and render them for Markdown or Site consumers with
-[render_annotations.py](scripts/render_annotations.py). Rendering never edits
-the original Source.
+Run [postmortem.md](playbooks/postmortem.md) and read
+[review-contract.md](references/review-contract.md) before Learner Review.
+Reset with [reset_review_workspace.py](scripts/reset_review_workspace.py),
+validate with [validate_review_report.py](scripts/validate_review_report.py),
+and apply observations only through the idempotent
+[apply_review_update.py](scripts/apply_review_update.py) `--apply` gate.
+Validate overlays with [validate_annotations.py](scripts/validate_annotations.py);
+rendering never edits Source.
 ## Review modes
 
 `Learner Review` requires reliable human evidence before writing user mastery.
-`Material Review` processes any reliable Exam Result without updating the user's
-Learner Model. Use [material_review.py](scripts/material_review.py) and
-[validate_material_review.py](scripts/validate_material_review.py) for that path.
+`Material Review` accepts a closed review report, optional Exam Result details,
+and a canonical material catalog for any answerer type. It may produce
+card-backed focus, scoped frequency, blocker routes, and Markdown/HTML outputs,
+but it never updates the user's Learner Model. Use
+[material-review.md](playbooks/material-review.md),
+[material_review.py](scripts/material_review.py), and
+[validate_material_review.py](scripts/validate_material_review.py).
 
 ## State machine
 

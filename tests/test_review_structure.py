@@ -71,6 +71,46 @@ class ReviewStructureTests(unittest.TestCase):
         self.assertTrue(material["annotations"])
         self.assertNotIn("weak", json.dumps(material, ensure_ascii=False))
 
+    def test_material_review_example_passes(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "material-review-report.json").read_text(encoding="utf-8"))
+        self.assertEqual(validate_material_review(report), [])
+
+    def test_material_review_is_material_only_even_for_human_input(self) -> None:
+        result = json.loads((SKILL_ROOT / "examples" / "exam-result.json").read_text(encoding="utf-8"))
+        material = build_material_review(result, "material-review-human-test")
+        self.assertEqual(material["answererType"], "human")
+        self.assertFalse(material["learnerModelWriteAllowed"])
+        self.assertFalse(material["learnerModelMutation"])
+        self.assertEqual(material["learnerModel"]["masteryChanges"], 0)
+
+    def test_material_review_uses_real_cards_and_reports_overlap(self) -> None:
+        review = {
+            "schemaVersion": "review.report.v2",
+            "reviewRunId": "review-demo",
+            "exam": {"examRunId": "exam-demo", "subjectId": "math-1", "answererType": "agent"},
+            "questions": [
+                {"questionId": "q1", "observedOutcome": "correct", "artifactStatus": "OK", "answerConflict": False, "knowledgeLinks": {"primaryCardId": "card-a", "secondaryCardIds": [], "mappingStatus": "complete"}, "diagnosis": {"evidenceRefs": ["review:q1"]}},
+                {"questionId": "q2", "observedOutcome": "incorrect", "artifactStatus": "ANSWER_PROVENANCE_CONFLICT", "answerConflict": True, "knowledgeLinks": {"primaryCardId": "card-a", "secondaryCardIds": [], "mappingStatus": "complete"}, "diagnosis": {"evidenceRefs": ["review:q2"]}},
+                {"questionId": "q3", "observedOutcome": "unanswered", "artifactStatus": "GRAPH_MAPPING_MISSING", "answerConflict": False, "knowledgeLinks": {"primaryCardId": "__unmapped__", "secondaryCardIds": [], "mappingStatus": "blocked"}, "diagnosis": {"evidenceRefs": ["review:q3"]}}
+            ]
+        }
+        catalog = {
+            "cards": [{"id": "card-a", "title": "Card A", "group": "demo", "explain": ["A concept."], "boundaries": ["A boundary."], "method": "Check A.", "highlights": ["A statement."], "sourceRefs": [{"sourceId": "source-a", "locator": "p1"}]}],
+            "questions": [{"id": "q1", "stem": "What is A?", "options": [["A", "A"]], "answer": ["A"], "officialAnswer": "A", "type": "single_choice"}],
+            "relations": []
+        }
+        first = build_material_review(review, "material-review-demo", catalog=catalog)
+        second = build_material_review(review, "material-review-demo", catalog=catalog)
+        self.assertEqual(first, second)
+        self.assertEqual(first["blockerAnalysis"]["originalBlockerCounts"], {"GRAPH_MAPPING_MISSING": 1, "SOURCE_INCOMPLETE": 0, "ANSWER_PROVENANCE_CONFLICT": 1})
+        self.assertEqual(first["blockerAnalysis"]["uniqueAffectedQuestionCount"], 2)
+        self.assertEqual(first["blockerAnalysis"]["pairwiseOverlap"][0]["questionCount"], 0)
+        self.assertEqual(first["coverage"]["focusCardCount"], 1)
+        self.assertEqual(first["coverage"]["questionAnalysisProducedCount"], 1)
+        self.assertIn("#card-card-a", first["studyGuideHtml"])
+        self.assertTrue(any(item["status"] == "unresolved_anchor" for item in first["annotationOverlay"]["annotations"]))
+        self.assertEqual(validate_material_review(first), [])
+
     def test_report_rejects_exam_or_artifact_mutation(self) -> None:
         report = json.loads((SKILL_ROOT / "examples" / "review-report.json").read_text(encoding="utf-8"))
         mutated = copy.deepcopy(report)

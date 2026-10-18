@@ -1,34 +1,74 @@
 {
-  "schemaVersion": "material-review.report.v1",
+  "schemaVersion": "material-review.report.v2",
+  "reviewMode": "material",
   "reviewRunId": "material-review-agent-demo-001",
   "examRunId": "material-exam-agent-demo-001",
   "subjectId": "politics-demo",
   "answererType": "agent",
   "learnerModelWriteAllowed": false,
-  "counts": {"total": 2, "grading:correct": 1, "grading:wrong": 1},
-  "blockers": [
-    {"code": "GRAPH_MAPPING_MISSING", "questionCount": 1, "questionIds": ["q-002"], "route": "check"}
-  ],
-  "annotations": [
+  "learnerModelMutation": false,
+  "examResultMutation": false,
+  "artifactMutation": false,
+  "sourceMutation": false,
+  "source": "review_report_and_closed_exam_result",
+  "inputIdentity": {"reviewReportSchemaVersion": "review.report.v2", "examResultSchemaVersion": "exam-record.v1", "examResultHashBefore": "sha256:demo", "examResultHashAfter": "sha256:demo"},
+  "coverage": {
+    "totalQuestionCount": 2,
+    "focusCardCount": 1,
+    "cardBackedQuestionCount": 2,
+    "questionAnalysisProducedCount": 1,
+    "questionAnalysisUnmappedCount": 0,
+    "cardBackedOnlyCount": 1,
+    "answerConflictCount": 0,
+    "sourceBlockedCount": 0,
+    "structuredQuestionMissingCount": 1,
+    "evidenceLevels": {"complete_material_analysis": 1, "card_backed_material_analysis": 1},
+    "frequencyBasis": "mapped_question_subset",
+    "coverageWarning": "No frequency or importance claim includes unmapped questions."
+  },
+  "blockerAnalysis": {
+    "originalBlockerCounts": {"GRAPH_MAPPING_MISSING": 0, "SOURCE_INCOMPLETE": 0, "ANSWER_PROVENANCE_CONFLICT": 0},
+    "uniqueAffectedQuestionCount": 0,
+    "unaffectedQuestionCount": 2,
+    "pairwiseOverlap": [],
+    "overlapInterpretation": "Independent flags are used.",
+    "materialInputGaps": [],
+    "referenceAnswerGaps": {"questionCount": 0, "questionIds": []},
+    "rootCauses": []
+  },
+  "unansweredAnalysis": {"count": 0, "questionIds": [], "byArtifactStatus": {}, "byAttemptStatus": {}, "answererType": "agent", "learnerEvidence": false, "interpretation": "Material-only review.", "doNotBackfillFirstPass": true, "nextStep": "Create a new independent exam run for learner evidence."},
+  "focuses": [
     {
-      "highlightId": "material-review-agent-demo-001-q-001",
-      "subjectId": "politics-demo",
-      "reviewRunId": "material-review-agent-demo-001",
-      "targetType": "question",
-      "targetId": "q-001",
-      "highlightType": "must_practice",
-      "priority": "high",
-      "evidenceStrength": "supported",
-      "reason": "The closed Exam Result identifies a reliable question-level study target.",
-      "evidenceRefs": ["q-001.grading"],
-      "labels": ["material-review"],
-      "actionHint": "Read the reliable question and explanation evidence.",
-      "renderHint": "highlight",
-      "status": "active",
-      "anchor": {"status": "resolved", "locator": "question:q-001"}
+      "focusId": "material-focus-ratio-test",
+      "title": "Ratio test",
+      "cardId": "ratio-test",
+      "importance": {"level": "high", "basis": "mapped_question_frequency", "mappedQuestionCount": 2, "totalExamQuestionCount": 2, "scope": "mapped_questions_only", "coverageWarning": "Mapped subset only."},
+      "questionIds": ["series-mcq-12", "series-mcq-17"],
+      "conflictedQuestionIds": [],
+      "coreConcept": {"content": ["Use the ratio test when the term structure makes successive-term ratios informative."], "provenance": "canonical_card.explain_or_anchor"},
+      "keyStatements": {"items": ["Compare successive terms before choosing a convergence test."], "provenance": "canonical_card.highlights_or_explain", "status": "supported"},
+      "memorization": {"items": [], "status": "explicit_only", "note": "Only explicit expressions are listed."},
+      "confusions": {"items": ["Do not apply the test without checking its conditions."], "provenance": "canonical_card.boundaries"},
+      "conditions": {"items": ["Check the ratio limit and its interpretation."], "provenance": "canonical_card.method"},
+      "distractors": {"items": [], "status": "structured_question_not_available"},
+      "scoringPoints": {"items": [], "status": "not_available"},
+      "prerequisites": [],
+      "sourceRefs": [],
+      "recommendedActions": ["Read the card and solve a new variant."],
+      "evidenceRefs": ["review:question:series-mcq-12", "review:question:series-mcq-17", "canonical-card:ratio-test"]
     }
   ],
-  "studyGuideMarkdown": "# Material Review\n\n## q-001\n\nReview the reliable question and explanation evidence.",
-  "routes": ["check"],
-  "examResultMutation": false
+  "questionIndex": [
+    {"questionId": "series-mcq-12", "outcome": "correct", "cardIds": ["ratio-test"], "evidenceTier": "complete_material_analysis", "materialNote": "Structured question content is available.", "evidenceRefs": ["review:question:series-mcq-12"]},
+    {"questionId": "series-mcq-17", "outcome": "incorrect", "cardIds": ["ratio-test"], "evidenceTier": "card_backed_material_analysis", "materialNote": "Question text/options are not in the supplied structured material catalog; no question-level content is invented.", "evidenceRefs": ["review:question:series-mcq-17"]}
+  ],
+  "learningOrder": [{"rank": 1, "cardId": "ratio-test", "title": "Ratio test", "prerequisiteCardIds": [], "reason": "Mapped material focus."}],
+  "learningTasks": [{"taskId": "material-study-ratio-test", "taskType": "material_study", "owner": "learn", "what": "Study ratio test.", "why": "Mapped exam material.", "targetCardIds": ["ratio-test"], "questionIds": ["series-mcq-12", "series-mcq-17"], "operations": ["read_core_concept", "solve_new_variant_without_hints"], "dependencies": [], "evidenceRefs": ["canonical-card:ratio-test"], "acceptanceCriteria": ["Explain the condition and solve a new variant."], "learnerModelEffect": "none_until_human_retest"}],
+  "retestPlans": [],
+  "routes": [],
+  "learnerModel": {"writeAllowed": false, "mutation": false, "observationsAppended": 0, "masteryChanges": 0, "selfReportChanges": 0, "reason": "Material Review is not learner assessment."},
+  "annotationOverlay": {"schemaVersion": "review.annotation-overlay.v1", "subjectId": "politics-demo", "reviewRunId": "material-review-agent-demo-001", "annotations": [{"highlightId": "material-review-agent-demo-001-ratio-test", "targetType": "card", "targetId": "ratio-test", "highlightType": "high_frequency", "priority": "high", "evidenceStrength": "supported", "reason": "Mapped material focus.", "evidenceRefs": ["canonical-card:ratio-test"], "renderHint": "highlight", "status": "active", "anchor": {"status": "resolved", "locator": "card:ratio-test"}}]},
+  "examResultIntegrity": {"hashBefore": "sha256:demo", "hashAfter": "sha256:demo", "unchanged": true, "mutation": false},
+  "studyGuideMarkdown": "# Material Review\n\n## Ratio test\n\nStudy the condition and boundary.",
+  "studyGuideHtml": "<!doctype html><html><body><h1>Material Review</h1><h2 id=\"card-ratio-test\">Ratio test</h2></body></html>"
 }
