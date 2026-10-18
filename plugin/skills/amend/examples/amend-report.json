@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "amend.report.v1",
+  "amendRunId": "math-1-amend-001",
+  "status": "COMPLETE",
+  "request": {
+    "source": "user_feedback",
+    "text": "The ratio-test card must say that rho = 1 is inconclusive.",
+    "targets": ["card:ratio-test"]
+  },
+  "plan": [
+    {
+      "layer": "derived-card",
+      "entityId": "card:ratio-test",
+      "action": "replace",
+      "reason": "Add the omitted boundary condition without changing Source.",
+      "provenance": "user_feedback"
+    }
+  ],
+  "changes": [
+    {
+      "layer": "derived-card",
+      "entityId": "card:ratio-test",
+      "action": "replace",
+      "provenance": "user_feedback"
+    }
+  ],
+  "sourceMutation": false,
+  "officialProvenanceMutation": false,
+  "localValidation": {
+    "status": "PASS",
+    "checks": ["target-id", "markdown", "latex", "relation-integrity"]
+  },
+  "history": {
+    "path": "history/amendments.jsonl",
+    "recorded": true
+  },
+  "escalations": [],
+  "nextAction": "run check"
+}

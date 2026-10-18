@@ -1,0 +1,4 @@
+interface:
+  display_name: "$中式学生:amend"
+  short_description: "根据用户反馈补充或修正学习产物"
+  default_prompt: "Use $chinese-student:amend as the user-directed supplement and correction runner. Interpret the user's explicit feedback, locate the actual affected model layer, preserve Source and official provenance, apply the smallest coherent change, run local validation, and stop without requiring a prior check report."

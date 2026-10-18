@@ -36,6 +36,7 @@ schemas and validators, and verify the real artifact before reporting success.
 | `fix` | Repairs allowed Derived, Runtime, and Generated Artifact defects from a current `check` report. |
 | `profile` | Records user-reported weaknesses, thinking habits, explanation preferences, and self-observations. It keeps self-reports separate from system observations. |
 | `heal` | Reuses a read-only Checker and a writable Fixer in a bounded `check → fix → check` loop. It stops on convergence, no progress, regressions, or blockers. |
+| `amend` | Applies explicit user feedback to supplement or correct an existing learning artifact. It preserves Source and official provenance and runs local validation. |
 
 `learn` is the cross-subject front door. Use `study-math` when a task needs a
 systematic mathematics graph, many questions, formulas, proofs, or exam-specific
@@ -138,6 +139,7 @@ plugin/
    ├─ sort/
    ├─ fix/
    ├─ profile/
+   ├─ amend/
    └─ heal/
 tests/
 ```
