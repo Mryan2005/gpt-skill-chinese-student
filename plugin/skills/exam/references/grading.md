@@ -19,7 +19,13 @@ Report at least:
 ~~~text
 correct / total
 percentage
-unanswered
+answered
+wrong
+unansweredByLearner
+blockedUnreadable
+blockedSource
+blockedGraphKnowledgeGap
+blockedSystem
 partial
 ~~~
 
@@ -44,6 +50,10 @@ knowledge_found
 knowledge_correctly_applied
 retrieval_success_rate
 application_success_rate
+direct_mapping_available
+retrieval_without_direct_mapping_succeeded
+retrieval_failure
+graph_knowledge_gap
 ~~~
 
 Do not infer knowledge mastery from one correct question. Do not infer graph quality from the learner score alone.

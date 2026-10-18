@@ -20,10 +20,16 @@ Use it when the user wants to begin or complete a closed-book exam against the c
 4. Load the original question PDF directly and only then transition to LOAD_EXAM_PDF.
 5. Create and freeze an Exam Snapshot before answering.
 6. Enter FIRST_PASS. Use only the snapshot and questions.
-7. Save one first-pass record per question with answer, confidence, card IDs, retrieval result, original PDF page, and evidence boundary.
-8. Freeze all first-pass answers and transition to ANSWERS_FROZEN.
+7. Process every readable question. Save one first-pass record with
+   `attemptStatus`, answer or explicit null, confidence, reasoning, direct
+   mapping availability, retrieval queries and result, actual cards used,
+   original PDF page, and evidence boundary. A missing direct mapping does not
+   stop retrieval.
+8. Verify `processedQuestionCount == totalQuestionCount` and
+   `unprocessedQuestionCount == 0`. Freeze all first-pass records and transition
+   to ANSWERS_FROZEN only when the coverage gate passes.
 9. Stop. Route later explanation reading to grade-exam.
 
 ## Gate
 
-If residualPaths is not empty, do not load the question PDF and do not enter SNAPSHOT_FROZEN or FIRST_PASS. Do not use OCR, a surrogate transcript, Web, solutions, answer keys, call learn, call study-math to add knowledge, or modify the Subject before ANSWERS_FROZEN. The prohibition applies to every delegated helper.
+If residualPaths is not empty, do not load the question PDF and do not enter SNAPSHOT_FROZEN or FIRST_PASS. Do not use OCR, a surrogate transcript, Web, solutions, answer keys, call learn, call study-math to add knowledge, or modify the Subject before ANSWERS_FROZEN. The prohibition applies to every delegated helper. Do not classify a question as a graph gap merely because direct mapping is missing.

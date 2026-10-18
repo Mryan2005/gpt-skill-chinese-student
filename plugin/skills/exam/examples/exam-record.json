@@ -59,6 +59,7 @@
         "page": 2
       },
       "firstPass": {
+        "attemptStatus": "ANSWERED",
         "answer": "B",
         "confidence": 0.7,
         "reasoningSummary": "比值极限为 1 时停止使用比值判别法。",
@@ -66,6 +67,15 @@
         "retrievalResult": {
           "status": "found",
           "matchedCardIds": ["ratio-test"]
+        },
+        "retrieval": {
+          "directMappingAvailable": true,
+          "attempted": true,
+          "queries": ["比值判别法"],
+          "candidateCardIds": ["ratio-test"],
+          "selectedCardIds": ["ratio-test"],
+          "result": "FOUND",
+          "evidence": ["card:ratio-test"]
         },
         "order": 1
       },
@@ -81,11 +91,13 @@
         }
       },
       "grading": {
+        "gradingStatus": "GRADED",
         "result": "correct",
         "score": 1,
         "errorTypes": []
       },
-      "revisions": []
+      "revisions": [],
+      "artifactStatus": "OK"
     },
     {
       "questionId": "series-mcq-17",
@@ -97,6 +109,7 @@
         "page": 3
       },
       "firstPass": {
+        "attemptStatus": "ANSWERED",
         "answer": "A",
         "confidence": 0.4,
         "reasoningSummary": "先按正项级数处理，但没有识别相邻项比值结构。",
@@ -104,6 +117,15 @@
         "retrievalResult": {
           "status": "found",
           "matchedCardIds": ["positive-series"]
+        },
+        "retrieval": {
+          "directMappingAvailable": false,
+          "attempted": true,
+          "queries": ["相邻项比值 阶乘 正项级数"],
+          "candidateCardIds": ["positive-series", "ratio-test"],
+          "selectedCardIds": ["ratio-test"],
+          "result": "FOUND",
+          "evidence": ["card:ratio-test", "relation:positive-series-to-ratio-test"]
         },
         "order": 2
       },
@@ -119,12 +141,14 @@
         }
       },
       "grading": {
+        "gradingStatus": "GRADED",
         "result": "wrong",
         "score": 0,
         "errorTypes": ["METHOD_SELECTION_ERROR"],
         "expectedCards": ["ratio-test"]
       },
-      "revisions": []
+      "revisions": [],
+      "artifactStatus": "OK"
     }
   ],
   "accessLog": [
@@ -151,8 +175,24 @@
     "correct": 1,
     "total": 2,
     "percentage": 50,
+    "answered": 2,
+    "wrong": 1,
+    "partial": 0,
     "unanswered": 0,
-    "partial": 0
+    "unansweredByLearner": 0,
+    "blockedUnreadable": 0,
+    "blockedSource": 0,
+    "blockedGraphKnowledgeGap": 0,
+    "blockedSystem": 0
+  },
+  "firstPassCoverage": {
+    "totalQuestions": 2,
+    "processedQuestions": 2,
+    "answered": 2,
+    "unansweredByLearner": 0,
+    "blocked": 0,
+    "unprocessed": 0,
+    "complete": true
   },
   "knowledgeCoverage": {
     "cardsInExam": 2,
@@ -166,6 +206,10 @@
     "knowledgeCorrectlyApplied": 1,
     "retrievalSuccessRate": 1,
     "applicationSuccessRate": 0.5
+    ,"directMappingAvailable": 1,
+    "retrievalWithoutDirectMappingSucceeded": 1,
+    "retrievalFailure": 0,
+    "graphKnowledgeGap": 0
   },
   "errorProfile": {
     "METHOD_SELECTION_ERROR": 1

@@ -16,6 +16,12 @@ knowledge, define card semantics, or audit Subject quality.
 - Read the original exam and explanation PDFs directly. Do not use OCR, OCR
   packages, external OCR APIs, transcript substitutes, or delegated OCR.
 - During `FIRST_PASS`, access only the frozen graph and questions.
+- A pre-existing question-to-card mapping is optional. A direct mapping is a
+  retrieval hint, never a gate for attempting a question.
+- For every readable question, interpret the question and attempt retrieval
+  across the frozen Subject. Record the actual cards and evidence used.
+- Give every question an explicit `attemptStatus` and retrieval record before
+  freezing answers. Unprocessed questions block `ANSWERS_FROZEN`.
 - During the first pass, do not use the Web, explanations, answer keys, other
   materials, or knowledge added after the snapshot.
 - The Learner Model may guide coverage or difficulty before the snapshot is
@@ -27,13 +33,11 @@ knowledge, define card semantics, or audit Subject quality.
 - Do not call `learn`, `study-math`, or `review` to modify the tested artifact
   during the exam run.
 - Emit an immutable Exam Result, Learning Gap Report, and Repair Requests.
-  `review` consumes the Exam Result and owns postmortem Learner Model updates;
-  `learn` or the domain model decides how to teach the remediation.
+  `review` consumes it for Learner Model updates; `learn` teaches remediation.
 
-Read [exam-contract.md](references/exam-contract.md),
-[exam-workspace.md](references/exam-workspace.md), [pdf-reading.md](references/pdf-reading.md),
-[answer-record.md](references/answer-record.md), [grading.md](references/grading.md),
-and [error-taxonomy.md](references/error-taxonomy.md).
+Read [exam-contract.md](references/exam-contract.md), [exam-workspace.md](references/exam-workspace.md),
+[pdf-reading.md](references/pdf-reading.md), [answer-record.md](references/answer-record.md),
+[grading.md](references/grading.md), and [error-taxonomy.md](references/error-taxonomy.md).
 
 ## State machine
 
@@ -55,14 +59,10 @@ ANSWERS_FROZEN
 SOLUTION_RELEASED
   ↓
 GRADING
-  ↓
-POSTMORTEM
-  ↓
-CLOSED
+  ↓ POSTMORTEM ↓ CLOSED
 ~~~
 
 The state moves forward only; rollback or first-pass overwrite is a structure error.
-
 ## Routing
 
 | User goal | Playbook |
@@ -76,5 +76,5 @@ The state moves forward only; rollback or first-pass overwrite is a structure er
 
 Run `validate_exam_record.py`. Confirm the snapshot, state, first-pass answers,
 explanation release, grading, and findings. Report Performance, Knowledge
-Coverage, Graph Effectiveness, Error Profile, and Repair Requests. Route the
-closed Exam Result to `review`; do not write Learner Model updates from `exam`.
+Coverage, Graph Effectiveness, Error Profile, and Repair Requests. Route the closed Exam Result to
+`review`; `exam` does not write Learner Model updates.

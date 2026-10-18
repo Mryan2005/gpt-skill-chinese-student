@@ -22,7 +22,11 @@ STATES = [
     "POSTMORTEM",
     "CLOSED",
 ]
-RESULTS = {"correct", "wrong", "unanswered", "partial"}
+RESULTS = {"correct", "wrong", "unanswered", "partial", "blocked"}
+ATTEMPT_STATUSES = {"ANSWERED", "UNANSWERED_BY_LEARNER", "BLOCKED_BY_UNREADABLE_QUESTION", "BLOCKED_BY_SOURCE", "BLOCKED_BY_GRAPH_KNOWLEDGE_GAP", "BLOCKED_BY_EXAM_SYSTEM", "PARTIAL_ANSWER"}
+RETRIEVAL_RESULTS = {"FOUND", "PARTIAL_FOUND", "NOT_FOUND", "NOT_ATTEMPTED"}
+ARTIFACT_STATUSES = {"OK", "DIRECT_MAPPING_MISSING", "GRAPH_KNOWLEDGE_GAP", "GRAPH_MAPPING_MISSING", "GRAPH_MAPPING_AMBIGUOUS", "SOURCE_MISSING", "SOURCE_INCOMPLETE", "ANSWER_PROVENANCE_CONFLICT", "QUESTION_UNREADABLE", "REFERENCE_ANSWER_MISSING"}
+GRADING_STATUSES = {"GRADED", "UNGRADED", "BLOCKED"}
 PDF_READING_MODES = {"native_pdf_page_image", "native_pdf_text_and_page"}
 PDF_BANNED_TOKENS = {
     "ocr",
@@ -176,9 +180,44 @@ def validate_record(record: Any) -> list[str]:
             if not isinstance(first_pass, dict):
                 errors.append(f"{path}.firstPass is required from FIRST_PASS onward")
             else:
-                for field in ("answer", "confidence", "reasoningSummary", "order"):
+                for field in ("confidence", "reasoningSummary", "order", "attemptStatus", "retrieval"):
                     if field not in first_pass:
                         errors.append(f"{path}.firstPass.{field} is required")
+                attempt_status = first_pass.get("attemptStatus")
+                if attempt_status not in ATTEMPT_STATUSES:
+                    errors.append(f"FIRST_PASS_STATUS_MISSING: {path}.firstPass.attemptStatus is invalid")
+                retrieval = first_pass.get("retrieval")
+                if not isinstance(retrieval, dict):
+                    errors.append(f"{path}.firstPass.retrieval must be an object")
+                else:
+                    if not isinstance(retrieval.get("directMappingAvailable"), bool):
+                        errors.append(f"{path}.firstPass.retrieval.directMappingAvailable must be boolean")
+                    if not isinstance(retrieval.get("attempted"), bool):
+                        errors.append(f"{path}.firstPass.retrieval.attempted must be boolean")
+                    if retrieval.get("result") not in RETRIEVAL_RESULTS:
+                        errors.append(f"{path}.firstPass.retrieval.result is invalid")
+                    for field in ("candidateCardIds", "selectedCardIds", "evidence"):
+                        if not isinstance(retrieval.get(field), list):
+                            errors.append(f"{path}.firstPass.retrieval.{field} must be a list")
+                    if not retrieval.get("directMappingAvailable") and retrieval.get("result") == "NOT_ATTEMPTED" and attempt_status not in {"BLOCKED_BY_UNREADABLE_QUESTION", "BLOCKED_BY_EXAM_SYSTEM"}:
+                        errors.append(f"FIRST_PASS_RETRIEVAL_NOT_ATTEMPTED: {path}")
+                answer = first_pass.get("answer")
+                reasoning = first_pass.get("reasoningSummary")
+                if attempt_status in {"ANSWERED", "PARTIAL_ANSWER"}:
+                    if not _text(answer):
+                        errors.append(f"FIRST_PASS_ANSWER_MISSING: {path}.answer is required for {attempt_status}")
+                    if not _text(reasoning):
+                        errors.append(f"FIRST_PASS_ANSWER_MISSING: {path}.reasoningSummary is required for {attempt_status}")
+                elif attempt_status == "UNANSWERED_BY_LEARNER":
+                    if not _text(reasoning):
+                        errors.append(f"FIRST_PASS_ANSWER_MISSING: {path}.reasoningSummary is required for unanswered learner status")
+                else:
+                    if not isinstance(question.get("blockerEvidence"), list) or not question["blockerEvidence"]:
+                        errors.append(f"BLOCKED_WITHOUT_EVIDENCE: {path}.blockerEvidence is required")
+                    if attempt_status == "BLOCKED_BY_GRAPH_KNOWLEDGE_GAP" and (not isinstance(retrieval, dict) or retrieval.get("attempted") is not True or retrieval.get("result") != "NOT_FOUND"):
+                        errors.append(f"GRAPH_GAP_WITHOUT_RETRIEVAL: {path}")
+                    if attempt_status == "BLOCKED_BY_UNREADABLE_QUESTION" and isinstance(retrieval, dict) and retrieval.get("attempted") is True:
+                        errors.append(f"UNREADABLE_QUESTION_RETRIEVAL_MISMATCH: {path}")
         if state_index >= STATES.index("ANSWERS_FROZEN") and question.get("firstPassFrozen") is not True:
             errors.append(f"{path}.firstPassFrozen must be true after ANSWERS_FROZEN")
         if state_index >= STATES.index("FIRST_PASS"):
@@ -187,8 +226,21 @@ def validate_record(record: Any) -> list[str]:
         if state_index >= STATES.index("GRADING"):
             if not isinstance(grading, dict):
                 errors.append(f"{path}.grading is required from GRADING onward")
-            elif grading.get("result") not in RESULTS:
-                errors.append(f"{path}.grading.result is invalid")
+            else:
+                if grading.get("result") not in RESULTS:
+                    errors.append(f"{path}.grading.result is invalid")
+                if grading.get("gradingStatus") not in GRADING_STATUSES:
+                    errors.append(f"{path}.grading.gradingStatus is invalid")
+                attempt_status = first_pass.get("attemptStatus") if isinstance(first_pass, dict) else None
+                if attempt_status in {"BLOCKED_BY_SOURCE", "BLOCKED_BY_GRAPH_KNOWLEDGE_GAP", "BLOCKED_BY_UNREADABLE_QUESTION", "BLOCKED_BY_EXAM_SYSTEM"} and grading.get("result") != "blocked":
+                    errors.append(f"GRADING_ATTEMPT_STATUS_MISMATCH: {path} blocked attempt must have blocked grading")
+                if attempt_status == "UNANSWERED_BY_LEARNER" and grading.get("result") != "unanswered":
+                    errors.append(f"UNANSWERED_STATUS_MISMATCH: {path}")
+                if attempt_status in {"ANSWERED", "PARTIAL_ANSWER"} and grading.get("result") == "blocked":
+                    errors.append(f"GRADING_ATTEMPT_STATUS_MISMATCH: {path}")
+        artifact_status = question.get("artifactStatus", "OK")
+        if artifact_status not in ARTIFACT_STATUSES:
+            errors.append(f"{path}.artifactStatus is invalid")
         revisions = question.get("revisions", [])
         if not isinstance(revisions, list):
             errors.append(f"{path}.revisions must be a list")
@@ -214,6 +266,21 @@ def validate_record(record: Any) -> list[str]:
             errors.append(f"{field} must be a timestamp string or null")
     if state_index >= STATES.index("SOLUTION_RELEASED") and not _text(record.get("officialAnswersReleasedAt")):
         errors.append("officialAnswersReleasedAt is required after SOLUTION_RELEASED")
+    if state_index >= STATES.index("ANSWERS_FROZEN"):
+        coverage = record.get("firstPassCoverage")
+        if not isinstance(coverage, dict):
+            errors.append("FIRST_PASS_COVERAGE_INCOMPLETE: firstPassCoverage is required before answers freeze")
+        else:
+            fields = ("totalQuestions", "processedQuestions", "answered", "unansweredByLearner", "blocked", "unprocessed")
+            if any(not isinstance(coverage.get(field), int) or isinstance(coverage.get(field), bool) or coverage.get(field) < 0 for field in fields):
+                errors.append("FIRST_PASS_COVERAGE_COUNT_MISMATCH: coverage counts must be non-negative integers")
+            elif coverage["totalQuestions"] != len(questions) or coverage["processedQuestions"] != coverage["totalQuestions"] or coverage["unprocessed"] != 0:
+                errors.append("FIRST_PASS_COVERAGE_INCOMPLETE: every question must have a processing status")
+            elif coverage["totalQuestions"] != coverage["answered"] + coverage["unansweredByLearner"] + coverage["blocked"]:
+                errors.append("FIRST_PASS_COVERAGE_COUNT_MISMATCH: status counts do not sum to total")
+            if coverage.get("complete") is not True:
+                errors.append("FIRST_PASS_COVERAGE_INCOMPLETE: complete must be true before answers freeze")
+
     if state_index >= STATES.index("CLOSED"):
         for field in ("performance", "knowledgeCoverage", "graphEffectiveness", "errorProfile", "repairRequests"):
             if field not in record:
@@ -226,8 +293,8 @@ def validate_record(record: Any) -> list[str]:
             if not isinstance(request, dict):
                 errors.append(f"repairRequests[{index}] must be an object")
                 continue
-            if request.get("owner") not in {"learn", "study-math", "domain-model"}:
-                errors.append(f"repairRequests[{index}].owner must route to learn or a domain model")
+            if request.get("owner") not in {"review", "learn", "study-math", "study-politics", "domain-model", "check", "fix", "heal", "amend"}:
+                errors.append(f"REPAIR_REQUEST_OWNER_INVALID: repairRequests[{index}].owner is not supported")
             for field in ("questionId", "reason", "evidence"):
                 if not _text(request.get(field)):
                     errors.append(f"repairRequests[{index}].{field} is required")

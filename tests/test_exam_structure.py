@@ -103,6 +103,50 @@ class ExamStructureTests(unittest.TestCase):
         errors = validate_record(record)
         self.assertTrue(any("EXAM_WORKSPACE_NOT_CLEAN" in error for error in errors))
 
+    def test_missing_direct_mapping_does_not_block_retrieval(self) -> None:
+        record = copy.deepcopy(load_example())
+        first_pass = record["questions"][0]["firstPass"]
+        first_pass["retrieval"]["directMappingAvailable"] = False
+        first_pass["retrieval"]["result"] = "FOUND"
+        self.assertEqual(validate_record(record), [])
+
+    def test_graph_gap_requires_broad_retrieval_and_blocked_grading(self) -> None:
+        record = copy.deepcopy(load_example())
+        question = record["questions"][1]
+        question["firstPass"].update(
+            {
+                "attemptStatus": "BLOCKED_BY_GRAPH_KNOWLEDGE_GAP",
+                "answer": None,
+                "reasoningSummary": "已完成冻结图谱检索，但未找到足以支持判断的知识。",
+                "retrieval": {
+                    "directMappingAvailable": False,
+                    "attempted": True,
+                    "queries": ["未知结构"],
+                    "candidateCardIds": [],
+                    "selectedCardIds": [],
+                    "result": "NOT_FOUND",
+                    "evidence": ["broad-search:math-1"]
+                }
+            }
+        )
+        question["blockerEvidence"] = ["retrieval:broad-search:math-1"]
+        question["artifactStatus"] = "GRAPH_KNOWLEDGE_GAP"
+        question["grading"] = {"gradingStatus": "BLOCKED", "result": "blocked", "score": 0, "errorTypes": []}
+        record["firstPassCoverage"].update({"answered": 1, "blocked": 1})
+        self.assertEqual(validate_record(record), [])
+
+    def test_unprocessed_question_cannot_freeze(self) -> None:
+        record = copy.deepcopy(load_example())
+        record["questions"][1]["firstPass"].pop("attemptStatus")
+        errors = validate_record(record)
+        self.assertTrue(any("FIRST_PASS_STATUS_MISSING" in error for error in errors))
+
+    def test_answered_empty_answer_is_invalid(self) -> None:
+        record = copy.deepcopy(load_example())
+        record["questions"][0]["firstPass"]["answer"] = ""
+        errors = validate_record(record)
+        self.assertTrue(any("FIRST_PASS_ANSWER_MISSING" in error for error in errors))
+
     def test_reset_script_deletes_only_the_exact_current_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / ".exam" / "current"
