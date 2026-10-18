@@ -70,9 +70,9 @@ read reliably, the exam record marks it as unreadable.
 
 `review` consumes the closed Exam Result. Learner Review writes only eligible
 human evidence to the local Learner Model; Material Review can process agent
-runs, emits scoped study focuses plus Markdown/HTML and annotation overlays,
-and never writes mastery. Content or system defects route to `amend` or
-`check`/`fix`/`heal`.
+runs, consume a native-text material catalog, emit question/card study focuses
+plus Markdown/HTML and annotation overlays, and never write mastery. Content
+or system defects route to `amend` or `check`/`fix`/`heal`.
 
 ## Architecture
 

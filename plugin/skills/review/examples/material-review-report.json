@@ -58,11 +58,13 @@
       "evidenceRefs": ["review:question:series-mcq-12", "review:question:series-mcq-17", "canonical-card:ratio-test"]
     }
   ],
+  "questionAnalyses": [],
   "questionIndex": [
     {"questionId": "series-mcq-12", "outcome": "correct", "cardIds": ["ratio-test"], "evidenceTier": "complete_material_analysis", "materialNote": "Structured question content is available.", "evidenceRefs": ["review:question:series-mcq-12"]},
     {"questionId": "series-mcq-17", "outcome": "incorrect", "cardIds": ["ratio-test"], "evidenceTier": "card_backed_material_analysis", "materialNote": "Question text/options are not in the supplied structured material catalog; no question-level content is invented.", "evidenceRefs": ["review:question:series-mcq-17"]}
   ],
   "learningOrder": [{"rank": 1, "cardId": "ratio-test", "title": "Ratio test", "prerequisiteCardIds": [], "reason": "Mapped material focus."}],
+  "questionLearningOrder": [],
   "learningTasks": [{"taskId": "material-study-ratio-test", "taskType": "material_study", "owner": "learn", "what": "Study ratio test.", "why": "Mapped exam material.", "targetCardIds": ["ratio-test"], "questionIds": ["series-mcq-12", "series-mcq-17"], "operations": ["read_core_concept", "solve_new_variant_without_hints"], "dependencies": [], "evidenceRefs": ["canonical-card:ratio-test"], "acceptanceCriteria": ["Explain the condition and solve a new variant."], "learnerModelEffect": "none_until_human_retest"}],
   "retestPlans": [],
   "routes": [],

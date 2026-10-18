@@ -38,6 +38,7 @@ class ReviewStructureTests(unittest.TestCase):
         self.assertTrue((SKILL_ROOT / "playbooks" / "postmortem.md").is_file())
         self.assertTrue((SKILL_ROOT / "scripts" / "reset_review_workspace.py").is_file())
         self.assertTrue((SKILL_ROOT / "scripts" / "validate_exam_result.py").is_file())
+        self.assertTrue((SKILL_ROOT / "scripts" / "extract_native_pdf_material.py").is_file())
 
     def test_links_resolve(self) -> None:
         documents = [SKILL_ROOT / "SKILL.md"] + sorted((SKILL_ROOT / "references").glob("*.md")) + sorted((SKILL_ROOT / "playbooks").glob("*.md"))
@@ -107,6 +108,8 @@ class ReviewStructureTests(unittest.TestCase):
         self.assertEqual(first["blockerAnalysis"]["pairwiseOverlap"][0]["questionCount"], 0)
         self.assertEqual(first["coverage"]["focusCardCount"], 1)
         self.assertEqual(first["coverage"]["questionAnalysisProducedCount"], 1)
+        self.assertEqual(len(first["questionAnalyses"]), 1)
+        self.assertEqual(first["questionAnalyses"][0]["questionId"], "q1")
         self.assertIn("#card-card-a", first["studyGuideHtml"])
         self.assertTrue(any(item["status"] == "unresolved_anchor" for item in first["annotationOverlay"]["annotations"]))
         self.assertEqual(validate_material_review(first), [])

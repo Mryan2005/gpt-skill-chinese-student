@@ -9,9 +9,12 @@ readable study resource. It is separate from Learner Review.
 2. Optional closed `exam-record.v1` details for official answers, solution
    status, page provenance, and first-pass measurement facts.
 3. An exported canonical material catalog containing real card IDs, question
-   records, source references, and typed relations.
+   records, source references, and typed relations. If the review report has
+   only page provenance, prepare this catalog in the separate source-intake
+   step with [extract_native_pdf_material.py](../scripts/extract_native_pdf_material.py)
+   from native PDF text only; OCR is never a fallback.
 
-Material Review never rereads the exam PDFs. If the supplied records contain
+Material Review itself never rereads the exam PDFs. If the supplied records contain
 only PDF page provenance and no structured question text, report that as
 `STRUCTURED_QUESTION_MISSING`; do not reconstruct a stem or option from a page
 number.

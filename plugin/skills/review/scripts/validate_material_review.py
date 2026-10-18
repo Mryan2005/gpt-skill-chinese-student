@@ -65,7 +65,7 @@ def validate_material_review(report: Any) -> list[str]:
             errors.append("artifactMutation must be false")
         if report.get("sourceMutation") is not False:
             errors.append("sourceMutation must be false")
-        for field in ("coverage", "blockerAnalysis", "unansweredAnalysis", "focuses", "questionIndex", "learningOrder", "learningTasks", "retestPlans", "learnerModel", "annotationOverlay", "examResultIntegrity", "studyGuideHtml"):
+        for field in ("coverage", "blockerAnalysis", "unansweredAnalysis", "focuses", "questionAnalyses", "questionIndex", "learningOrder", "questionLearningOrder", "learningTasks", "retestPlans", "learnerModel", "annotationOverlay", "examResultIntegrity", "studyGuideHtml"):
             if field not in report:
                 errors.append(f"{field} is required for material-review.report.v2")
     for field in ("reviewRunId", "examRunId", "subjectId"):
@@ -106,6 +106,32 @@ def validate_material_review(report: Any) -> list[str]:
                 errors.append(f"{path}.evidenceRefs must be non-empty")
     if not isinstance(report.get("learningOrder", []), list):
         errors.append("learningOrder must be a list")
+    analyses = report.get("questionAnalyses", [])
+    if not isinstance(analyses, list):
+        errors.append("questionAnalyses must be a list")
+    else:
+        seen_questions: set[str] = set()
+        for index, analysis in enumerate(analyses):
+            path = f"questionAnalyses[{index}]"
+            if not isinstance(analysis, dict):
+                errors.append(f"{path} must be an object")
+                continue
+            question_id = analysis.get("questionId")
+            if not _text(question_id):
+                errors.append(f"{path}.questionId must be non-empty")
+            elif question_id in seen_questions:
+                errors.append(f"{path}.questionId is duplicated")
+            seen_questions.add(question_id)
+            if "__unmapped__" in analysis.get("cardIds", []):
+                errors.append(f"{path}.cardIds cannot contain __unmapped__")
+            if analysis.get("mappingStatus") not in {"mapped", "unmapped"}:
+                errors.append(f"{path}.mappingStatus is invalid")
+            if not isinstance(analysis.get("coreKnowledge"), dict) or not analysis["coreKnowledge"].get("items"):
+                errors.append(f"{path}.coreKnowledge must contain evidence-backed items")
+            if not isinstance(analysis.get("sourceRefs"), list) or not analysis["sourceRefs"]:
+                errors.append(f"{path}.sourceRefs must be non-empty")
+    if not isinstance(report.get("questionLearningOrder", []), list):
+        errors.append("questionLearningOrder must be a list")
     _validate_overlay(report.get("annotationOverlay"), errors)
     learner_model = report.get("learnerModel")
     if isinstance(learner_model, dict):

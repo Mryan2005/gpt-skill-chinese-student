@@ -170,6 +170,8 @@ def _solution_status(question: dict[str, Any]) -> str:
     if isinstance(official, dict) and _text(official.get("solutionStatus")):
         return official["solutionStatus"]
     catalog_question = question.get("_catalog", {})
+    if isinstance(catalog_question, dict) and _text(catalog_question.get("solutionText")):
+        return "COMPLETE_NARRATIVE"
     if isinstance(catalog_question, dict) and catalog_question.get("officialAnswer"):
         return "COMPLETE"
     return "UNKNOWN"
@@ -181,7 +183,7 @@ def _evidence_tier(question: dict[str, Any], card_ids: list[str]) -> str:
         return "answer_conflict"
     if _source_blocked(question):
         return "source_blocked"
-    if content is not None and card_ids and _solution_status(question) == "COMPLETE":
+    if content is not None and card_ids and _solution_status(question) in {"COMPLETE", "COMPLETE_NARRATIVE"}:
         return "complete_material_analysis"
     if content is not None and card_ids:
         return "question_analysis_solution_gap"
@@ -291,6 +293,83 @@ def _focus_for_card(card_id: str, card: dict[str, Any], questions: list[dict[str
     }
 
 
+def _official_answer(question: dict[str, Any], catalog_question: dict[str, Any]) -> str:
+    value = catalog_question.get("officialAnswer")
+    if isinstance(value, list):
+        return "".join(str(item) for item in value)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    exam_question = question.get("_exam", {})
+    official = exam_question.get("official", {}) if isinstance(exam_question, dict) else {}
+    return _text(official.get("answer")) if isinstance(official, dict) else ""
+
+
+def _option_texts(catalog_question: dict[str, Any], answer: str) -> tuple[list[str], list[str]]:
+    correct: list[str] = []
+    distractors: list[str] = []
+    for option in _list(catalog_question.get("options")):
+        if isinstance(option, list) and len(option) >= 2:
+            letter, text = str(option[0]), str(option[1])
+        elif isinstance(option, dict):
+            letter, text = str(option.get("letter", "")), str(option.get("text", ""))
+        else:
+            continue
+        (correct if letter in set(answer) else distractors).append(f"{letter}. {text}")
+    return correct, distractors
+
+
+def _question_analysis(question: dict[str, Any], tier: str) -> dict[str, Any] | None:
+    catalog_question = _catalog_question_content(question)
+    if catalog_question is None:
+        return None
+    question_id = _question_id(question)
+    card_ids = _cards(question)
+    official_answer = _official_answer(question, catalog_question)
+    correct_options, distractors = _option_texts(catalog_question, official_answer)
+    solution = _text(catalog_question.get("solutionText"))
+    if solution:
+        core_content = [solution]
+        analysis_status = "partial" if _answer_conflict(question) else "complete" if (official_answer or catalog_question.get("type") == "analysis") else "partial"
+        explanation_source = "original_pdf_native_text"
+    elif correct_options:
+        core_content = [f"题目可靠地给出的标准答案选项：{'；'.join(correct_options)}。"]
+        analysis_status = "partial"
+        explanation_source = "question_and_official_answer_only"
+    else:
+        core_content = ["题目文本和选项可读，但当前没有足够答案/解析证据固化结论。"]
+        analysis_status = "partial"
+        explanation_source = "question_text_only"
+    source_refs = _evidence_refs(question)
+    source_refs.extend(f"material-source:{item.get('sourcePath') or item.get('path')}:{item.get('sourcePage') or item.get('page', '')}" for item in (catalog_question.get("sourceRefs") or []) if isinstance(item, dict) and (item.get("sourcePath") or item.get("path")))
+    if catalog_question.get("sourcePath"):
+        source_refs.append(f"material-source:{catalog_question['sourcePath']}:{catalog_question.get('sourcePage', '')}")
+    return {
+        "analysisId": f"material-question-{question_id}",
+        "questionId": question_id,
+        "year": catalog_question.get("year"),
+        "type": catalog_question.get("type"),
+        "status": analysis_status,
+        "evidenceTier": tier,
+        "mappingStatus": "mapped" if card_ids else "unmapped",
+        "cardIds": card_ids,
+        "stem": _text(catalog_question.get("stem")),
+        "options": _list(catalog_question.get("options")),
+        "officialAnswer": official_answer or None,
+        "answerConflict": _answer_conflict(question),
+        "coreKnowledge": {"items": core_content, "provenance": explanation_source},
+        "keyStatements": {"items": correct_options, "provenance": "question_option_and_official_answer" if correct_options else "unavailable"},
+        "confusions": {"items": distractors, "note": "Distractors are listed as source options; a reason is included only when it appears in the source explanation."},
+        "conditions": {"items": [_text(catalog_question.get("stem"))] if _text(catalog_question.get("stem")) else [], "provenance": "original_question_text"},
+        "solutionText": solution,
+        "sourceRefs": _unique_strings(source_refs),
+        "recommendedActions": [
+            "先读题干和可靠答案依据，再复述本题要求判断的概念。",
+            "逐项对照选项；没有来源解释的干扰项只作为待核对对象，不补写错误理由。",
+            "用不同表述的新题进行无提示复测；本条材料分析不改变用户掌握状态。"
+        ],
+    }
+
+
 def _flags(question: dict[str, Any], catalog_question: dict[str, Any] | None) -> dict[str, bool]:
     return {
         "GRAPH_MAPPING_MISSING": _mapping_blocked(question),
@@ -328,7 +407,7 @@ def _blocker_analysis(questions: list[dict[str, Any]], all_question_count: int) 
         "unaffectedQuestionCount": max(0, all_question_count - len(union)),
         "pairwiseOverlap": pairwise,
         "overlapInterpretation": "Counts are computed from independent flags. A zero pairwise count means the current report records those blockers as disjoint, not that the categories are logically exclusive.",
-        "materialInputGaps": [{"code": "STRUCTURED_QUESTION_MISSING", "questionCount": len(flag_sets["STRUCTURED_QUESTION_MISSING"]), "questionIds": sorted(flag_sets["STRUCTURED_QUESTION_MISSING"]), "repairOwner": "learn", "rootCause": "The review input carries page provenance and outcomes but no structured question text/options for these IDs.", "repairAction": "Ingest the already verified question material into the canonical Source/Derived intake before claiming question-level topic analysis.", "route": "learn"}],
+        "materialInputGaps": [{"code": "STRUCTURED_QUESTION_MISSING", "questionCount": len(flag_sets["STRUCTURED_QUESTION_MISSING"]), "questionIds": sorted(flag_sets["STRUCTURED_QUESTION_MISSING"]), "repairOwner": "learn", "rootCause": "The supplied review/material inputs still have no reliable structured question text/options for these IDs.", "repairAction": "Continue native-text/source intake from reliable material; keep scan or damaged-text pages blocked and do not invent stems, options, or mappings.", "route": "learn"}],
         "referenceAnswerGaps": {"questionCount": len(flag_sets["REFERENCE_ANSWER_MISSING"]), "questionIds": sorted(flag_sets["REFERENCE_ANSWER_MISSING"])},
         "rootCauses": root_causes,
     }
@@ -351,7 +430,7 @@ def _unanswered_analysis(questions: list[dict[str, Any]], answerer_type: str) ->
     }
 
 
-def _learning_tasks(focuses: list[dict[str, Any]], blocker_analysis: dict[str, Any]) -> list[dict[str, Any]]:
+def _learning_tasks(focuses: list[dict[str, Any]], question_analyses: list[dict[str, Any]], blocker_analysis: dict[str, Any]) -> list[dict[str, Any]]:
     tasks = []
     for focus in focuses:
         tasks.append({
@@ -366,6 +445,21 @@ def _learning_tasks(focuses: list[dict[str, Any]], blocker_analysis: dict[str, A
             "dependencies": [item["cardId"] for item in focus.get("prerequisites", [])],
             "evidenceRefs": focus["evidenceRefs"],
             "acceptanceCriteria": ["能用自己的话复述核心判断。", "能说明至少一个易混边界和适用条件。", "在新题上独立作答并通过预先定义的评分标准。"],
+            "learnerModelEffect": "none_until_human_retest",
+        })
+    for analysis in question_analyses:
+        tasks.append({
+            "taskId": f"material-question-{analysis['questionId']}",
+            "taskType": "material_question_study",
+            "owner": "learn",
+            "what": f"Study the evidence-backed focus in {analysis['questionId']}.",
+            "why": "Question-level material is available even when the frozen graph has no primary card." if not analysis["cardIds"] else "Question-level material supplements the linked canonical card.",
+            "targetCardIds": analysis["cardIds"],
+            "questionIds": [analysis["questionId"]],
+            "operations": ["read_question", "compare_answer_evidence", "contrast_distractors", "solve_new_variant_without_hints"],
+            "dependencies": analysis["cardIds"],
+            "evidenceRefs": analysis["sourceRefs"],
+            "acceptanceCriteria": ["能说明题干要求判断的概念或条件。", "能用可靠答案/解析依据解释正确落点。", "在不同表述的新题上独立验证。"],
             "learnerModelEffect": "none_until_human_retest",
         })
     for root in blocker_analysis.get("rootCauses", []):
@@ -410,6 +504,17 @@ def _learning_order(focuses: list[dict[str, Any]]) -> list[dict[str, Any]]:
         "prerequisiteCardIds": sorted(dependencies[card_id]),
         "reason": "Prerequisites are completed first when they are present in the mapped focus set; this is a review projection, not a canonical reorder."
     } for index, card_id in enumerate(ordered, start=1)]
+
+
+def _question_learning_order(analyses: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    ordered = sorted(analyses, key=lambda item: (0 if item["status"] == "complete" else 1, item.get("year") or 9999, item["questionId"]))
+    return [{
+        "rank": index,
+        "analysisId": item["analysisId"],
+        "questionId": item["questionId"],
+        "cardIds": item["cardIds"],
+        "reason": "Complete source-backed analysis first; then work through partial analyses with their evidence gaps visible."
+    } for index, item in enumerate(ordered, start=1)]
 
 
 def _annotation(question: dict[str, Any], review_run_id: str, card_ids: list[str], card_map: dict[str, dict[str, Any]]) -> dict[str, Any]:
@@ -502,6 +607,25 @@ def _markdown(report: dict[str, Any]) -> str:
         lines.append("- Recommended action: read the card, contrast the boundary, then solve a new no-hint variant.")
         lines.append(f"- Sources: {', '.join(focus['evidenceRefs'])}")
         lines.append("")
+    lines.extend(["## Question-level material analyses", ""])
+    if not report["questionAnalyses"]:
+        lines.append("No structured question material was available.")
+    for analysis in report["questionAnalyses"]:
+        card_links = ", ".join(f"`{card_id}`" for card_id in analysis["cardIds"]) or "unmapped"
+        lines.extend([f"### {analysis['questionId']}", f"- Evidence status: `{analysis['status']}`; mapping: `{analysis['mappingStatus']}`; cards: {card_links}", f"- Question: {analysis['stem']}"])
+        if analysis["officialAnswer"]:
+            lines.append(f"- Official answer evidence: `{analysis['officialAnswer']}`")
+        lines.append("- Core knowledge:")
+        lines.extend(f"  - {item}" for item in analysis["coreKnowledge"]["items"])
+        if analysis["keyStatements"]["items"]:
+            lines.append("- Key statements:")
+            lines.extend(f"  - {item}" for item in analysis["keyStatements"]["items"])
+        if analysis["confusions"]["items"]:
+            lines.append("- Options requiring comparison:")
+            lines.extend(f"  - {item}" for item in analysis["confusions"]["items"])
+        lines.append("- Recommended action: read the evidence, compare options, and solve a new variant without hints.")
+        lines.append(f"- Sources: {', '.join(analysis['sourceRefs'])}")
+        lines.append("")
     lines.extend(["## Recommended study order", ""])
     for item in report["learningOrder"]:
         prerequisites = ", ".join(f"`{card_id}`" for card_id in item["prerequisiteCardIds"]) or "none"
@@ -522,7 +646,7 @@ def _html(report: dict[str, Any]) -> str:
     blocks.append("<section id=\"summary\"><h2>Executive summary</h2><ul>" + "".join([
         f"<li>Exam questions: <strong>{coverage['totalQuestionCount']}</strong></li>",
         f"<li>Card-backed focuses: <strong>{coverage['cardBackedQuestionCount']}</strong> questions / <strong>{coverage['focusCardCount']}</strong> cards</li>",
-        f"<li>Complete question-level analyses: <strong>{coverage['questionAnalysisProducedCount']}</strong></li>",
+        f"<li>Question-level analyses: <strong>{coverage['questionAnalysisProducedCount']}</strong> ({coverage['completeQuestionAnalysisCount']} complete, {coverage['partialQuestionAnalysisCount']} partial)</li>",
         f"<li>Unanswered records: <strong>{report['unansweredAnalysis']['count']}</strong>; learner attribution: none</li>",
     ]) + "</ul></section>")
     focus_html = []
@@ -530,6 +654,16 @@ def _html(report: dict[str, Any]) -> str:
         question_links = " ".join(f"<a href=\"#question-{esc(qid)}\">{esc(qid)}</a>" for qid in focus["questionIds"]) or "none"
         focus_html.append(f"<article class=\"focus\" id=\"card-{esc(focus['cardId'])}\"><h3>{esc(focus['title'])}</h3><p><code>{esc(focus['cardId'])}</code> · importance {esc(focus['importance']['level'])} · mapped subset count {focus['importance']['mappedQuestionCount']}</p><p>Questions: {question_links}</p><h4>Core knowledge</h4><ul>{''.join(f'<li>{esc(item)}</li>' for item in focus['coreConcept']['content'])}</ul><h4>Key statements</h4><ul>{''.join(f'<li>{esc(item)}</li>' for item in focus['keyStatements']['items'])}</ul><h4>Confusions and boundaries</h4><ul>{''.join(f'<li>{esc(item)}</li>' for item in focus['confusions']['items'])}</ul><h4>Conditions</h4><ul>{''.join(f'<li>{esc(item)}</li>' for item in focus['conditions']['items'])}</ul></article>")
     blocks.append("<section id=\"focus\"><h2>Review focus</h2>" + ("".join(focus_html) or "<p>No card-backed focus.</p>") + "</section>")
+    analysis_html = []
+    for analysis in report["questionAnalyses"]:
+        card_links = " ".join(f"<a href=\"#card-{esc(card_id)}\">{esc(card_id)}</a>" for card_id in analysis["cardIds"]) or "unmapped"
+        options = "".join(f"<li>{esc(option.get('letter', ''))}. {esc(option.get('text', ''))}</li>" for option in analysis["options"] if isinstance(option, dict))
+        core = "".join(f"<p>{esc(item)}</p>" for item in analysis["coreKnowledge"]["items"])
+        key_statements = "".join(f"<li>{esc(item)}</li>" for item in analysis["keyStatements"]["items"])
+        confusions = "".join(f"<li>{esc(item)}</li>" for item in analysis["confusions"]["items"])
+        answer = f"<p><strong>Official answer evidence:</strong> <code>{esc(analysis['officialAnswer'])}</code></p>" if analysis["officialAnswer"] else "<p>No fixed official answer was supplied.</p>"
+        analysis_html.append(f"<article class=\"question-analysis\" id=\"analysis-{esc(analysis['questionId'])}\"><h3>{esc(analysis['questionId'])}</h3><p>Status: <code>{esc(analysis['status'])}</code> · mapping: <code>{esc(analysis['mappingStatus'])}</code> · cards: {card_links}</p><h4>Question</h4><p>{esc(analysis['stem'])}</p><ul>{options}</ul>{answer}<h4>Core knowledge</h4>{core}<h4>Key statements</h4><ul>{key_statements or '<li>Not separately marked in the supplied source.</li>'}</ul><h4>Confusions and conditions</h4><ul>{confusions or '<li>No source-backed distractor explanation was available.</li>'}</ul><h4>Source solution</h4><p>{esc(analysis['solutionText'] or 'No native-text solution was available; this analysis remains partial.')}</p></article>")
+    blocks.append("<section id=\"question-analyses\"><h2>Question-level material analyses</h2>" + ("".join(analysis_html) or "<p>No structured question material.</p>") + "</section>")
     rows = []
     for item in report["blockerAnalysis"]["rootCauses"] + report["blockerAnalysis"]["materialInputGaps"]:
         rows.append(f"<tr><td><code>{esc(item['code'])}</code></td><td>{item['questionCount']}</td><td>{esc(item['repairOwner'])}</td><td>{esc(item['rootCause'])}</td></tr>")
@@ -541,7 +675,7 @@ def _html(report: dict[str, Any]) -> str:
         links = " ".join(f"<a href=\"#card-{esc(card_id)}\">{esc(card_id)}</a>" for card_id in question["cardIds"]) or "unmapped"
         question_rows.append(f"<article class=\"question\" id=\"question-{esc(question['questionId'])}\"><h3>{esc(question['questionId'])}</h3><p>Outcome: <code>{esc(question['outcome'])}</code> · evidence tier: <code>{esc(question['evidenceTier'])}</code></p><p>Cards: {links}</p><p>{esc(question['materialNote'])}</p></article>")
     blocks.append("<section id=\"questions\"><h2>Question index</h2>" + "".join(question_rows) + "</section>")
-    return "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Material Review</title><style>body{font-family:system-ui,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem;line-height:1.6;color:#17211f}.notice{background:#eef7f3;padding:1rem;border-left:4px solid #2c7a62}.focus,.question{border:1px solid #d7e2de;border-radius:10px;padding:1rem;margin:1rem 0}.focus{background:#fbfdfc}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d7e2de;padding:.5rem;text-align:left}code{background:#f1f4f3;padding:.1rem .25rem;border-radius:4px}a{color:#116b55}</style></head><body>" + "".join(blocks) + "</body></html>"
+    return "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Material Review</title><style>body{font-family:system-ui,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem;line-height:1.6;color:#17211f}.notice{background:#eef7f3;padding:1rem;border-left:4px solid #2c7a62}.focus,.question,.question-analysis{border:1px solid #d7e2de;border-radius:10px;padding:1rem;margin:1rem 0}.focus{background:#fbfdfc}.question-analysis{background:#fffdf7}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d7e2de;padding:.5rem;text-align:left}code{background:#f1f4f3;padding:.1rem .25rem;border-radius:4px}a{color:#116b55}</style></head><body>" + "".join(blocks) + "</body></html>"
 
 
 def build_material_review(review_report: dict[str, Any], review_run_id: str | None = None, *, exam_result: dict[str, Any] | None = None, catalog: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -574,6 +708,7 @@ def build_material_review(review_report: dict[str, Any], review_run_id: str | No
     focuses = []
     card_questions: dict[str, list[dict[str, Any]]] = defaultdict(list)
     question_index = []
+    question_analyses: list[dict[str, Any]] = []
     evidence_counts = Counter()
     for question in questions:
         card_ids = _cards(question)
@@ -582,11 +717,16 @@ def build_material_review(review_report: dict[str, Any], review_run_id: str | No
         catalog_question = _catalog_question_content(question)
         tier = _evidence_tier(question, card_ids)
         evidence_counts[tier] += 1
+        analysis = _question_analysis(question, tier)
+        if analysis is not None:
+            question_analyses.append(analysis)
         question_index.append({
             "questionId": _question_id(question),
             "outcome": _outcome(question, question.get("_exam")),
             "cardIds": card_ids,
             "evidenceTier": tier,
+            "analysisId": analysis.get("analysisId") if analysis else None,
+            "hasMaterialContent": analysis is not None,
             "materialNote": "Structured question content is available." if catalog_question else "Question text/options are not in the supplied structured material catalog; no question-level content is invented.",
             "evidenceRefs": _evidence_refs(question),
         })
@@ -620,6 +760,9 @@ def build_material_review(review_report: dict[str, Any], review_run_id: str | No
             "examResultPath": _text(exam.get("resultPath")),
             "artifactVersion": _text(exam.get("artifactVersion")) or _text(snapshot.get("artifactVersion")),
             "artifactHash": _text(exam.get("artifactHash")) or _text(snapshot.get("artifactHash")),
+            "materialCatalogSchemaVersion": catalog.get("schemaVersion") if isinstance(catalog, dict) else None,
+            "materialSourcePolicy": catalog.get("sourcePolicy") if isinstance(catalog, dict) else None,
+            "materialSourceStats": catalog.get("materialSourceStats") if isinstance(catalog, dict) else None,
             "examResultHashBefore": exam_hash,
             "examResultHashAfter": exam_hash,
         },
@@ -627,7 +770,9 @@ def build_material_review(review_report: dict[str, Any], review_run_id: str | No
             "totalQuestionCount": len(questions),
             "focusCardCount": len(focuses),
             "cardBackedQuestionCount": sum(1 for question in questions if _cards(question)),
-            "questionAnalysisProducedCount": evidence_counts["complete_material_analysis"],
+            "questionAnalysisProducedCount": len(question_analyses),
+            "completeQuestionAnalysisCount": sum(item["status"] == "complete" for item in question_analyses),
+            "partialQuestionAnalysisCount": sum(item["status"] == "partial" for item in question_analyses),
             "questionAnalysisUnmappedCount": evidence_counts["question_analysis_unmapped"],
             "cardBackedOnlyCount": evidence_counts["card_backed_material_analysis"],
             "answerConflictCount": evidence_counts["answer_conflict"],
@@ -640,10 +785,12 @@ def build_material_review(review_report: dict[str, Any], review_run_id: str | No
         "blockerAnalysis": blocker_analysis,
         "unansweredAnalysis": _unanswered_analysis(questions, answerer_type),
         "focuses": focuses,
+        "questionAnalyses": sorted(question_analyses, key=lambda item: item["questionId"]),
         "questionIndex": sorted(question_index, key=lambda item: item["questionId"]),
         "annotations": annotations,
         "learningOrder": [],
-        "learningTasks": _learning_tasks(focuses, blocker_analysis),
+        "questionLearningOrder": [],
+        "learningTasks": _learning_tasks(focuses, question_analyses, blocker_analysis),
         "retestPlans": [],
         "routes": sorted({root["route"] for root in blocker_analysis["rootCauses"] if root["questionCount"]} | ({"learn"} if blocker_analysis["materialInputGaps"][0]["questionCount"] else set())),
         "learnerModel": {"writeAllowed": False, "mutation": False, "observationsAppended": 0, "masteryChanges": 0, "selfReportChanges": 0, "reason": "Material Review is not learner assessment; agent performance and material gaps are not user evidence."},
@@ -651,6 +798,7 @@ def build_material_review(review_report: dict[str, Any], review_run_id: str | No
         "examResultIntegrity": {"hashBefore": exam_hash, "hashAfter": exam_hash, "unchanged": True, "mutation": False},
     }
     report["learningOrder"] = _learning_order(focuses)
+    report["questionLearningOrder"] = _question_learning_order(question_analyses)
     report["studyGuideMarkdown"] = _markdown(report)
     report["studyGuideHtml"] = _html(report)
     return report
