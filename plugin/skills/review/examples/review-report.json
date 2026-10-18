@@ -6,12 +6,29 @@
   "source": "exam_result",
   "exam": {
     "examRunId": "math-1-demo-001",
+    "status": "CLOSED",
     "subjectId": "math-1",
     "artifactVersion": "math-records.example.v1",
     "artifactHash": "sha256:exam-snapshot",
+    "examResultHashBefore": "sha256:exam-result",
+    "examResultHashAfter": "sha256:exam-result",
     "resultPath": ".exam/current/exam-record.json",
     "answersFrozen": true,
     "attemptsImmutable": true
+  },
+  "reviewScope": {
+    "reanswered": false,
+    "regraded": false,
+    "readPdf": false,
+    "remappedGraph": false,
+    "auditedArtifact": false,
+    "mutatedArtifact": false
+  },
+  "reviewEligibility": {
+    "eligible": 2,
+    "artifactBlocked": 0,
+    "gradingBlocked": 0,
+    "conflicted": 0
   },
   "completeness": {
     "examCompleteness": "COMPLETE",
@@ -35,6 +52,10 @@
       "questionId": "series-mcq-12",
       "attemptId": "math-1-demo-001|series-mcq-12|attempt-1",
       "observedOutcome": "correct",
+      "attemptStatus": "ANSWERED",
+      "gradingStatus": "GRADED",
+      "artifactStatus": "OK",
+      "learnerAttributionEligible": true,
       "knowledgeLinks": {
         "primaryCardId": "ratio-test",
         "secondaryCardIds": [],
@@ -75,6 +96,10 @@
       "questionId": "series-mcq-17",
       "attemptId": "math-1-demo-001|series-mcq-17|attempt-1",
       "observedOutcome": "incorrect",
+      "attemptStatus": "ANSWERED",
+      "gradingStatus": "GRADED",
+      "artifactStatus": "OK",
+      "learnerAttributionEligible": true,
       "knowledgeLinks": {
         "primaryCardId": "positive-series",
         "secondaryCardIds": ["ratio-test"],

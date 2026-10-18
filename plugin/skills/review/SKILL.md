@@ -17,6 +17,14 @@ conflicts, while `check`, `fix`, and `heal` handle artifact defects.
 
 - Consume only a closed Exam Result with immutable first-pass answers, grading
   evidence, artifact identity, and question-level provenance.
+- Do not rerun the exam, solve a question again, regrade, reread PDFs, remap
+  graph links, audit Source, or repair any artifact. Those actions belong to
+  `exam`, `check`, `fix`, `amend`, or `heal`.
+- Reset and verify `.review/current/` before processing. Read the Exam Result
+  from `.exam/` or the project's equivalent closed-result path; never delete
+  the Exam workspace.
+- Hash the Exam Result before and after review. A mismatch is
+  `REVIEW_MUTATED_EXAM_RESULT` and fails the run.
 - Preserve distinct outcomes: `correct`, `incorrect`, `partially_correct`,
   `unanswered`, `unreadable`, `ungraded`, and `invalid`.
 - Keep confirmed diagnosis separate from hypotheses. Use `unknown` when the
@@ -28,15 +36,20 @@ conflicts, while `check`, `fix`, and `heal` handle artifact defects.
   target IDs, success criteria, and a verification rule.
 - Append factual exam observations idempotently. The same `attemptId` and
   `diagnosticVersion` must never increment state twice.
+- Apply the Learner Attribution Gate per question. Artifact, Source, grading,
+  conflict, ungraded, and non-learner attempt blockers cannot create learner
+  evidence.
 - Never mutate the Exam Result, first-pass answer, Source, official answer,
   official solution, canonical knowledge, HTML, or user self-report.
 - Route content conflicts to `amend` and artifact defects to `check`, `fix`, or
   `heal`. A student mistake alone is not an artifact defect.
 - Run local Learner Model validation only. Do not run a full `check` silently.
 
-Run [postmortem.md](playbooks/postmortem.md) for the standard workflow and read
-[review-contract.md](references/review-contract.md) before processing an Exam
-Result. Validate the output with
+Run [postmortem.md](playbooks/postmortem.md) for the standard workflow,
+[reset_review_workspace.py](scripts/reset_review_workspace.py) before a new
+run, and [validate_exam_result.py](scripts/validate_exam_result.py) before
+diagnosis. Read [review-contract.md](references/review-contract.md) before
+processing an Exam Result. Validate the output with
 [validate_review_report.py](scripts/validate_review_report.py). Apply local
 observation updates with
 [apply_review_update.py](scripts/apply_review_update.py); the script is

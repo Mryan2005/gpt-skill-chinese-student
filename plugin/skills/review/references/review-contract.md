@@ -1,7 +1,8 @@
 # Review contract
 
 `review` converts a closed Exam Result into evidence-backed learner feedback.
-It does not reteach the learner or repair the learning artifact.
+It does not rerun the exam, regrade, reread PDFs, remap the graph, audit Source,
+or repair the learning artifact.
 
 ## Frozen input
 
@@ -10,7 +11,32 @@ and hash, immutable first-pass answers, `attemptId` values, grading evidence,
 and question-level provenance. A missing or unfrozen first pass is an explicit
 completeness gap. Do not rebuild it from an official solution.
 
+The input must have `status: "CLOSED"`. Validate the result with
+`validate_exam_result.py` before diagnosis. Review records
+`examResultHashBefore` and `examResultHashAfter`; they must be equal.
+
+Review also records a scope declaration. `reanswered`, `regraded`, `readPdf`,
+`remappedGraph`, `auditedArtifact`, and `mutatedArtifact` must all be false.
+
 ## Question outcome and diagnosis
+
+The Exam Result must distinguish attempt state, grading state, and artifact
+state. `UNANSWERED_BY_LEARNER` is different from `NOT_ATTEMPTED`,
+`BLOCKED_BY_SOURCE`, `BLOCKED_BY_MAPPING`, and `SKIPPED_BY_EXAM`.
+
+Apply the Learner Attribution Gate only when all of these are true:
+
+~~~text
+FIRST_PASS_EXISTS
+GRADING_RELIABLE
+NO_UNRESOLVED_ANSWER_CONFLICT
+NO_SOURCE_BLOCKER
+NO_ARTIFACT_BLOCKER
+~~~
+
+Only an eligible question may produce an Observation, Mastery update, Error
+Model update, or Sort signal. A blocked or ungraded question is never silently
+converted into `MEMORY_FAILURE`, `RETRIEVAL_FAILURE`, or low mastery.
 
 Each question has exactly one `observedOutcome`:
 
@@ -118,3 +144,8 @@ records. It never repeats counts or silently replaces a previous assessment.
 | Question, mapping, formula, or renderer defect | `check`, `fix`, or `heal` |
 
 `review` never modifies those other layers directly.
+
+## Review workspace
+
+Use `.review/current/` for input manifest, report, learner updates, routes, and
+validation. Reset it before each run. Preserve `.exam/` and `.local/learner/`.

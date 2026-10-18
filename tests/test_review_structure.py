@@ -4,6 +4,7 @@ import copy
 import json
 import re
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -14,7 +15,9 @@ sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "plugin" / "scripts"))
 
 from apply_review_update import apply_review_mastery, apply_review_observations  # noqa: E402
+from reset_review_workspace import reset_workspace, validate_target  # noqa: E402
 from validate_learner_model import validate_observation  # noqa: E402
+from validate_exam_result import validate_exam_result  # noqa: E402
 from validate_review_report import validate_report  # noqa: E402
 
 
@@ -29,6 +32,8 @@ class ReviewStructureTests(unittest.TestCase):
         self.assertTrue((SKILL_ROOT / "agents" / "openai.yaml").is_file())
         self.assertTrue((SKILL_ROOT / "references" / "review-contract.md").is_file())
         self.assertTrue((SKILL_ROOT / "playbooks" / "postmortem.md").is_file())
+        self.assertTrue((SKILL_ROOT / "scripts" / "reset_review_workspace.py").is_file())
+        self.assertTrue((SKILL_ROOT / "scripts" / "validate_exam_result.py").is_file())
 
     def test_links_resolve(self) -> None:
         documents = [SKILL_ROOT / "SKILL.md"] + sorted((SKILL_ROOT / "references").glob("*.md")) + sorted((SKILL_ROOT / "playbooks").glob("*.md"))
@@ -41,6 +46,10 @@ class ReviewStructureTests(unittest.TestCase):
     def test_review_report_passes(self) -> None:
         report = json.loads((SKILL_ROOT / "examples" / "review-report.json").read_text(encoding="utf-8"))
         self.assertEqual(validate_report(report), [])
+
+    def test_closed_exam_result_input_passes(self) -> None:
+        result = json.loads((SKILL_ROOT / "examples" / "exam-result.json").read_text(encoding="utf-8"))
+        self.assertEqual(validate_exam_result(result), [])
 
     def test_report_rejects_exam_or_artifact_mutation(self) -> None:
         report = json.loads((SKILL_ROOT / "examples" / "review-report.json").read_text(encoding="utf-8"))
@@ -56,6 +65,23 @@ class ReviewStructureTests(unittest.TestCase):
         report["exam"]["answersFrozen"] = False
         errors = validate_report(report)
         self.assertTrue(any("answersFrozen" in error for error in errors))
+
+    def test_report_rejects_scope_violation_and_blocked_attribution(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "review-report.json").read_text(encoding="utf-8"))
+        report["reviewScope"]["regraded"] = True
+        report["questions"][1]["learnerAttributionEligible"] = False
+        errors = validate_report(report)
+        self.assertTrue(any("REVIEW_SCOPE_VIOLATION" in error for error in errors))
+        self.assertTrue(any("LEARNER_UPDATE_FROM_BLOCKED_QUESTION" in error for error in errors))
+
+    def test_review_workspace_reset_is_scoped(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / ".review" / "current"
+            root.mkdir(parents=True)
+            (root / "review-report.json").write_text("old", encoding="utf-8")
+            target = validate_target(str(root))
+            reset_workspace(target, True)
+            self.assertEqual(list(target.iterdir()), [])
 
     def test_review_update_is_idempotent(self) -> None:
         report = json.loads((SKILL_ROOT / "examples" / "review-report.json").read_text(encoding="utf-8"))

@@ -1,0 +1,27 @@
+{
+  "status": "CLOSED",
+  "examRunId": "math-1-demo-001",
+  "subjectId": "math-1",
+  "examResultHash": "sha256:exam-result",
+  "questions": [
+    {
+      "questionId": "series-mcq-12",
+      "attemptId": "math-1-demo-001|series-mcq-12|attempt-1",
+      "attemptStatus": "ANSWERED",
+      "gradingStatus": "GRADED",
+      "artifactStatus": "OK",
+      "learnerAttributionEligible": true,
+      "correct": true
+    },
+    {
+      "questionId": "series-mcq-17",
+      "attemptId": "math-1-demo-001|series-mcq-17|attempt-1",
+      "attemptStatus": "ANSWERED",
+      "gradingStatus": "GRADED",
+      "artifactStatus": "OK",
+      "learnerAttributionEligible": true,
+      "correct": false,
+      "errorClassification": {"stage": "METHOD_SELECTION", "code": "METHOD_SELECTION_ERROR"}
+    }
+  ]
+}

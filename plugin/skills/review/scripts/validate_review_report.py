@@ -72,13 +72,29 @@ def validate_report(report: Any) -> list[str]:
     if not isinstance(exam, dict):
         errors.append("exam is required")
     else:
-        for field in ("examRunId", "subjectId", "artifactVersion", "artifactHash", "resultPath"):
+        for field in ("examRunId", "subjectId", "artifactVersion", "artifactHash", "resultPath", "examResultHashBefore", "examResultHashAfter"):
             if not _text(exam.get(field)):
                 errors.append(f"exam.{field} must be non-empty")
+        if exam.get("status") != "CLOSED":
+            errors.append("REVIEW_INPUT_NOT_CLOSED: exam.status must be CLOSED")
         if exam.get("answersFrozen") is not True:
             errors.append("exam.answersFrozen must be true")
         if exam.get("attemptsImmutable") is not True:
             errors.append("exam.attemptsImmutable must be true")
+        if exam.get("examResultHashBefore") != exam.get("examResultHashAfter"):
+            errors.append("REVIEW_MUTATED_EXAM_RESULT: exam result hash changed")
+
+    scope = report.get("reviewScope")
+    if not isinstance(scope, dict):
+        errors.append("reviewScope is required")
+    else:
+        for field in ("reanswered", "regraded", "readPdf", "remappedGraph", "auditedArtifact", "mutatedArtifact"):
+            if scope.get(field) is not False:
+                errors.append(f"REVIEW_SCOPE_VIOLATION: {field} must be false")
+
+    eligibility = report.get("reviewEligibility")
+    if not isinstance(eligibility, dict) or any(not _non_negative_int(eligibility.get(field)) for field in ("eligible", "artifactBlocked", "gradingBlocked", "conflicted")):
+        errors.append("reviewEligibility is incomplete")
 
     completeness = report.get("completeness")
     if not isinstance(completeness, dict):
@@ -108,6 +124,19 @@ def validate_report(report: Any) -> list[str]:
         outcome = item.get("observedOutcome")
         if outcome not in OUTCOMES:
             errors.append(f"{path}.observedOutcome is invalid")
+        if item.get("attemptStatus") not in {"ANSWERED", "UNANSWERED_BY_LEARNER", "NOT_ATTEMPTED", "BLOCKED_BY_SOURCE", "BLOCKED_BY_MAPPING", "SKIPPED_BY_EXAM"}:
+            errors.append(f"{path}.attemptStatus is invalid")
+        if item.get("gradingStatus") not in {"GRADED", "UNGRADED", "BLOCKED"}:
+            errors.append(f"{path}.gradingStatus is invalid")
+        if item.get("artifactStatus") not in {"OK", "GRAPH_MAPPING_MISSING", "GRAPH_MAPPING_AMBIGUOUS", "SOURCE_MISSING", "SOURCE_INCOMPLETE", "ANSWER_PROVENANCE_CONFLICT", "QUESTION_UNREADABLE", "REFERENCE_ANSWER_MISSING"}:
+            errors.append(f"{path}.artifactStatus is invalid")
+        if not isinstance(item.get("learnerAttributionEligible"), bool):
+            errors.append(f"{path}.learnerAttributionEligible must be boolean")
+        gate_blocked = item.get("gradingStatus") != "GRADED" or item.get("artifactStatus") != "OK" or item.get("attemptStatus") not in {"ANSWERED", "UNANSWERED_BY_LEARNER"}
+        if item.get("learnerAttributionEligible") and gate_blocked:
+            errors.append(f"{path}.LEARNER_ATTRIBUTION_GATE violated")
+        if item.get("learnerAttributionEligible") and item.get("answerConflict") is True:
+            errors.append(f"{path}.conflicted question cannot be learner-attribution eligible")
         links = item.get("knowledgeLinks")
         if not isinstance(links, dict) or not _text(links.get("primaryCardId")) or not isinstance(links.get("secondaryCardIds"), list) or not isinstance(links.get("relationIds"), list):
             errors.append(f"{path}.knowledgeLinks is incomplete")
@@ -148,6 +177,8 @@ def validate_report(report: Any) -> list[str]:
         update = item.get("learnerModelUpdate")
         if not isinstance(update, dict) or not isinstance(update.get("observation"), bool) or not _text(update.get("idempotencyKey")):
             errors.append(f"{path}.learnerModelUpdate is incomplete")
+        elif update.get("observation") and not item.get("learnerAttributionEligible"):
+            errors.append(f"LEARNER_UPDATE_FROM_BLOCKED_QUESTION: {path}")
         if item.get("route") not in ROUTES:
             errors.append(f"{path}.route is invalid")
 
