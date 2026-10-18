@@ -58,6 +58,12 @@ Validate overlays with [validate_annotations.py](scripts/validate_annotations.py
 and render them for Markdown or Site consumers with
 [render_annotations.py](scripts/render_annotations.py). Rendering never edits
 the original Source.
+## Review modes
+
+`Learner Review` requires reliable human evidence before writing user mastery.
+`Material Review` processes any reliable Exam Result without updating the user's
+Learner Model. Use [material_review.py](scripts/material_review.py) and
+[validate_material_review.py](scripts/validate_material_review.py) for that path.
 
 ## State machine
 

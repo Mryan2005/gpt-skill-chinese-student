@@ -12,7 +12,8 @@
       "gradingStatus": "GRADED",
       "artifactStatus": "OK",
       "learnerAttributionEligible": true,
-      "correct": true
+      "correct": true,
+      "knowledgeCardsUsed": ["ratio-test"]
     },
     {
       "questionId": "series-mcq-17",
@@ -22,6 +23,8 @@
       "artifactStatus": "OK",
       "learnerAttributionEligible": true,
       "correct": false,
+      "knowledgeCardsUsed": ["positive-series"],
+      "expectedCards": ["ratio-test"],
       "errorClassification": {"stage": "METHOD_SELECTION", "code": "METHOD_SELECTION_ERROR"}
     }
   ]

@@ -15,11 +15,13 @@ sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "plugin" / "scripts"))
 
 from apply_review_update import apply_review_mastery, apply_review_observations  # noqa: E402
+from material_review import build_material_review  # noqa: E402
 from reset_review_workspace import reset_workspace, validate_target  # noqa: E402
 from render_annotations import render_markdown  # noqa: E402
 from validate_learner_model import validate_observation  # noqa: E402
 from validate_annotations import validate_overlay  # noqa: E402
 from validate_exam_result import validate_exam_result  # noqa: E402
+from validate_material_review import validate_material_review  # noqa: E402
 from validate_review_report import validate_report  # noqa: E402
 
 
@@ -59,6 +61,15 @@ class ReviewStructureTests(unittest.TestCase):
         rendered = render_markdown(overlay)
         self.assertIn("Review highlights", rendered)
         self.assertIn("ratio-test", rendered)
+
+    def test_agent_material_review_does_not_write_user_model(self) -> None:
+        result = json.loads((SKILL_ROOT / "examples" / "exam-result.json").read_text(encoding="utf-8"))
+        result["answerer"]["type"] = "agent"
+        material = build_material_review(result, "material-review-agent-test")
+        self.assertFalse(material["learnerModelWriteAllowed"])
+        self.assertEqual(validate_material_review(material), [])
+        self.assertTrue(material["annotations"])
+        self.assertNotIn("weak", json.dumps(material, ensure_ascii=False))
 
     def test_report_rejects_exam_or_artifact_mutation(self) -> None:
         report = json.loads((SKILL_ROOT / "examples" / "review-report.json").read_text(encoding="utf-8"))

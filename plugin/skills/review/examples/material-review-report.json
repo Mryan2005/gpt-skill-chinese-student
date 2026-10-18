@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "material-review.report.v1",
+  "reviewRunId": "material-review-agent-demo-001",
+  "examRunId": "material-exam-agent-demo-001",
+  "subjectId": "politics-demo",
+  "answererType": "agent",
+  "learnerModelWriteAllowed": false,
+  "counts": {"total": 2, "grading:correct": 1, "grading:wrong": 1},
+  "blockers": [
+    {"code": "GRAPH_MAPPING_MISSING", "questionCount": 1, "questionIds": ["q-002"], "route": "check"}
+  ],
+  "annotations": [
+    {
+      "highlightId": "material-review-agent-demo-001-q-001",
+      "subjectId": "politics-demo",
+      "reviewRunId": "material-review-agent-demo-001",
+      "targetType": "question",
+      "targetId": "q-001",
+      "highlightType": "must_practice",
+      "priority": "high",
+      "evidenceStrength": "supported",
+      "reason": "The closed Exam Result identifies a reliable question-level study target.",
+      "evidenceRefs": ["q-001.grading"],
+      "labels": ["material-review"],
+      "actionHint": "Read the reliable question and explanation evidence.",
+      "renderHint": "highlight",
+      "status": "active",
+      "anchor": {"status": "resolved", "locator": "question:q-001"}
+    }
+  ],
+  "studyGuideMarkdown": "# Material Review\n\n## q-001\n\nReview the reliable question and explanation evidence.",
+  "routes": ["check"],
+  "examResultMutation": false
+}
