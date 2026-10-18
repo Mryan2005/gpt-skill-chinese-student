@@ -54,6 +54,10 @@ processing an Exam Result. Validate the output with
 observation updates with
 [apply_review_update.py](scripts/apply_review_update.py); the script is
 idempotent and requires `--apply` before writing.
+Validate overlays with [validate_annotations.py](scripts/validate_annotations.py)
+and render them for Markdown or Site consumers with
+[render_annotations.py](scripts/render_annotations.py). Rendering never edits
+the original Source.
 
 ## State machine
 

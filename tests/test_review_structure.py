@@ -16,7 +16,9 @@ sys.path.insert(0, str(REPO_ROOT / "plugin" / "scripts"))
 
 from apply_review_update import apply_review_mastery, apply_review_observations  # noqa: E402
 from reset_review_workspace import reset_workspace, validate_target  # noqa: E402
+from render_annotations import render_markdown  # noqa: E402
 from validate_learner_model import validate_observation  # noqa: E402
+from validate_annotations import validate_overlay  # noqa: E402
 from validate_exam_result import validate_exam_result  # noqa: E402
 from validate_review_report import validate_report  # noqa: E402
 
@@ -51,6 +53,13 @@ class ReviewStructureTests(unittest.TestCase):
         result = json.loads((SKILL_ROOT / "examples" / "exam-result.json").read_text(encoding="utf-8"))
         self.assertEqual(validate_exam_result(result), [])
 
+    def test_annotation_overlay_passes(self) -> None:
+        overlay = json.loads((SKILL_ROOT / "examples" / "annotation-overlay.json").read_text(encoding="utf-8"))
+        self.assertEqual(validate_overlay(overlay), [])
+        rendered = render_markdown(overlay)
+        self.assertIn("Review highlights", rendered)
+        self.assertIn("ratio-test", rendered)
+
     def test_report_rejects_exam_or_artifact_mutation(self) -> None:
         report = json.loads((SKILL_ROOT / "examples" / "review-report.json").read_text(encoding="utf-8"))
         mutated = copy.deepcopy(report)
@@ -73,6 +82,12 @@ class ReviewStructureTests(unittest.TestCase):
         errors = validate_report(report)
         self.assertTrue(any("REVIEW_SCOPE_VIOLATION" in error for error in errors))
         self.assertTrue(any("LEARNER_UPDATE_FROM_BLOCKED_QUESTION" in error for error in errors))
+
+    def test_non_human_exam_cannot_update_user_learner_model(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "review-report.json").read_text(encoding="utf-8"))
+        report["exam"]["answererType"] = "agent"
+        errors = validate_report(report)
+        self.assertTrue(any("LEARNER_UPDATE_FROM_NON_HUMAN" in error for error in errors))
 
     def test_review_workspace_reset_is_scoped(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

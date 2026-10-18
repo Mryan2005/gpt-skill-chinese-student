@@ -3,6 +3,11 @@
   "examId": "math-1-demo-001",
   "state": "CLOSED",
   "readOnlyDuringMeasurement": true,
+  "answerer": {
+    "type": "human",
+    "id": "learner-001",
+    "source": "user"
+  },
   "workspace": {
     "root": ".exam/current",
     "runId": "math-1-demo-001",

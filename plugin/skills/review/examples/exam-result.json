@@ -3,6 +3,7 @@
   "examRunId": "math-1-demo-001",
   "subjectId": "math-1",
   "examResultHash": "sha256:exam-result",
+  "answerer": {"type": "human", "id": "learner-001", "source": "user"},
   "questions": [
     {
       "questionId": "series-mcq-12",

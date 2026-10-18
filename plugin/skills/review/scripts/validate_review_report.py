@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from validate_annotations import validate_overlay
+
 
 OUTCOMES = {"correct", "incorrect", "partially_correct", "unanswered", "unreadable", "ungraded", "invalid"}
 STAGES = {"RETRIEVAL", "METHOD_SELECTION", "CONDITION_CHECK", "SETUP", "EXECUTION", "VERIFICATION", "EXPRESSION", "READING", "MEMORY", "TIME", "SOURCE_ISSUE"}
@@ -17,6 +19,7 @@ MASTERY_STATUSES = {"unknown", "needs_diagnosis", "weak", "developing", "profici
 ROUTES = {"learner_model", "amend", "check", "fix", "heal", "none"}
 COMPLETENESS = {"COMPLETE", "PARTIAL", "UNKNOWN", "BLOCKED", "NOT_APPLIED"}
 REPORT_STATUSES = {"COMPLETE", "PARTIAL", "BLOCKED", "FAILED"}
+ANSWERER_TYPES = {"human", "agent", "model", "unknown"}
 
 
 def _text(value: Any) -> bool:
@@ -72,7 +75,7 @@ def validate_report(report: Any) -> list[str]:
     if not isinstance(exam, dict):
         errors.append("exam is required")
     else:
-        for field in ("examRunId", "subjectId", "artifactVersion", "artifactHash", "resultPath", "examResultHashBefore", "examResultHashAfter"):
+        for field in ("examRunId", "subjectId", "artifactVersion", "artifactHash", "resultPath", "examResultHashBefore", "examResultHashAfter", "answererType"):
             if not _text(exam.get(field)):
                 errors.append(f"exam.{field} must be non-empty")
         if exam.get("status") != "CLOSED":
@@ -81,6 +84,8 @@ def validate_report(report: Any) -> list[str]:
             errors.append("exam.answersFrozen must be true")
         if exam.get("attemptsImmutable") is not True:
             errors.append("exam.attemptsImmutable must be true")
+        if exam.get("answererType") not in ANSWERER_TYPES:
+            errors.append("exam.answererType is invalid")
         if exam.get("examResultHashBefore") != exam.get("examResultHashAfter"):
             errors.append("REVIEW_MUTATED_EXAM_RESULT: exam result hash changed")
 
@@ -95,6 +100,13 @@ def validate_report(report: Any) -> list[str]:
     eligibility = report.get("reviewEligibility")
     if not isinstance(eligibility, dict) or any(not _non_negative_int(eligibility.get(field)) for field in ("eligible", "artifactBlocked", "gradingBlocked", "conflicted")):
         errors.append("reviewEligibility is incomplete")
+
+    annotations = report.get("annotations")
+    if not isinstance(annotations, list):
+        errors.append("annotations must be a list")
+    else:
+        overlay_errors = validate_overlay({"schemaVersion": "review.annotation-overlay.v1", "subjectId": exam.get("subjectId") if isinstance(exam, dict) else "", "reviewRunId": report.get("reviewRunId"), "annotations": annotations})
+        errors.extend(f"annotation: {error}" for error in overlay_errors)
 
     completeness = report.get("completeness")
     if not isinstance(completeness, dict):
@@ -179,6 +191,8 @@ def validate_report(report: Any) -> list[str]:
             errors.append(f"{path}.learnerModelUpdate is incomplete")
         elif update.get("observation") and not item.get("learnerAttributionEligible"):
             errors.append(f"LEARNER_UPDATE_FROM_BLOCKED_QUESTION: {path}")
+        elif update.get("observation") and (not isinstance(exam, dict) or exam.get("answererType") != "human"):
+            errors.append(f"LEARNER_UPDATE_FROM_NON_HUMAN: {path}")
         if item.get("route") not in ROUTES:
             errors.append(f"{path}.route is invalid")
 

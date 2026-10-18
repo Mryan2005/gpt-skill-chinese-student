@@ -8,6 +8,8 @@
     "examRunId": "math-1-demo-001",
     "status": "CLOSED",
     "subjectId": "math-1",
+    "answererType": "human",
+    "answererId": "learner-001",
     "artifactVersion": "math-records.example.v1",
     "artifactHash": "sha256:exam-snapshot",
     "examResultHashBefore": "sha256:exam-result",
@@ -30,6 +32,25 @@
     "gradingBlocked": 0,
     "conflicted": 0
   },
+  "annotations": [
+    {
+      "highlightId": "hl-ratio-test-review-001",
+      "subjectId": "math-1",
+      "reviewRunId": "math-1-review-001",
+      "targetType": "card",
+      "targetId": "ratio-test",
+      "highlightType": "confirmed_weakness",
+      "priority": "high",
+      "evidenceStrength": "supported",
+      "reason": "A human attempt produced a confirmed method-selection error for this card.",
+      "evidenceRefs": ["series-mcq-17.firstPass", "series-mcq-17.grading"],
+      "labels": ["需要复测", "方法选择"],
+      "actionHint": "Review trigger signals, then solve unseen series without hints.",
+      "renderHint": "highlight",
+      "status": "active",
+      "anchor": {"status": "resolved", "locator": "card:ratio-test"}
+    }
+  ],
   "completeness": {
     "examCompleteness": "COMPLETE",
     "gradingCompleteness": "COMPLETE",

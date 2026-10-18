@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "review.annotation-overlay.v1",
+  "subjectId": "math-1",
+  "reviewRunId": "math-1-review-001",
+  "annotations": [
+    {
+      "highlightId": "hl-ratio-test-review-001",
+      "targetType": "card",
+      "targetId": "ratio-test",
+      "highlightType": "confirmed_weakness",
+      "priority": "high",
+      "evidenceStrength": "supported",
+      "reason": "A human attempt produced a confirmed method-selection error for this card.",
+      "evidenceRefs": ["series-mcq-17.firstPass", "series-mcq-17.grading"],
+      "labels": ["needs-retest", "method-selection"],
+      "actionHint": "Review trigger signals and solve unseen series without hints.",
+      "renderHint": "highlight",
+      "status": "active",
+      "anchor": {"status": "resolved", "locator": "card:ratio-test"}
+    }
+  ]
+}

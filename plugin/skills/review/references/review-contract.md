@@ -15,6 +15,11 @@ The input must have `status: "CLOSED"`. Validate the result with
 `validate_exam_result.py` before diagnosis. Review records
 `examResultHashBefore` and `examResultHashAfter`; they must be equal.
 
+The result must identify the answerer as `human`, `agent`, `model`, or
+`unknown`. Only `human` evidence may update the user's Learner Model. Agent or
+model performance may still produce coverage, artifact, and routing findings,
+but it must not lower the user's mastery.
+
 Review also records a scope declaration. `reanswered`, `regraded`, `readPdf`,
 `remappedGraph`, `auditedArtifact`, and `mutatedArtifact` must all be false.
 
@@ -144,6 +149,15 @@ records. It never repeats counts or silently replaces a previous assessment.
 | Question, mapping, formula, or renderer defect | `check`, `fix`, or `heal` |
 
 `review` never modifies those other layers directly.
+
+## Annotation overlay
+
+Review highlights are written to an independent Annotation Overlay. An overlay
+references cards, questions, source spans, solution spans, relations, tasks, or
+retest targets without changing the original Source or Derived artifact. Every
+annotation has an evidence strength, priority, reason, evidence references,
+status, and a resolvable anchor when precision is claimed. An unresolved anchor
+must be reported as `unresolved_anchor`, not guessed.
 
 ## Review workspace
 

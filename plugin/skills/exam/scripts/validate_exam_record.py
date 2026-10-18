@@ -27,6 +27,7 @@ ATTEMPT_STATUSES = {"ANSWERED", "UNANSWERED_BY_LEARNER", "BLOCKED_BY_UNREADABLE_
 RETRIEVAL_RESULTS = {"FOUND", "PARTIAL_FOUND", "NOT_FOUND", "NOT_ATTEMPTED"}
 ARTIFACT_STATUSES = {"OK", "DIRECT_MAPPING_MISSING", "GRAPH_KNOWLEDGE_GAP", "GRAPH_MAPPING_MISSING", "GRAPH_MAPPING_AMBIGUOUS", "SOURCE_MISSING", "SOURCE_INCOMPLETE", "ANSWER_PROVENANCE_CONFLICT", "QUESTION_UNREADABLE", "REFERENCE_ANSWER_MISSING"}
 GRADING_STATUSES = {"GRADED", "UNGRADED", "BLOCKED"}
+ANSWERER_TYPES = {"human", "agent", "model", "unknown"}
 PDF_READING_MODES = {"native_pdf_page_image", "native_pdf_text_and_page"}
 PDF_BANNED_TOKENS = {
     "ocr",
@@ -142,6 +143,11 @@ def validate_record(record: Any) -> list[str]:
         state_index = STATES.index(state)
     if not isinstance(record.get("readOnlyDuringMeasurement"), bool):
         errors.append("readOnlyDuringMeasurement must be boolean")
+    answerer = record.get("answerer")
+    if not isinstance(answerer, dict) or answerer.get("type") not in ANSWERER_TYPES:
+        errors.append("answerer.type must be human, agent, model, or unknown")
+    elif state == "CLOSED" and not _text(answerer.get("id")):
+        errors.append("answerer.id is required for a CLOSED exam")
     _validate_workspace(record, state_index, errors)
     snapshot = record.get("snapshot")
     if not isinstance(snapshot, dict):
