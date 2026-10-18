@@ -23,6 +23,7 @@ Learner Model 是独立的本地层。它分开保存用户自述、系统观察
 | sort | 安全的复习优先级投影。按考试价值、风险、依赖、薄弱度和近期错误生成带理由的 review order，不修改知识内容或 canonical structure。 |
 | fix | 消费最新 check findings，自动修复允许修改的 Derived、Runtime 和 Generated Artifact，并输出 Fix Report 供下一次 check 验收。 |
 | profile | 用户主动输入薄弱点、思维习惯、解释偏好和自我观察；自述与系统观察分开保存。 |
+| heal | 复用只读 Checker 与可写 Fixer，循环执行 check → fix → check，最多十轮并在收敛、无进展、回归或 blocker 时安全停止。 |
 
 learn 是跨学科平台，不是“非数学 skill”。普通数学资料仍可使用 learn。当任务需要系统数学网络、大量数学习题、公式与证明、数学题型或考研数学复习时，使用 study-math。
 
@@ -157,6 +158,12 @@ plugin/
    ├─ profile/
    │  ├─ SKILL.md
    │  └─ agents/openai.yaml
+   ├─ heal/
+   │  ├─ SKILL.md
+   │  ├─ agents/openai.yaml
+   │  ├─ references/
+   │  ├─ examples/
+   │  └─ scripts/
    └─ exam/
       ├─ SKILL.md
       ├─ playbooks/

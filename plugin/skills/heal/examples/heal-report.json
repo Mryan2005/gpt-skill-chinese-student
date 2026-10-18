@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "heal.report.v1",
+  "healRunId": "math-1-heal-001",
+  "status": "SUCCESS",
+  "stopReason": "QUALITY_GATE_REACHED",
+  "maxRounds": 10,
+  "roundsExecuted": 1,
+  "workspace": {
+    "root": ".heal/current",
+    "previousRunDeleted": true,
+    "cleanVerified": true,
+    "residualPaths": []
+  },
+  "roles": {
+    "checker": {"readOnly": true, "reusedAgent": true},
+    "fixer": {"writeEnabled": true, "reusedAgent": true}
+  },
+  "initialSummary": {"blocker": 1, "error": 2, "warning": 4, "info": 0},
+  "finalSummary": {"blocker": 0, "error": 0, "warning": 2, "info": 0},
+  "rounds": [
+    {
+      "round": 1,
+      "check": {
+        "checkRunId": "math-1-check-001",
+        "artifactVersion": "math-records.v1",
+        "artifactHash": "sha256:before",
+        "result": "FAIL",
+        "summary": {"blocker": 1, "error": 2, "warning": 4, "info": 0},
+        "findingFingerprints": [
+          "RELATION_ENDPOINT_BROKEN|relation:019|relation-model",
+          "DUPLICATE_ENTITY_ID|card:001|derived-schema",
+          "RETRIEVAL_INDEX_MISSING|search|runtime"
+        ]
+      },
+      "fix": {
+        "fixRunId": "math-1-fix-001",
+        "fixRound": 1,
+        "basedOnCheckRound": 1,
+        "artifactHashBefore": "sha256:before",
+        "artifactHashAfter": "sha256:after",
+        "status": "COMPLETE",
+        "sourceMutation": false,
+        "localValidation": {"status": "PASS", "checks": ["json-parse", "reference-integrity"]},
+        "escalations": []
+      },
+      "progress": {"resolved": 3, "persisted": 0, "new": 0, "regressed": 0, "noProgress": false}
+    }
+  ],
+  "finalCheck": {
+    "checkRunId": "math-1-check-002",
+    "round": 2,
+    "artifactVersion": "math-records.v1",
+    "artifactHash": "sha256:after",
+    "result": "PASS_WITH_WARNINGS",
+    "summary": {"blocker": 0, "error": 0, "warning": 2, "info": 0},
+    "findingFingerprints": ["LOW_CONFIDENCE_RELATION|relation:021|relation-model"]
+  }
+}
