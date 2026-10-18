@@ -1,4 +1,4 @@
-"""Validate an Exam Result postmortem report."""
+"""Validate an evidence-based Exam Result review report."""
 
 from __future__ import annotations
 
@@ -9,9 +9,14 @@ from pathlib import Path
 from typing import Any
 
 
+OUTCOMES = {"correct", "incorrect", "partially_correct", "unanswered", "unreadable", "ungraded", "invalid"}
 STAGES = {"RETRIEVAL", "METHOD_SELECTION", "CONDITION_CHECK", "SETUP", "EXECUTION", "VERIFICATION", "EXPRESSION", "READING", "MEMORY", "TIME", "SOURCE_ISSUE"}
+ERRORS = {"CONCEPT_MISUNDERSTANDING", "KNOWLEDGE_MISSING", "CONDITION_MISSED", "METHOD_SELECTION_ERROR", "REASONING_ERROR", "EXECUTION_ERROR", "READING_ERROR", "CONNECTION_GAP", "MEMORY_FAILURE", "UNKNOWN"}
+DIAGNOSTIC_STATUSES = {"confirmed", "hypothesis", "unknown", "blocked"}
+MASTERY_STATUSES = {"unknown", "needs_diagnosis", "weak", "developing", "proficient", "verified"}
 ROUTES = {"learner_model", "amend", "check", "fix", "heal", "none"}
-STATUSES = {"COMPLETE", "PARTIAL", "BLOCKED", "FAILED"}
+COMPLETENESS = {"COMPLETE", "PARTIAL", "UNKNOWN", "BLOCKED", "NOT_APPLIED"}
+REPORT_STATUSES = {"COMPLETE", "PARTIAL", "BLOCKED", "FAILED"}
 
 
 def _text(value: Any) -> bool:
@@ -22,19 +27,46 @@ def _non_negative_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
+def _confidence(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and 0 <= value <= 1
+
+
+def _evidence(value: Any, path: str, required: bool = True) -> list[str]:
+    if not isinstance(value, list) or (required and not value) or any(not _text(item) for item in value):
+        return [f"{path} must contain evidence references"]
+    return []
+
+
+def _mastery_assessment(value: Any, path: str, question: bool) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(value, dict):
+        return [f"{path} must be an object"]
+    id_field = "questionId" if question else "cardId"
+    if not _text(value.get(id_field)):
+        errors.append(f"{path}.{id_field} must be non-empty")
+    for field in ("previousStatus", "newStatus"):
+        if value.get(field) not in MASTERY_STATUSES:
+            errors.append(f"{path}.{field} is invalid")
+    errors.extend(_evidence(value.get("evidenceRefs"), f"{path}.evidenceRefs"))
+    if not _text(value.get("assessmentReason")):
+        errors.append(f"{path}.assessmentReason must be non-empty")
+    if value.get("newStatus") == "verified" and not value.get("independentEvidence"):
+        errors.append(f"{path}.independentEvidence must be true for verified")
+    return errors
+
+
 def validate_report(report: Any) -> list[str]:
     if not isinstance(report, dict):
         return ["report must be an object"]
     errors: list[str] = []
-    if report.get("schemaVersion") != "review.report.v1":
-        errors.append("schemaVersion must be review.report.v1")
-    for field in ("reviewRunId", "source"):
-        if not _text(report.get(field)):
-            errors.append(f"{field} must be non-empty")
+    if report.get("schemaVersion") != "review.report.v2":
+        errors.append("schemaVersion must be review.report.v2")
+    if not _text(report.get("reviewRunId")) or not _text(report.get("diagnosticVersion")):
+        errors.append("reviewRunId and diagnosticVersion must be non-empty")
+    if report.get("status") not in REPORT_STATUSES:
+        errors.append("status is invalid")
     if report.get("source") != "exam_result":
         errors.append("source must be exam_result")
-    if report.get("status") not in STATUSES:
-        errors.append("status is invalid")
 
     exam = report.get("exam")
     if not isinstance(exam, dict):
@@ -45,6 +77,21 @@ def validate_report(report: Any) -> list[str]:
                 errors.append(f"exam.{field} must be non-empty")
         if exam.get("answersFrozen") is not True:
             errors.append("exam.answersFrozen must be true")
+        if exam.get("attemptsImmutable") is not True:
+            errors.append("exam.attemptsImmutable must be true")
+
+    completeness = report.get("completeness")
+    if not isinstance(completeness, dict):
+        errors.append("completeness is required")
+    else:
+        for field in ("examCompleteness", "gradingCompleteness", "diagnosticCompleteness", "mappingCompleteness", "masteryUpdateStatus", "reviewStatus"):
+            if completeness.get(field) not in COMPLETENESS:
+                errors.append(f"completeness.{field} is invalid")
+        counts = completeness.get("counts")
+        if not isinstance(counts, dict) or any(not _non_negative_int(counts.get(field)) for field in ("total", "attempted", "scored", "ungraded", "unanswered", "unreadable", "invalid")):
+            errors.append("completeness.counts is incomplete")
+        elif counts["attempted"] > counts["total"] or counts["scored"] > counts["attempted"]:
+            errors.append("completeness counts have impossible denominators")
 
     questions = report.get("questions")
     if not isinstance(questions, list) or not questions:
@@ -55,51 +102,107 @@ def validate_report(report: Any) -> list[str]:
         if not isinstance(item, dict):
             errors.append(f"{path} must be an object")
             continue
-        if not _text(item.get("questionId")):
-            errors.append(f"{path}.questionId must be non-empty")
-        if not isinstance(item.get("correct"), bool):
-            errors.append(f"{path}.correct must be boolean")
+        for field in ("questionId", "attemptId"):
+            if not _text(item.get(field)):
+                errors.append(f"{path}.{field} must be non-empty")
+        outcome = item.get("observedOutcome")
+        if outcome not in OUTCOMES:
+            errors.append(f"{path}.observedOutcome is invalid")
+        links = item.get("knowledgeLinks")
+        if not isinstance(links, dict) or not _text(links.get("primaryCardId")) or not isinstance(links.get("secondaryCardIds"), list) or not isinstance(links.get("relationIds"), list):
+            errors.append(f"{path}.knowledgeLinks is incomplete")
         diagnosis = item.get("diagnosis")
         if not isinstance(diagnosis, dict):
             errors.append(f"{path}.diagnosis is required")
         else:
-            if diagnosis.get("stage") not in STAGES:
-                errors.append(f"{path}.diagnosis.stage is invalid")
-            for field in ("errorCode", "reason"):
-                if not _text(diagnosis.get(field)):
-                    errors.append(f"{path}.diagnosis.{field} must be non-empty")
-            if not isinstance(diagnosis.get("evidenceIds"), list) or not diagnosis["evidenceIds"]:
-                errors.append(f"{path}.diagnosis.evidenceIds must be non-empty")
+            if diagnosis.get("errorCategory") not in ERRORS:
+                errors.append(f"{path}.diagnosis.errorCategory is invalid")
+            if diagnosis.get("errorStep") is not None and diagnosis.get("errorStep") not in STAGES:
+                errors.append(f"{path}.diagnosis.errorStep is invalid")
+            if diagnosis.get("evidenceLevel") not in {"full_process", "final_answer_only", "metadata_only"}:
+                errors.append(f"{path}.diagnosis.evidenceLevel is invalid")
+            if diagnosis.get("evidenceLevel") != "full_process" and diagnosis.get("errorStep") is not None:
+                errors.append(f"{path}.diagnosis.errorStep cannot be inferred without a full process")
+            if diagnosis.get("diagnosticStatus") not in DIAGNOSTIC_STATUSES:
+                errors.append(f"{path}.diagnosis.diagnosticStatus is invalid")
+            if not _confidence(diagnosis.get("confidence")):
+                errors.append(f"{path}.diagnosis.confidence is invalid")
+            errors.extend(_evidence(diagnosis.get("evidenceRefs"), f"{path}.diagnosis.evidenceRefs"))
+            if not isinstance(diagnosis.get("hypotheses"), list):
+                errors.append(f"{path}.diagnosis.hypotheses must be a list")
+            else:
+                for hypothesis in diagnosis["hypotheses"]:
+                    if not isinstance(hypothesis, dict) or not _text(hypothesis.get("code")) or not _text(hypothesis.get("reason")) or not _confidence(hypothesis.get("confidence")):
+                        errors.append(f"{path}.diagnosis.hypotheses contains an invalid hypothesis")
+            if diagnosis.get("diagnosticStatus") == "confirmed" and diagnosis.get("errorCategory") == "UNKNOWN":
+                errors.append(f"{path}.confirmed diagnosis cannot use UNKNOWN")
+            if outcome in {"unanswered", "unreadable", "ungraded", "invalid"} and diagnosis.get("diagnosticStatus") == "confirmed":
+                errors.append(f"{path}.incomplete outcome cannot have confirmed learner diagnosis")
+        knowledge_mastery = item.get("knowledgeMastery")
+        if not isinstance(knowledge_mastery, list) or not knowledge_mastery:
+            errors.append(f"{path}.knowledgeMastery must be a non-empty list")
+        else:
+            for mastery_index, assessment in enumerate(knowledge_mastery):
+                errors.extend(_mastery_assessment(assessment, f"{path}.knowledgeMastery[{mastery_index}]", False))
+        errors.extend(_mastery_assessment(item.get("questionMastery"), f"{path}.questionMastery", True) if isinstance(item.get("questionMastery"), dict) else [f"{path}.questionMastery must be an object"])
+        update = item.get("learnerModelUpdate")
+        if not isinstance(update, dict) or not isinstance(update.get("observation"), bool) or not _text(update.get("idempotencyKey")):
+            errors.append(f"{path}.learnerModelUpdate is incomplete")
         if item.get("route") not in ROUTES:
             errors.append(f"{path}.route is invalid")
-        update = item.get("learnerModelUpdate")
-        if not isinstance(update, dict) or not isinstance(update.get("observation"), bool):
-            errors.append(f"{path}.learnerModelUpdate.observation must be boolean")
-        remediation = item.get("remediation")
-        if not isinstance(remediation, dict) or not isinstance(remediation.get("cards"), list) or not isinstance(remediation.get("strategy"), list):
-            errors.append(f"{path}.remediation must contain cards and strategy lists")
+
+    tasks = report.get("learningTasks")
+    if not isinstance(tasks, list):
+        errors.append("learningTasks must be a list")
+    else:
+        for index, task in enumerate(tasks):
+            path = f"learningTasks[{index}]"
+            if not isinstance(task, dict):
+                errors.append(f"{path} must be an object")
+                continue
+            for field in ("taskId", "why", "problem", "operation", "acceptanceCriteria", "status"):
+                if not _text(task.get(field)):
+                    errors.append(f"{path}.{field} must be non-empty")
+            for field in ("targetCardIds", "targetQuestionIds", "dependsOnCardIds", "evidenceRefs"):
+                if not isinstance(task.get(field), list):
+                    errors.append(f"{path}.{field} must be a list")
+
+    retests = report.get("retestPlans")
+    if not isinstance(retests, list):
+        errors.append("retestPlans must be a list")
+    else:
+        for index, plan in enumerate(retests):
+            path = f"retestPlans[{index}]"
+            if not isinstance(plan, dict):
+                errors.append(f"{path} must be an object")
+                continue
+            for field in ("planId", "testMethod", "successCriteria", "verificationStatus"):
+                if not _text(plan.get(field)):
+                    errors.append(f"{path}.{field} must be non-empty")
+            for field in ("targetCardIds", "targetOperations", "evidenceRequirements"):
+                if not isinstance(plan.get(field), list) or not plan[field]:
+                    errors.append(f"{path}.{field} must be non-empty")
+            if plan.get("verificationStatus") == "verified":
+                errors.append(f"{path} cannot start as verified")
+            if plan.get("independentAttemptRequired") is not True or plan.get("replayOfAttemptAllowed") is not False:
+                errors.append(f"{path} must require independent non-replay evidence")
+
+    history = report.get("historicalProgress")
+    if not isinstance(history, dict) or not _text(history.get("comparisonStatus")) or not _text(history.get("conclusion")) or not isinstance(history.get("comparisons"), list):
+        errors.append("historicalProgress is incomplete")
 
     model = report.get("learnerModel")
-    if not isinstance(model, dict):
-        errors.append("learnerModel is required")
-    else:
-        if not _non_negative_int(model.get("observationsAppended")):
-            errors.append("learnerModel.observationsAppended must be non-negative")
-        if model.get("historicalObservationsPreserved") is not True:
-            errors.append("learnerModel.historicalObservationsPreserved must be true")
-        if not isinstance(model.get("updatedPaths"), list):
-            errors.append("learnerModel.updatedPaths must be a list")
-
+    if not isinstance(model, dict) or not _non_negative_int(model.get("observationsAppended")) or model.get("historicalObservationsPreserved") is not True or not isinstance(model.get("idempotencyKeys"), list) or not isinstance(model.get("updatedPaths"), list):
+        errors.append("learnerModel is incomplete")
     for field in ("routing", "localValidation"):
         if not isinstance(report.get(field), dict):
             errors.append(f"{field} is required")
     validation = report.get("localValidation")
     if isinstance(validation, dict) and validation.get("status") not in {"PASS", "FAIL"}:
         errors.append("localValidation.status must be PASS or FAIL")
-    if report.get("examResultMutation") is not False:
-        errors.append("examResultMutation must be false")
-    if report.get("artifactMutation") is not False:
-        errors.append("artifactMutation must be false")
+    for field in ("examResultMutation", "artifactMutation", "profileSelfReportMutation"):
+        if report.get(field) is not False:
+            errors.append(f"{field} must be false")
     if not isinstance(report.get("nextActions"), list):
         errors.append("nextActions must be a list")
     if report.get("fullCheckRun") is not None:
@@ -108,7 +211,7 @@ def validate_report(report: Any) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate a review report.")
+    parser = argparse.ArgumentParser(description="Validate an evidence-based review report.")
     parser.add_argument("report", type=Path)
     args = parser.parse_args()
     try:

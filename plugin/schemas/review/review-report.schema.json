@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/review/review-report.v2.json",
+  "title": "Evidence-Based Exam Review Report",
+  "type": "object",
+  "required": ["schemaVersion", "reviewRunId", "diagnosticVersion", "status", "source", "exam", "completeness", "questions", "learningTasks", "retestPlans", "historicalProgress", "learnerModel", "routing", "localValidation"],
+  "properties": {
+    "schemaVersion": {"const": "review.report.v2"},
+    "reviewRunId": {"type": "string", "minLength": 1},
+    "diagnosticVersion": {"type": "string", "minLength": 1},
+    "status": {"enum": ["COMPLETE", "PARTIAL", "BLOCKED", "FAILED"]},
+    "source": {"const": "exam_result"},
+    "exam": {
+      "type": "object",
+      "required": ["examRunId", "subjectId", "artifactVersion", "artifactHash", "resultPath", "answersFrozen", "attemptsImmutable"],
+      "properties": {
+        "examRunId": {"type": "string", "minLength": 1},
+        "subjectId": {"type": "string", "minLength": 1},
+        "artifactVersion": {"type": "string", "minLength": 1},
+        "artifactHash": {"type": "string", "minLength": 1},
+        "resultPath": {"type": "string", "minLength": 1},
+        "answersFrozen": {"const": true},
+        "attemptsImmutable": {"const": true}
+      },
+      "additionalProperties": true
+    },
+    "completeness": {"type": "object"},
+    "questions": {"type": "array", "minItems": 1},
+    "learningTasks": {"type": "array", "minItems": 1},
+    "retestPlans": {"type": "array", "minItems": 1},
+    "historicalProgress": {"type": "object"},
+    "learnerModel": {"type": "object"},
+    "routing": {"type": "object"},
+    "localValidation": {"type": "object"},
+    "examResultMutation": {"const": false},
+    "artifactMutation": {"const": false},
+    "profileSelfReportMutation": {"const": false}
+  },
+  "additionalProperties": true
+}

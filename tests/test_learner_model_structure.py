@@ -16,6 +16,7 @@ from validate_learner_model import (  # noqa: E402
     validate_explanation_model,
     validate_mastery,
     validate_observation,
+    validate_question_mastery,
     validate_self_report,
     validate_self_report_correction,
     validate_sort_state,
@@ -35,6 +36,7 @@ class LearnerModelTests(unittest.TestCase):
         self.assertEqual(validate_error_model(load("error-model.json")), [])
         self.assertEqual(validate_explanation_model(load("explanation-model.json")), [])
         self.assertEqual(validate_mastery(load("mastery.json")), [])
+        self.assertEqual(validate_question_mastery(load("question-mastery.json")), [])
         self.assertEqual(validate_strategy_state(load("strategy-state.json")), [])
         self.assertEqual(validate_sort_state(load("sort-state.json")), [])
 
@@ -63,6 +65,12 @@ class LearnerModelTests(unittest.TestCase):
         model["patterns"][0]["confidence"] = 1.0
         errors = validate_error_model(model)
         self.assertTrue(any("too high for one observation" in error for error in errors))
+
+    def test_question_mastery_verified_requires_independent_evidence(self) -> None:
+        mastery = copy.deepcopy(load("question-mastery.json"))
+        mastery["questions"]["series-mcq-17"]["status"] = "verified"
+        errors = validate_question_mastery(mastery)
+        self.assertTrue(any("independent evidence" in error for error in errors))
 
     def test_sort_state_requires_reason_and_evidence(self) -> None:
         state = copy.deepcopy(load("sort-state.json"))

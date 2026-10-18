@@ -1,71 +1,120 @@
 # Review contract
 
-`review` consumes the structured output of `exam` and turns measured
-performance into local learning feedback. It is not a second exam, a content
-repairer, or a teaching session.
+`review` converts a closed Exam Result into evidence-backed learner feedback.
+It does not reteach the learner or repair the learning artifact.
 
-## Input contract
+## Frozen input
 
-The Exam Result must identify:
+The input must identify the `examRunId`, `subjectId`, frozen artifact version
+and hash, immutable first-pass answers, `attemptId` values, grading evidence,
+and question-level provenance. A missing or unfrozen first pass is an explicit
+completeness gap. Do not rebuild it from an official solution.
 
-- `examRunId`, `subjectId`, and the frozen artifact version and hash;
-- immutable first-pass answer records;
-- official, historical, or derived answer provenance;
-- grading evidence, confidence, retrieval result, and cards used;
-- the question-level error or source status.
+## Question outcome and diagnosis
 
-Reject a stale, mutable, or incomplete result. Never use a later answer to
-rewrite the first attempt.
-
-## Diagnosis stages
-
-Use the generic stages and domain-specific error taxonomy:
+Each question has exactly one `observedOutcome`:
 
 ~~~text
-RETRIEVAL
-METHOD_SELECTION
-CONDITION_CHECK
-SETUP
-EXECUTION
-VERIFICATION
-EXPRESSION
-READING
-MEMORY
-TIME
-SOURCE_ISSUE
+correct
+incorrect
+partially_correct
+unanswered
+unreadable
+ungraded
+invalid
 ~~~
 
-The diagnosis must explain why the answer failed and cite grading or retrieval
-evidence. Do not infer a stable weakness from one question. The observation may
-be appended as a factual event; the Error Model decides whether repeated events
-form a pattern.
+Only outcomes with sufficient evidence receive a confirmed error category. A
+question with only a final answer may have a bounded hypothesis, but its
+`errorStep` must be `null` unless the step is present in the record. Use
+`diagnosticStatus` values `confirmed`, `hypothesis`, `unknown`, and `blocked`.
 
-## Three-way routing
+Error categories include:
 
-| Diagnosis | Review action | Next owner |
-| --- | --- | --- |
-| Learner performance error | append Observation; update derived local aggregates | `sort` then `learn` |
-| Content or provenance conflict | preserve Exam Result; create a repair request | `amend` |
-| Question, mapping, renderer, or graph defect | preserve performance as non-diagnostic | `check`, `fix`, or `heal` |
+~~~text
+CONCEPT_MISUNDERSTANDING
+KNOWLEDGE_MISSING
+CONDITION_MISSED
+METHOD_SELECTION_ERROR
+REASONING_ERROR
+EXECUTION_ERROR
+READING_ERROR
+CONNECTION_GAP
+MEMORY_FAILURE
+UNKNOWN
+~~~
 
-Do not classify a question as a learner error when the question is incomplete,
-the official answer conflicts with the source, or the mapped card cannot
-support the tested operation.
+Every diagnosis has `questionId`, `attemptId`, `observedOutcome`,
+`errorCategory`, `errorStep`, `evidenceRefs`, `hypotheses`, `confidence`, and
+`diagnosticStatus`. A hypothesis is never serialized as a confirmed cause.
 
-## Learner Model writes
+## Mastery separation
 
-`review` may append to the Subject's `observations.jsonl` and update derived
-Error Model, Mastery, Explanation Model, and strategy projections. Each write
-must reference the Exam Result and question ID. Never overwrite an existing
-Observation or change `Source`, canonical knowledge, or the Exam Result.
+Use `primaryCardId`, `secondaryCardIds`, and typed relations to locate related
+knowledge. Maintain separate assessments:
 
-The remediation plan may include card IDs, question IDs, strategy codes, and
-explanation modes. It is a plan for `learn`; it is not a content mutation.
+- Knowledge Mastery: the learner's grasp of a Card or concept;
+- Question Mastery: the learner's grasp of a question, operation, or pattern.
 
-## Completion
+Each assessment has a status from `unknown`, `needs_diagnosis`, `weak`,
+`developing`, `proficient`, or `verified`; an evidence list; an assessment
+reason; a timestamp; and a history entry. `verified` requires an independent,
+scored, no-hint retest that meets the plan's coverage criteria.
 
-Write `review.report.v1`. Include `sort` and `learn` as next actions when the
-review produced learner evidence. Include an `amend` request for content
-conflicts and a `check`/`fix`/`heal` request for system defects. Run only local
-Learner Model validation. A full artifact audit remains the user's explicit
-`$chinese-student:check` action.
+Do not downgrade a whole Card because one operation failed. Do not upgrade a
+Card because one question was correct.
+
+## Completeness dimensions
+
+Report these dimensions independently:
+
+~~~text
+examCompleteness
+gradingCompleteness
+diagnosticCompleteness
+mappingCompleteness
+masteryUpdateStatus
+reviewStatus
+~~~
+
+Report attempted count, total count, scored count, ungraded count, unanswered
+count, unreadable count, and invalid count. Never call `2/38` a mastery rate.
+
+## Learning tasks
+
+Each `learningTask` identifies what to learn, why it is needed, target cards or
+questions, the problem to solve, the operation to use, dependencies, evidence,
+and an acceptance criterion. `review` proposes tasks; `learn` executes them.
+
+## Retest plans
+
+Each `retestPlan` includes `targetCardIds`, `targetOperations`, `testMethod`,
+`successCriteria`, `evidenceRequirements`, and `verificationStatus`. Prefer a
+new question, a changed condition, a different wording, delayed recall, or an
+unprompted solution. A repeated attempt after seeing the answer is not new
+verification evidence.
+
+## History and idempotence
+
+Use immutable `attemptId` values to compare exams and retests. Compare scores
+only when difficulty, coverage, conditions, and sample size are comparable.
+Otherwise report `unknown` or `insufficient_sample`.
+
+Every Learner Model write has an idempotency key:
+
+~~~text
+<examRunId>|<attemptId>|<diagnosticVersion>
+~~~
+
+Reprocessing the same report skips an existing key and preserves all historical
+records. It never repeats counts or silently replaces a previous assessment.
+
+## Routing
+
+| Finding | Owner |
+| --- | --- |
+| Learner performance evidence | `review` → `sort` → `learn` |
+| Official/source/solution conflict | `amend` |
+| Question, mapping, formula, or renderer defect | `check`, `fix`, or `heal` |
+
+`review` never modifies those other layers directly.

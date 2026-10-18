@@ -1,0 +1,20 @@
+{
+  "subjectId": "math-1",
+  "learningEpoch": 1,
+  "updatedAt": "2026-10-18T12:00:00+08:00",
+  "questions": {
+    "series-mcq-17": {
+      "status": "weak",
+      "evidenceIds": ["review-observation-math-1-demo-001-series-mcq-17"],
+      "updatedAt": "2026-10-18T12:00:00+08:00",
+      "history": [
+        {
+          "status": "weak",
+          "evidenceIds": ["review-observation-math-1-demo-001-series-mcq-17"],
+          "independentEvidence": false,
+          "recordedAt": "2026-10-18T12:00:00+08:00"
+        }
+      ]
+    }
+  }
+}

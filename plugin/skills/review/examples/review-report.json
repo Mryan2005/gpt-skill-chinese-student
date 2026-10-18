@@ -1,77 +1,178 @@
 {
-  "schemaVersion": "review.report.v1",
+  "schemaVersion": "review.report.v2",
   "reviewRunId": "math-1-review-001",
+  "diagnosticVersion": "review-diagnosis.v1",
   "status": "COMPLETE",
   "source": "exam_result",
   "exam": {
-    "examRunId": "math-1-exam-001",
+    "examRunId": "math-1-demo-001",
     "subjectId": "math-1",
-    "artifactVersion": "math-records.v1",
-    "artifactHash": "sha256:frozen",
-    "resultPath": ".exam/current/exam-result.json",
-    "answersFrozen": true
+    "artifactVersion": "math-records.example.v1",
+    "artifactHash": "sha256:exam-snapshot",
+    "resultPath": ".exam/current/exam-record.json",
+    "answersFrozen": true,
+    "attemptsImmutable": true
+  },
+  "completeness": {
+    "examCompleteness": "COMPLETE",
+    "gradingCompleteness": "COMPLETE",
+    "diagnosticCompleteness": "PARTIAL",
+    "mappingCompleteness": "COMPLETE",
+    "masteryUpdateStatus": "COMPLETE",
+    "reviewStatus": "COMPLETE",
+    "counts": {
+      "total": 2,
+      "attempted": 2,
+      "scored": 2,
+      "ungraded": 0,
+      "unanswered": 0,
+      "unreadable": 0,
+      "invalid": 0
+    }
   },
   "questions": [
     {
-      "questionId": "question:series-17",
-      "correct": false,
+      "questionId": "series-mcq-12",
+      "attemptId": "math-1-demo-001|series-mcq-12|attempt-1",
+      "observedOutcome": "correct",
+      "knowledgeLinks": {
+        "primaryCardId": "ratio-test",
+        "secondaryCardIds": [],
+        "relationIds": []
+      },
       "diagnosis": {
-        "stage": "METHOD_SELECTION",
-        "errorCode": "SERIES_TEST_SELECTION_ERROR",
-        "reason": "The learner recognized a convergence problem but did not trigger the ratio test for a factorial structure.",
-        "evidenceIds": ["answer:series-17", "grading:series-17"]
+        "errorCategory": "UNKNOWN",
+        "errorStep": null,
+        "evidenceLevel": "full_process",
+        "evidenceRefs": ["series-mcq-12.firstPass", "series-mcq-12.grading"],
+        "hypotheses": [],
+        "confidence": 0,
+        "diagnosticStatus": "unknown"
       },
-      "route": "learner_model",
-      "learnerModelUpdate": {
-        "observation": true,
-        "errorPattern": "SERIES_TEST_SELECTION_ERROR",
-        "masteryDimensions": ["apply", "transfer"]
+      "knowledgeMastery": [
+        {
+          "cardId": "ratio-test",
+          "previousStatus": "unknown",
+          "newStatus": "developing",
+          "evidenceRefs": ["series-mcq-12.firstPass", "series-mcq-12.grading"],
+          "assessmentReason": "One independent correct answer is evidence of progress, not verification."
+        }
+      ],
+      "questionMastery": {
+        "questionId": "series-mcq-12",
+        "previousStatus": "unknown",
+        "newStatus": "developing",
+        "evidenceRefs": ["series-mcq-12.firstPass", "series-mcq-12.grading"],
+        "assessmentReason": "One correct attempt does not establish stable transfer."
       },
-      "remediation": {
-        "cards": ["card:ratio-test"],
-        "questions": ["question:series-17"],
-        "strategy": ["TRIGGER_FIRST", "COMPARE", "RECALL_FIRST"]
-      }
-    },
-    {
-      "questionId": "question:continuity-06",
-      "correct": false,
-      "diagnosis": {
-        "stage": "SOURCE_ISSUE",
-        "errorCode": "QUESTION_SOURCE_ISSUE",
-        "reason": "The official answer conflicts with the readable source condition.",
-        "evidenceIds": ["answer:continuity-06", "source:continuity-06", "grading:continuity-06"]
-      },
-      "route": "amend",
       "learnerModelUpdate": {
         "observation": false,
-        "errorPattern": null,
-        "masteryDimensions": []
+        "idempotencyKey": "math-1-demo-001|math-1-demo-001|series-mcq-12|attempt-1|review-diagnosis.v1"
       },
-      "remediation": {
-        "cards": [],
-        "questions": ["question:continuity-06"],
-        "strategy": []
-      }
+      "route": "none"
+    },
+    {
+      "questionId": "series-mcq-17",
+      "attemptId": "math-1-demo-001|series-mcq-17|attempt-1",
+      "observedOutcome": "incorrect",
+      "knowledgeLinks": {
+        "primaryCardId": "positive-series",
+        "secondaryCardIds": ["ratio-test"],
+        "relationIds": ["positive-series-to-ratio-test"]
+      },
+      "diagnosis": {
+        "errorCategory": "METHOD_SELECTION_ERROR",
+        "errorStep": "METHOD_SELECTION",
+        "evidenceLevel": "full_process",
+        "evidenceRefs": ["series-mcq-17.firstPass", "series-mcq-17.grading", "series-mcq-17.repairRequest"],
+        "hypotheses": [
+          {
+            "code": "TRIGGER_NOT_RETRIEVED",
+            "reason": "The answer shows a positive-series strategy but not the factorial trigger.",
+            "evidenceRefs": ["series-mcq-17.firstPass"],
+            "confidence": 0.78
+          }
+        ],
+        "confidence": 0.84,
+        "diagnosticStatus": "confirmed"
+      },
+      "knowledgeMastery": [
+        {
+          "cardId": "ratio-test",
+          "previousStatus": "unknown",
+          "newStatus": "weak",
+          "evidenceRefs": ["series-mcq-17.firstPass", "series-mcq-17.grading"],
+          "assessmentReason": "The learner did not select the expected method for a known structure."
+        }
+      ],
+      "questionMastery": {
+        "questionId": "series-mcq-17",
+        "previousStatus": "unknown",
+        "newStatus": "weak",
+        "evidenceRefs": ["series-mcq-17.firstPass", "series-mcq-17.grading"],
+        "assessmentReason": "The method-selection operation failed on this question."
+      },
+      "learnerModelUpdate": {
+        "observation": true,
+        "observationId": "review-observation-math-1-demo-001-series-mcq-17",
+        "idempotencyKey": "math-1-demo-001|math-1-demo-001|series-mcq-17|attempt-1|review-diagnosis.v1",
+        "errorPattern": "METHOD_SELECTION_ERROR"
+      },
+      "route": "learner_model"
     }
   ],
+  "learningTasks": [
+    {
+      "taskId": "review-task-ratio-trigger",
+      "priority": 1,
+      "targetCardIds": ["ratio-test", "positive-series"],
+      "targetQuestionIds": ["series-mcq-17"],
+      "dependsOnCardIds": ["positive-series"],
+      "why": "A method-selection error occurred when a factorial structure required the ratio-test trigger.",
+      "problem": "Recognize when the ratio test should be selected before calculating.",
+      "operation": "TRIGGER_FIRST",
+      "evidenceRefs": ["series-mcq-17.firstPass", "series-mcq-17.grading"],
+      "acceptanceCriteria": "Given three unseen series, select the method and state the trigger and condition for each without hints.",
+      "status": "proposed"
+    }
+  ],
+  "retestPlans": [
+    {
+      "planId": "retest-ratio-trigger",
+      "targetCardIds": ["ratio-test"],
+      "targetOperations": ["METHOD_SELECTION", "CONDITION_CHECK"],
+      "testMethod": "unseen_variants_after_delay",
+      "successCriteria": "Solve three unseen series with at least 2 independent correct method selections and no omitted condition.",
+      "evidenceRequirements": ["newQuestionIds", "answersFrozen", "noHints", "gradingEvidence", "attemptId"],
+      "verificationStatus": "planned",
+      "independentAttemptRequired": true,
+      "replayOfAttemptAllowed": false
+    }
+  ],
+  "historicalProgress": {
+    "comparisonStatus": "INSUFFICIENT_SAMPLE",
+    "comparisons": [],
+    "conclusion": "No comparable prior Exam Result was supplied. Do not infer improvement from this single run."
+  },
   "learnerModel": {
     "observationsAppended": 1,
     "historicalObservationsPreserved": true,
+    "idempotencyKeys": ["math-1-demo-001|math-1-demo-001|series-mcq-17|attempt-1|review-diagnosis.v1"],
     "updatedPaths": [
       ".local/learner/subjects/math-1/observations.jsonl",
       ".local/learner/subjects/math-1/error-model.json"
     ]
   },
   "routing": {
-    "sort": {"requested": true, "reason": "new learner evidence changes review priority"},
-    "learn": {"requested": true, "reason": "method-selection remediation is needed"},
-    "amend": [{"questionId": "question:continuity-06", "reason": "official/source conflict"}],
+    "sort": {"requested": true, "reason": "new evidence changes review priority"},
+    "learn": {"requested": true, "taskIds": ["review-task-ratio-trigger"]},
+    "amend": [],
     "check": []
   },
-  "localValidation": {"status": "PASS", "checks": ["exam-result-freshness", "observation-schema", "provenance"]},
+  "localValidation": {"status": "PASS", "checks": ["exam-result-freshness", "outcome-state", "diagnosis-evidence", "mastery-separation", "retest-independence"]},
   "examResultMutation": false,
   "artifactMutation": false,
-  "nextActions": ["sort", "learn", "amend question:continuity-06"],
+  "profileSelfReportMutation": false,
+  "nextActions": ["sort", "learn", "retest retest-ratio-trigger"],
   "fullCheckRun": null
 }

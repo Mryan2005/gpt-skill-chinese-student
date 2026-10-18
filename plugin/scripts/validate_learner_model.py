@@ -9,9 +9,10 @@ from pathlib import Path
 from typing import Any
 
 
-STAGES = {"PERCEPTION", "INTERPRETATION", "RETRIEVAL", "METHOD_SELECTION", "CONDITION_CHECK", "SETUP", "EXECUTION", "INTEGRATION", "VERIFICATION", "EXPRESSION"}
+STAGES = {"PERCEPTION", "INTERPRETATION", "RETRIEVAL", "METHOD_SELECTION", "CONDITION_CHECK", "SETUP", "EXECUTION", "INTEGRATION", "VERIFICATION", "EXPRESSION", "READING", "MEMORY", "TIME", "SOURCE_ISSUE"}
 EVENTS = {"incorrect", "correct", "hinted_correct", "independent_correct", "recall", "user_correction", "explanation_feedback"}
 ERROR_STATUSES = {"active", "improving", "dormant", "resolved"}
+MASTERY_STATUSES = {"unknown", "needs_diagnosis", "weak", "developing", "proficient", "verified"}
 SELF_REPORT_CATEGORIES = {"weakness", "thinking_habit", "explanation_preference", "self_observation"}
 SELF_REPORT_STATUSES = {"active", "superseded", "withdrawn"}
 CORRECTION_ACTIONS = {"clarify", "correct", "withdraw"}
@@ -49,6 +50,14 @@ def validate_observation(observation: Any) -> list[str]:
         errors.append("taskStage is invalid")
     if "hintCount" in observation and not _int(observation["hintCount"]):
         errors.append("hintCount must be a non-negative integer")
+    if observation.get("source") == "review":
+        for field in ("attemptId", "examRunId", "reviewRunId", "diagnosticVersion", "idempotencyKey"):
+            if not _text(observation.get(field)):
+                errors.append(f"review observation {field} must be non-empty")
+        if not isinstance(observation.get("evidenceIds"), list) or not observation["evidenceIds"]:
+            errors.append("review observation evidenceIds must be non-empty")
+        if observation.get("diagnosticStatus") not in {"confirmed", "hypothesis", "unknown", "blocked"}:
+            errors.append("review observation diagnosticStatus is invalid")
     errors.extend(f"forbidden inference field: {key}" for key in _forbidden(observation))
     return errors
 
@@ -195,6 +204,34 @@ def validate_mastery(model: Any) -> list[str]:
     return errors
 
 
+def validate_question_mastery(model: Any) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(model, dict) or not _text(model.get("subjectId")) or not _int(model.get("learningEpoch"), 1):
+        return ["subjectId and learningEpoch are required"]
+    if not _text(model.get("updatedAt")):
+        errors.append("updatedAt must be non-empty")
+    questions = model.get("questions")
+    if not isinstance(questions, dict):
+        return errors + ["questions must be an object"]
+    for question_id, mastery in questions.items():
+        path = f"questions.{question_id}"
+        if not isinstance(mastery, dict):
+            errors.append(f"{path} must be an object")
+            continue
+        if mastery.get("status") not in MASTERY_STATUSES:
+            errors.append(f"{path}.status is invalid")
+        if not isinstance(mastery.get("evidenceIds"), list) or not mastery["evidenceIds"]:
+            errors.append(f"{path}.evidenceIds must not be empty")
+        if not _text(mastery.get("updatedAt")):
+            errors.append(f"{path}.updatedAt must be non-empty")
+        history = mastery.get("history")
+        if not isinstance(history, list) or not history:
+            errors.append(f"{path}.history must not be empty")
+        if mastery.get("status") == "verified" and not any(isinstance(item, dict) and item.get("independentEvidence") is True for item in (history or [])):
+            errors.append(f"{path}.verified requires independent evidence")
+    return errors
+
+
 def validate_sort_state(state: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(state, dict):
@@ -241,7 +278,7 @@ def validate_strategy_state(state: Any) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate local learner-model records.")
-    parser.add_argument("kind", choices=["observation", "self-report", "correction", "error-model", "explanation-model", "mastery", "strategy-state", "sort-state"])
+    parser.add_argument("kind", choices=["observation", "self-report", "correction", "error-model", "explanation-model", "mastery", "question-mastery", "strategy-state", "sort-state"])
     parser.add_argument("path", type=Path)
     args = parser.parse_args(argv)
     data = json.loads(args.path.read_text(encoding="utf-8"))
@@ -252,6 +289,7 @@ def main(argv: list[str] | None = None) -> int:
         "error-model": validate_error_model,
         "explanation-model": validate_explanation_model,
         "mastery": validate_mastery,
+        "question-mastery": validate_question_mastery,
         "strategy-state": validate_strategy_state,
         "sort-state": validate_sort_state,
     }

@@ -1,64 +1,66 @@
 ---
 name: review
-description: Use after a closed-book exam to process its structured Exam Result, diagnose why answers failed, update the local Learner Model, and produce remediation and routing plans without modifying the learning artifact.
+description: Use after a closed-book exam to produce evidence-based diagnoses, separate knowledge and question mastery, create learning and retest tasks, update the local Learner Model idempotently, and track progress across attempts without changing the learning artifact.
 ---
 
 # Review
 
-`review` is the Exam Result Postmortem and Learning Feedback Processor. It
-consumes a frozen, graded `ExamResult`; it does not read the exam PDF as its
-primary input, reteach the user, or repair the Subject artifact.
+`review` is the evidence-based Exam Result postmortem. It answers why an
+attempt failed, what is actually unsupported, what to learn next, how to test
+the gap, and whether later evidence proves improvement.
+
+`exam` measures and freezes evidence. `review` interprets it. `learn` executes
+the remediation. `sort` consumes the updated evidence. `amend` handles content
+conflicts, while `check`, `fix`, and `heal` handle artifact defects.
 
 ## Non-negotiables
 
-- Consume only a closed Exam Result with frozen first-pass answers, grading
-  evidence, artifact version, and question-level provenance.
-- Classify the failure stage and reason from evidence. Use the domain taxonomy
-  for domain-specific subtypes.
-- Separate learner problems from content problems and system problems.
-- For a learner problem, append a factual Observation and update derived Error
-  Model, Mastery, or Explanation Model through the Learner Model contract.
-- Never rewrite historical Observations, first-pass answers, official answers,
-  official solutions, Source, cards, questions, relations, Markdown, or HTML.
-- Route content problems to `amend`. Route structural or runtime problems to
-  `check`, `fix`, or `heal`. Do not repair those artifacts inside `review`.
-- Do not teach during review. Produce a remediation plan for `learn` and a
-  review-priority update for `sort`.
-- Preserve disagreement between official, historical, derived, and user
-  evidence. A wrong answer does not prove that a knowledge card is wrong.
-- Review writes only local Learner Model state and the review report. It does
-  not run a full `check` automatically.
+- Consume only a closed Exam Result with immutable first-pass answers, grading
+  evidence, artifact identity, and question-level provenance.
+- Preserve distinct outcomes: `correct`, `incorrect`, `partially_correct`,
+  `unanswered`, `unreadable`, `ungraded`, and `invalid`.
+- Keep confirmed diagnosis separate from hypotheses. Use `unknown` when the
+  evidence cannot support a cause. Never invent an unobserved reasoning step.
+- Keep Knowledge Mastery and Question Mastery in separate structures.
+- Do not treat one correct answer as `verified`, one wrong answer as total
+  ignorance, or an unanswered question as an error.
+- Generate concrete `learningTasks` and `retestPlans`, each with evidence,
+  target IDs, success criteria, and a verification rule.
+- Append factual exam observations idempotently. The same `attemptId` and
+  `diagnosticVersion` must never increment state twice.
+- Never mutate the Exam Result, first-pass answer, Source, official answer,
+  official solution, canonical knowledge, HTML, or user self-report.
+- Route content conflicts to `amend` and artifact defects to `check`, `fix`, or
+  `heal`. A student mistake alone is not an artifact defect.
+- Run local Learner Model validation only. Do not run a full `check` silently.
 
-Read [review-contract.md](references/review-contract.md) before processing an
-Exam Result. Validate the output with
-[validate_review_report.py](scripts/validate_review_report.py).
-
-## Routing
-
-| Finding | Route |
-| --- | --- |
-| Retrieval, method, condition, execution, memory, or time problem | Learner Model, then `sort` and `learn` |
-| Official answer or explanation conflict | `amend` with preserved official provenance |
-| Question, Source, mapping, or knowledge artifact defect | `check`, `fix`, or `heal` |
-| Incomplete evidence or ambiguous diagnosis | `BLOCKED` or `NEEDS_REVIEW` |
+Run [postmortem.md](playbooks/postmortem.md) for the standard workflow and read
+[review-contract.md](references/review-contract.md) before processing an Exam
+Result. Validate the output with
+[validate_review_report.py](scripts/validate_review_report.py). Apply local
+observation updates with
+[apply_review_update.py](scripts/apply_review_update.py); the script is
+idempotent and requires `--apply` before writing.
 
 ## State machine
 
 ~~~text
 NEW_REVIEW_REQUEST
 → LOAD_CLOSED_EXAM_RESULT
-→ VERIFY_RESULT_FRESHNESS
-→ CLASSIFY_QUESTION_ERRORS
-→ SEPARATE_LEARNER_CONTENT_SYSTEM_PROBLEMS
-→ APPEND_LEARNER_EVIDENCE
-→ BUILD_REMEDIATION_PLAN
+→ VERIFY_FROZEN_ATTEMPTS_AND_ARTIFACT_IDENTITY
+→ CLASSIFY_OUTCOME_AND_ERROR_EVIDENCE
+→ ASSESS_KNOWLEDGE_AND_QUESTION_MASTERY
+→ BUILD_LEARNING_TASKS_AND_RETEST_PLANS
+→ COMPARE_HISTORY
+→ APPLY_IDEMPOTENT_LEARNER_UPDATE
 → WRITE_REVIEW_REPORT
 → CLOSED
 ~~~
 
 ## Done gate
 
-Write a `review.report.v1` report with question-level diagnoses, evidence,
-Learner Model updates, routing decisions, remediation cards and strategies,
-local validation, and next actions for `sort` and `learn`. The report must
-state that the Exam Result and learning artifact were not mutated.
+Write `review.report.v2` with completeness dimensions, question-level
+diagnoses, evidence references, uncertainty, separate mastery changes,
+learning tasks, retest plans, historical progress, routing, and downstream
+handoff data. The report must state that the Exam Result and artifact were not
+mutated.
