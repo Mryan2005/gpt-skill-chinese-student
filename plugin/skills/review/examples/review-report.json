@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "review.report.v1",
+  "reviewRunId": "math-1-review-001",
+  "status": "COMPLETE",
+  "source": "exam_result",
+  "exam": {
+    "examRunId": "math-1-exam-001",
+    "subjectId": "math-1",
+    "artifactVersion": "math-records.v1",
+    "artifactHash": "sha256:frozen",
+    "resultPath": ".exam/current/exam-result.json",
+    "answersFrozen": true
+  },
+  "questions": [
+    {
+      "questionId": "question:series-17",
+      "correct": false,
+      "diagnosis": {
+        "stage": "METHOD_SELECTION",
+        "errorCode": "SERIES_TEST_SELECTION_ERROR",
+        "reason": "The learner recognized a convergence problem but did not trigger the ratio test for a factorial structure.",
+        "evidenceIds": ["answer:series-17", "grading:series-17"]
+      },
+      "route": "learner_model",
+      "learnerModelUpdate": {
+        "observation": true,
+        "errorPattern": "SERIES_TEST_SELECTION_ERROR",
+        "masteryDimensions": ["apply", "transfer"]
+      },
+      "remediation": {
+        "cards": ["card:ratio-test"],
+        "questions": ["question:series-17"],
+        "strategy": ["TRIGGER_FIRST", "COMPARE", "RECALL_FIRST"]
+      }
+    },
+    {
+      "questionId": "question:continuity-06",
+      "correct": false,
+      "diagnosis": {
+        "stage": "SOURCE_ISSUE",
+        "errorCode": "QUESTION_SOURCE_ISSUE",
+        "reason": "The official answer conflicts with the readable source condition.",
+        "evidenceIds": ["answer:continuity-06", "source:continuity-06", "grading:continuity-06"]
+      },
+      "route": "amend",
+      "learnerModelUpdate": {
+        "observation": false,
+        "errorPattern": null,
+        "masteryDimensions": []
+      },
+      "remediation": {
+        "cards": [],
+        "questions": ["question:continuity-06"],
+        "strategy": []
+      }
+    }
+  ],
+  "learnerModel": {
+    "observationsAppended": 1,
+    "historicalObservationsPreserved": true,
+    "updatedPaths": [
+      ".local/learner/subjects/math-1/observations.jsonl",
+      ".local/learner/subjects/math-1/error-model.json"
+    ]
+  },
+  "routing": {
+    "sort": {"requested": true, "reason": "new learner evidence changes review priority"},
+    "learn": {"requested": true, "reason": "method-selection remediation is needed"},
+    "amend": [{"questionId": "question:continuity-06", "reason": "official/source conflict"}],
+    "check": []
+  },
+  "localValidation": {"status": "PASS", "checks": ["exam-result-freshness", "observation-schema", "provenance"]},
+  "examResultMutation": false,
+  "artifactMutation": false,
+  "nextActions": ["sort", "learn", "amend question:continuity-06"],
+  "fullCheckRun": null
+}

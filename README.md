@@ -31,6 +31,7 @@ schemas and validators, and verify the real artifact before reporting success.
 | `study-math` | Mathematics domain model for card types, question records, formula integrity, typed relations, and exam readiness. |
 | `study-politics` | Politics domain model that keeps textbook wording separate from Derived content. |
 | `exam` | Closed-book assessment runner for a frozen Subject snapshot. It records first-pass answers, grading, error analysis, and learning gaps. |
+| `review` | Processes a closed Exam Result, diagnoses why answers failed, updates the local Learner Model, and creates remediation and routing plans. |
 | `check` | Read-only QA and audit front door for source integrity, structure, questions, relations, retrieval, rendering, and readiness. |
 | `sort` | Review-priority projection based on exam value, risk, dependencies, weakness, and recent errors. It does not change knowledge content. |
 | `fix` | Repairs allowed Derived, Runtime, and Generated Artifact defects from a current `check` report. |
@@ -66,6 +67,10 @@ progress, a blocker, or at most ten rounds.
 `exam` reads the original exam and explanation PDFs directly. It does not use
 OCR, OCR output, external OCR services, or delegated OCR. If a page cannot be
 read reliably, the exam record marks it as unreadable.
+
+`review` consumes the closed Exam Result. It diagnoses learner, content, and
+system problems separately, writes only local Learner Model updates, and routes
+content or system defects to `amend` or `check`/`fix`/`heal`.
 
 ## Architecture
 
@@ -136,6 +141,7 @@ plugin/
    ├─ study-math/
    ├─ study-politics/
    ├─ exam/
+   ├─ review/
    ├─ check/
    ├─ sort/
    ├─ fix/

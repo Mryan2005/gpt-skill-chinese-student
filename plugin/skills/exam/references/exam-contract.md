@@ -32,4 +32,8 @@ After ANSWERS_FROZEN, the explanation source can be released. It is comparison e
 
 ## Ownership
 
-exam owns the snapshot, immutable first-pass answers, grading, performance metrics, error profile, Learning Gap Report, and Repair Requests. learn consumes Repair Requests. A domain model, such as study-math, decides the domain-specific repair.
+exam owns the snapshot, immutable first-pass answers, grading, performance
+metrics, error profile, Learning Gap Report, and Repair Requests. `review`
+consumes the closed Exam Result and updates the local Learner Model. `learn` or
+a domain model, such as `study-math`, executes the remediation plan. `exam`
+does not write Learner Model observations or modify the tested artifact.

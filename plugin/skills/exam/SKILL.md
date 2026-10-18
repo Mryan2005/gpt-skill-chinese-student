@@ -24,9 +24,11 @@ knowledge, define card semantics, or audit Subject quality.
 - Save and freeze first-pass answers before releasing explanations. Append
   revisions after the freeze. Never overwrite the first attempt.
 - Release explanations, grade, and analyze errors only after answers are frozen.
-- Do not call `learn` or `study-math` to modify the tested artifact.
-- Emit an Exam Result, Learning Gap Report, and Repair Requests. `learn` or the
-  domain model decides how to repair them.
+- Do not call `learn`, `study-math`, or `review` to modify the tested artifact
+  during the exam run.
+- Emit an immutable Exam Result, Learning Gap Report, and Repair Requests.
+  `review` consumes the Exam Result and owns postmortem Learner Model updates;
+  `learn` or the domain model decides how to teach the remediation.
 
 Read [exam-contract.md](references/exam-contract.md),
 [exam-workspace.md](references/exam-workspace.md), [pdf-reading.md](references/pdf-reading.md),
@@ -59,8 +61,7 @@ POSTMORTEM
 CLOSED
 ~~~
 
-The state moves forward only. A rollback or first-pass overwrite is a structure
-error.
+The state moves forward only; rollback or first-pass overwrite is a structure error.
 
 ## Routing
 
@@ -75,5 +76,5 @@ error.
 
 Run `validate_exam_record.py`. Confirm the snapshot, state, first-pass answers,
 explanation release, grading, and findings. Report Performance, Knowledge
-Coverage, Graph Effectiveness, Error Profile, and Repair Requests. Do not write
-results directly into `learn` or a domain model.
+Coverage, Graph Effectiveness, Error Profile, and Repair Requests. Route the
+closed Exam Result to `review`; do not write Learner Model updates from `exam`.

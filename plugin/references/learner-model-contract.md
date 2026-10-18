@@ -100,8 +100,13 @@ be imposed on politics or English.
 - `profile` appends explicit self-reports and user corrections only to the
   profile layer.
 - `exam` may read the model before a snapshot is frozen. It must not expose
-  learner hints during first-pass measurement. After grading, it records local
-  observations and updates derived aggregates.
+  learner hints during first-pass measurement. After grading, it emits an
+  immutable Exam Result; `review` records observations and updates derived
+  aggregates.
+- `review` consumes only a closed Exam Result, appends factual exam
+  observations, updates derived Error Model, Mastery, and Explanation Model
+  state, and routes remediation to `sort`, `learn`, `amend`, or `check`/`fix`/
+  `heal`.
 - `sort` reads the model and writes only `sort-state.json`.
 - `check` audits the model and public-artifact boundaries without changing it.
 - `fix` may repair schemas, indexes, references, aggregates, and sort state. It

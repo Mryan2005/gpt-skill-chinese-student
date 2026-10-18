@@ -1,0 +1,4 @@
+interface:
+  display_name: "$中式学生:review"
+  short_description: "复盘考试错误并更新学习反馈"
+  default_prompt: "Use $chinese-student:review to process a closed Exam Result. Diagnose why each answer failed, separate learner problems from content and system problems, update only the local Learner Model, and produce remediation and routing plans for sort, learn, amend, or check/fix/heal."
