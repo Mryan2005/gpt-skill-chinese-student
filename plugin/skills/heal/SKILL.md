@@ -3,7 +3,7 @@ name: heal
 description: Use as the iterative check-fix convergence loop for learning artifacts when one check and one fix are not enough. Reuse isolated Checker and Fixer roles, re-check after every repair, and stop safely on convergence, no progress, regressions, blockers, or the ten-round limit.
 ---
 
-# 中式学生：检查—修复闭环
+# Heal
 
 `heal` is orchestration. It repeatedly invokes the existing `check` and `fix`
 contracts; it does not create a second audit system or a second repair system.

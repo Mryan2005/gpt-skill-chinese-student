@@ -3,7 +3,7 @@ name: profile
 description: Use as the explicit self-report intake for learner weaknesses, thinking habits, explanation preferences, and self-observations. Keep self-reports separate from observed learning behavior and never infer personality traits.
 ---
 
-# 中式学生：学习者自述入口
+# Profile
 
 `profile` is the user's explicit input boundary for the Local Learner Model. It
 records what the learner says about their own weaknesses, thinking habits,

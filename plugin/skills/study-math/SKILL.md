@@ -3,53 +3,65 @@ name: study-math
 description: Use as the mathematics learning front door for systematic topic study, structured question sets, knowledge-map repair, formula-preserving records, and exam-readiness checks. Use learn for ordinary cross-subject learning, including small math requests.
 ---
 
-# 中式学生：数学学习入口
+# Study math
 
-study-math 是数学学习的 Front Door。它根据用户目标选择 playbook，再加载需要的数学合同、代理和 executable gate。用户只需要描述目标，不需要编排代理和校验步骤。
+`study-math` is the mathematics front door. It selects a playbook, then loads
+the required mathematics contracts, agents, and executable gates. Users describe
+the goal and do not need to arrange agents or validators.
 
 ## Non-negotiables
 
-- 一张卡只解决一个可以独立主动回忆的数学问题。
-- 章节、目录和总览属于 module/metadata，不自动成为 question 或巨型复习卡。
-- 数学内容不可静默猜测、补写或丢失。不可读内容必须保留边界。
-- Source、Question、Card、Relation 分层保存。完整题目只存一份。
-- 每道题恰好一个 primary card，其他知识点只能作为 secondary tags。
-- Relation 必须有类型、方向和 why。Bridge 必须有真实出边。
-- sourceStatus、questionStatus、solutionStatus、answerStatus 分开保存。
-- 最终输出必须验证真实 artifact，不能只验证文件存在或提示词通过。
+- Each card solves one mathematics problem that supports independent recall.
+- Chapters, tables of contents, and overviews are module metadata. They do not
+  become questions or large review cards automatically.
+- Never guess, fill, or silently drop mathematics content. Preserve unreadable
+  boundaries.
+- Keep Source, Question, Card, and Relation as separate layers. Store complete
+  question text once.
+- Every question has exactly one primary card. Other knowledge points are
+  secondary tags.
+- Every Relation has a type, direction, and reason. Every Bridge has a real
+  outgoing relation.
+- Keep `sourceStatus`, `questionStatus`, `solutionStatus`, and `answerStatus`
+  separate.
+- Validate the real artifact, not only file existence or prompt output.
 
-完整原则见 [principles.md](references/principles.md)；数学 Learner Error Taxonomy 见 [learner-errors.md](references/learner-errors.md)；平台 Source/Derived Contract 见 [platform-contract.md](../../references/platform-contract.md)。不要把这些原则扩写回入口文件。
+Read [principles.md](references/principles.md),
+[learner-errors.md](references/learner-errors.md), and the platform
+[Source/Derived contract](../../references/platform-contract.md).
 
 ## Routing
 
-| 用户目标 | Playbook |
+| User goal | Playbook |
 | --- | --- |
-| 新图片、PDF、教材或笔记进入数学记录 | [ingest-material.md](playbooks/ingest-material.md) |
-| 系统学习一个章节或主题 | [learn-topic.md](playbooks/learn-topic.md) |
-| 整理一组数学习题 | [organize-question-set.md](playbooks/organize-question-set.md) |
-| 从结构化记录构建数学卡和关系 | [build-cards.md](playbooks/build-cards.md) |
-| 向已有学科加入新材料 | [update-subject.md](playbooks/update-subject.md) |
-| 修复已有数学知识网的结构问题 | [repair-knowledge-map.md](playbooks/repair-knowledge-map.md) |
-| 检查是否可以用于考试 | [validate-exam-readiness.md](playbooks/validate-exam-readiness.md) |
+| Add images, PDFs, textbooks, or notes | [ingest-material.md](playbooks/ingest-material.md) |
+| Study a chapter or topic | [learn-topic.md](playbooks/learn-topic.md) |
+| Organize mathematics questions | [organize-question-set.md](playbooks/organize-question-set.md) |
+| Build cards and relations from records | [build-cards.md](playbooks/build-cards.md) |
+| Add material to an existing Subject | [update-subject.md](playbooks/update-subject.md) |
+| Repair the mathematics graph | [repair-knowledge-map.md](playbooks/repair-knowledge-map.md) |
+| Check exam readiness | [validate-exam-readiness.md](playbooks/validate-exam-readiness.md) |
 
-如果目标跨越多个阶段，选择用户目标对应的主 playbook，并由它组合其他 playbook。不要要求用户重复描述内部执行仪式。
+When a goal spans stages, choose the main playbook for the user's outcome and
+let it compose the other playbooks.
 
 ## Shared contract
 
-1. 读取目标项目的 AGENTS.md、.codex/task-state.md、learner_state.md 和 design_memory.md（存在时）。
-2. 使用同一份 Structured Math Records：modules、cards、questions、relations、sources、progress。
-3. 代理只能写隔离报告。主 skill 是 canonical Markdown、知识网络 HTML、learner_state 和 task-state 的唯一合并者。
-4. 数学记录最终投影到统一学科的 canonical Markdown、知识网络 HTML 和 learner_state。不得创建第二份数学真相。
-5. 只在当前 playbook 需要时读取 references/card-schema.md、question-schema.md、relation-schema.md、source-schema.md、math-integrity.md、math-rendering.md 或 math-agents.md。
+1. Read `AGENTS.md`, `.codex/task-state.md`, `learner_state.md`, and
+   `design_memory.md` in the target project when they exist.
+2. Use one Structured Math Record containing modules, cards, questions,
+   relations, sources, and progress.
+3. Agents write isolated reports. The main skill is the only merger for
+   canonical Markdown, the knowledge graph, learner state, and task state.
+4. Project mathematics records into the shared Subject artifacts. Do not create
+   a second mathematics database.
+5. Load only the references required by the current playbook.
 
 ## Done gate
 
-运行与当前 playbook 相关的校验器：
-
-~~~text
-validate_math.py
-validate_math_cards.py
-validate_markup.py
-~~~
-
-检查 source classification、Card Atomicity、题目完整性、primary mapping、公式完整性、答案证据、typed relations、实际 Markdown/HTML 输出和独立的知识/题目掌握度。任一核心 Gate 失败时报告 学习未完成，并把具体缺口传给 exam 的 图谱缺口。只有真实 artifact 和所有必要 Gate 都通过时，才能报告 可用于考试。
+Run the relevant `validate_math.py`, `validate_math_cards.py`, and
+`validate_markup.py` checks. Verify source classification, card atomicity,
+question completeness, primary mapping, formula integrity, answer evidence,
+typed relations, real Markdown and HTML output, and separate knowledge and
+question mastery. If a core gate fails, report `LEARNING_INCOMPLETE` and pass the
+concrete graph gap to `exam`.

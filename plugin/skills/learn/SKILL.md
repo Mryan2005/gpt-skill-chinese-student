@@ -3,46 +3,70 @@ name: learn
 description: Use as the cross-subject learning front door for new material, topic study, question-set organization, subject updates, knowledge-base repair, and exam-readiness checks. It routes domain-specific work to the appropriate subject model.
 ---
 
-# 中式学生：学习入口
+# Learn
 
-learn 是用户学习行为的总入口。它先理解目标，选择 playbook，再判断是否需要领域模型。用户只描述目标，不需要编排代理、schema 和 validator。
+`learn` is the front door for learning work. It understands the user's goal,
+chooses a playbook, and loads a domain model when needed. Users describe the
+goal. They do not need to name agents, schemas, or validators.
 
 ## Non-negotiables
 
-- 一个 Subject 只有一份 canonical Markdown、一份知识网络 HTML 和一份持久化学习状态。
-- Source、Knowledge Node、Question、Relation、Progress 分层保存。
-- 来源先分类，再进入题库或知识图谱。未分类和不可读内容保留边界。
-- 原始材料、外部补充、题目推导、官方解析可读部分和待核实内容不能静默合并。
-- 领域模型拥有卡片内部结构。learn 不把所有学科强行压成同一个 Card Schema。
-- 代理只能写隔离报告。主 learn skill 是统一输出的唯一合并者。
-- 最终 artifact 必须经过结构、来源、Markdown/LaTeX、实际输出和考试 readiness 检查。
-- Learner Model 只保存本地、证据型学习观察和派生教学信号，不保存人格或心理标签。
+- Each Subject has one canonical Markdown file, one knowledge graph, and one
+  persistent learner state.
+- Keep Source, Knowledge Node, Question, Relation, and Progress as separate
+  layers.
+- Classify sources before placing them in a question bank or knowledge graph.
+  Preserve unreadable and unclassified boundaries.
+- Never merge original material, supplements, Derived answers, readable official
+  explanations, and unresolved content silently.
+- Domain models own card structure. `learn` does not force every subject into
+  one card schema.
+- Agents write isolated reports. The main `learn` skill is the only merger.
+- Validate structure, sources, Markdown, LaTeX, rendered output, and exam
+  readiness before reporting completion.
+- Keep the Local Learner Model private and evidence-based. Do not infer
+  personality or psychological traits.
 
-平台合同见 [common.md](references/common.md)、[knowledge-model.md](references/knowledge-model.md)、[question-model.md](references/question-model.md)、[provenance.md](references/provenance.md)、[learner-model.md](references/learner-model.md)、[learner-model-contract.md](../../references/learner-model-contract.md) 和 [platform-contract.md](../../references/platform-contract.md)。不要把具体学科规则扩写回入口。
+Read [common.md](references/common.md), [knowledge-model.md](references/knowledge-model.md),
+[question-model.md](references/question-model.md), [provenance.md](references/provenance.md),
+[learner-model.md](references/learner-model.md),
+[learner-model-contract.md](../../references/learner-model-contract.md), and
+[platform-contract.md](../../references/platform-contract.md) as needed. Keep
+subject-specific rules out of this front door.
 
 ## Routing
 
-| 用户目标 | Playbook |
+| User goal | Playbook |
 | --- | --- |
-| 新图片、PDF、教材或笔记进入学习系统 | [ingest-material.md](playbooks/ingest-material.md) |
-| 系统学习一个章节或主题 | [learn-topic.md](playbooks/learn-topic.md) |
-| 整理一组题目或题目照片 | [organize-questions.md](playbooks/organize-questions.md) |
-| 向已有 Subject 加入新材料 | [update-existing-subject.md](playbooks/update-existing-subject.md) |
-| 修复混乱、重复或不可达的知识库 | [repair-knowledge-base.md](playbooks/repair-knowledge-base.md) |
-| 检查是否可以用于考试 | [validate-readiness.md](playbooks/validate-readiness.md) |
-| 生成复习优先级或短复习队列 | 使用独立的 [sort](../sort/SKILL.md)，不在 learn 内重排 canonical cards |
+| Add images, PDFs, textbooks, or notes | [ingest-material.md](playbooks/ingest-material.md) |
+| Study a chapter or topic | [learn-topic.md](playbooks/learn-topic.md) |
+| Organize a question set or question photos | [organize-questions.md](playbooks/organize-questions.md) |
+| Add material to an existing Subject | [update-existing-subject.md](playbooks/update-existing-subject.md) |
+| Repair a confused, duplicated, or unreachable knowledge base | [repair-knowledge-base.md](playbooks/repair-knowledge-base.md) |
+| Check exam readiness | [validate-readiness.md](playbooks/validate-readiness.md) |
+| Build a review queue | Use the separate [sort](../sort/SKILL.md) skill. Do not reorder canonical cards in `learn`. |
 
-先按用户目标选择 playbook，再按 Subject 选择领域模型。数学任务读取 study-math 的数学合同；政治任务读取 study-politics 的政治合同。learn 不复制数学或政治的卡片、措辞、公式或题型规则。未来其他学科可以接入自己的领域模型。
+Choose a playbook from the user's goal, then choose a domain model from the
+Subject. Mathematics work reads `study-math`; politics work reads
+`study-politics`. Future subjects can add their own domain models.
 
 ## Shared contract
 
-1. 读取目标项目的 AGENTS.md、.codex/task-state.md、learner_state.md 和 design_memory.md（存在时）。
-2. 保持同一份 Subject 记录和统一输出。领域中间层不能成为第二份学科真相。
-3. 复杂批次读取 [agent-contract.md](references/agent-contract.md)，把每个代理报告保存到隔离目录。
-4. 只在当前 playbook 需要时读取 source-model.md、knowledge-model.md、question-model.md、provenance.md 或领域 skill 的 references。
-5. 学习状态写入持久文件，不依赖对话记忆。来源、排除项、映射和完成状态变化及时写入 task-state。
-6. 教学后的 Learner Observation 只写入 `.local/learner/`，不写入 Source、公开 HTML 或 canonical knowledge。
+1. Read `AGENTS.md`, `.codex/task-state.md`, `learner_state.md`, and
+   `design_memory.md` in the target project when they exist.
+2. Keep one Subject record and one unified output. A domain intermediate record
+   is not a second source of truth.
+3. For complex batches, read [agent-contract.md](references/agent-contract.md)
+   and save each agent report in an isolated directory.
+4. Load only the references required by the current playbook.
+5. Write learning state to persistent files. Do not depend on conversation
+   memory for sources, exclusions, mappings, or completion state.
+6. Write post-teaching observations only to `.local/learner/`.
 
 ## Done gate
 
-运行当前 playbook 和领域模型要求的 validator。至少检查 source coverage、entity classification、stable IDs、question mappings、relations、provenance、Markdown/LaTeX 和真实输出。任一核心 Gate 失败时报告 学习未完成，列出具体缺口，并把缺口传给 exam。只有真实 artifact 和必要 Gate 全部通过时，才能报告 可用于考试。
+Run the validators required by the current playbook and domain model. Check
+source coverage, entity classification, stable IDs, question mappings,
+relations, provenance, Markdown, LaTeX, and real output. If a core gate fails,
+report `LEARNING_INCOMPLETE` with the concrete gap and pass it to `exam`.
+Report exam readiness only after the real artifact and every required gate pass.

@@ -3,25 +3,35 @@ name: exam
 description: Use as the closed-book assessment runner for a frozen Subject snapshot. It records first-pass answers, releases solutions only after freezing, grades performance, and produces learning-gap reports without modifying the learning artifact.
 ---
 
-# 中式学生：考试入口
+# Exam
 
-exam 是 Assessment / Evaluation Runner。它测量冻结知识状态下的学习表现，不负责构建知识、不定义领域卡片，也不审计 Subject 质量。
+`exam` measures performance against a frozen knowledge state. It does not build
+knowledge, define card semantics, or audit Subject quality.
 
 ## Non-negotiables
 
-- 开始测量前冻结 Subject snapshot。
-- 每场新考试开始前必须删除并重建整个 .exam/current workspace，确认为空后才能加载新试卷。
-- 考试和解析 PDF 必须由当前 AI 直接读取原始 PDF。禁止 OCR、OCR 包、外部 OCR API、转写替代输入和委托 OCR。
-- FIRST_PASS 只能访问冻结的知识图谱和题目。
-- 首轮禁止 Web、解析、答案表、其他资料和未冻结的新知识。
-- Learner Model may guide coverage or difficulty before snapshot freeze, but it
-  must not provide hints or personalized cues after `SNAPSHOT_FROZEN`.
-- 首轮答案必须先保存并冻结，之后只能追加 revision，不能覆盖。
-- 解析释放、评分和复盘发生在答案冻结之后。
-- exam 不调用 learn 或 study-math 修改被测 artifact。
-- exam 输出 Exam Result、Learning Gap Report 和 Repair Requests，由 learn 或领域模型决定如何修复；评分后的错误证据可追加到 `.local/learner/subjects/<subject-id>/observations.jsonl`。
+- Freeze the Subject snapshot before measurement.
+- Delete and recreate `.exam/current/` before every new exam. Verify the clean
+  workspace before loading the new paper.
+- Read the original exam and explanation PDFs directly. Do not use OCR, OCR
+  packages, external OCR APIs, transcript substitutes, or delegated OCR.
+- During `FIRST_PASS`, access only the frozen graph and questions.
+- During the first pass, do not use the Web, explanations, answer keys, other
+  materials, or knowledge added after the snapshot.
+- The Learner Model may guide coverage or difficulty before the snapshot is
+  frozen. It must not provide hints or personalized cues after
+  `SNAPSHOT_FROZEN`.
+- Save and freeze first-pass answers before releasing explanations. Append
+  revisions after the freeze. Never overwrite the first attempt.
+- Release explanations, grade, and analyze errors only after answers are frozen.
+- Do not call `learn` or `study-math` to modify the tested artifact.
+- Emit an Exam Result, Learning Gap Report, and Repair Requests. `learn` or the
+  domain model decides how to repair them.
 
-完整状态和记录合同见 [exam-contract.md](references/exam-contract.md)、[exam-workspace.md](references/exam-workspace.md)、[pdf-reading.md](references/pdf-reading.md)、[answer-record.md](references/answer-record.md)、[grading.md](references/grading.md) 和 [error-taxonomy.md](references/error-taxonomy.md)。
+Read [exam-contract.md](references/exam-contract.md),
+[exam-workspace.md](references/exam-workspace.md), [pdf-reading.md](references/pdf-reading.md),
+[answer-record.md](references/answer-record.md), [grading.md](references/grading.md),
+and [error-taxonomy.md](references/error-taxonomy.md).
 
 ## State machine
 
@@ -49,17 +59,21 @@ POSTMORTEM
 CLOSED
 ~~~
 
-状态只能前进。任何回退或首轮答案覆盖都生成结构错误。
+The state moves forward only. A rollback or first-pass overwrite is a structure
+error.
 
 ## Routing
 
-| 用户目标 | Playbook |
+| User goal | Playbook |
 | --- | --- |
-| 开始并完成一套闭卷考试 | [run-exam.md](playbooks/run-exam.md) |
-| 已有冻结答案，读取解析并评分 | [grade-exam.md](playbooks/grade-exam.md) |
-| 生成错误分类和学习缺口 | [analyze-errors.md](playbooks/analyze-errors.md) |
-| 按历史记录重放一次考试或错误 | [replay-errors.md](playbooks/replay-errors.md) |
+| Start and complete a closed-book exam | [run-exam.md](playbooks/run-exam.md) |
+| Grade a frozen first attempt with an explanation | [grade-exam.md](playbooks/grade-exam.md) |
+| Create error categories and learning gaps | [analyze-errors.md](playbooks/analyze-errors.md) |
+| Replay an exam or error history | [replay-errors.md](playbooks/replay-errors.md) |
 
 ## Done gate
 
-运行 validate_exam_record.py，确认 snapshot、状态、首轮答案、解析释放、评分和 findings 结构完整。报告 Performance、Knowledge Coverage、Graph Effectiveness、Error Profile 和 Repair Requests。考试结束后只交付结果，不直接写回 learn 或领域模型。
+Run `validate_exam_record.py`. Confirm the snapshot, state, first-pass answers,
+explanation release, grading, and findings. Report Performance, Knowledge
+Coverage, Graph Effectiveness, Error Profile, and Repair Requests. Do not write
+results directly into `learn` or a domain model.

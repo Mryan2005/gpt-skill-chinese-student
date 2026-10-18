@@ -3,60 +3,60 @@ name: check
 description: Use as the read-only multi-agent QA and audit front door for learning artifacts, including source integrity, knowledge structure, questions, relations, retrieval, rendering, and exam readiness.
 ---
 
-# 中式学生：审计入口
+# Check
 
-check 是整个学习系统的只读 QA、Auditor 和 Test Runner。它验证 learn
-构建的 Subject 和领域模型生成的 artifact，但不替用户重新学习、重映射或修复内容。
-它按目标路由审计 playbook；全面检查时并行运行隔离专业审计代理，最后由
-Finding Merger 去重并定位根因。
+`check` is the read-only QA and audit runner for the learning system. It
+validates the Subject built by `learn` and the artifacts produced by a domain
+model. It does not relearn, remap, or repair content.
 
 ## Non-negotiables
 
-- 默认只读，不修改 Markdown、HTML、records、learner_state 或 task-state。
-- 每次审计前必须删除并重建整个 .check/current workspace，确认为空后才能读取本次 canonical state。
-- 每个结论都必须有证据路径、实体 ID、观察值和期望值。
-- 每个发现都必须有 code、severity、rootLayer 和 repairOwner。
-- 区分 blocker、error、warning 和 info。
-- “没有发现错误”不等于“内容正确”；未执行的检查必须明确报告。
-- 通用检查机制不定义数学或其他学科的卡片正确性。领域规则来自对应 domain contract。
-- 代理只能写入自己的隔离报告；Finding Merger 只能合并报告，不能修复内容。
-- Agent capacity 只影响并行度，不得缩小 required audit scope。容量不足时必须分批、共享 worker 或由 orchestrator 顺序执行。
-- 连续两次无法创建 agent 后，本轮停止继续 spawn，剩余审计全部进入 fallback queue。
-- 发现根因后停止在报告，不在 check 内自动修复。
+- Read only. Do not modify Markdown, HTML, records, learner state, or task state.
+- Delete and recreate `.check/current/` before each audit. Verify that the
+  workspace is empty before reading the current canonical state.
+- Support every conclusion with an evidence path, entity ID, observed value,
+  and expected value.
+- Give every finding a code, severity, root layer, and repair owner.
+- Distinguish `blocker`, `error`, `warning`, and `info`.
+- "No errors found" does not mean that the content is correct. Report checks
+  that did not run.
+- Read domain contracts for subject-specific correctness. Do not copy
+  mathematics rules into the common checker.
+- Agents write only isolated reports. The Finding Merger combines reports but
+  never repairs content.
+- Agent capacity changes parallelism, not the required audit scope. Batch,
+  share workers, or run the queue sequentially when capacity is low.
+- After two consecutive agent-creation failures, stop spawning agents and move
+  the remaining work to the fallback queue.
+- Stop at the report after finding the root cause. Do not repair in `check`.
 
-读取 [audit-contract.md](references/audit-contract.md)、[execution-contract.md](references/execution-contract.md)、[check-workspace.md](references/check-workspace.md)、[finding-schema.md](references/finding-schema.md) 和 [severity.md](references/severity.md) 了解统一报告合同。
+Read [audit-contract.md](references/audit-contract.md),
+[execution-contract.md](references/execution-contract.md),
+[check-workspace.md](references/check-workspace.md),
+[finding-schema.md](references/finding-schema.md), and [severity.md](references/severity.md).
 
 ## Routing
 
-| 用户目标 | Playbook |
+| User goal | Playbook |
 | --- | --- |
-| 范围不明确或要求全面检查 | [full-audit.md](playbooks/full-audit.md) |
-| 来源、分类或 provenance 有问题 | [source-audit.md](playbooks/source-audit.md) |
-| 知识卡、节点或层级有问题 | [structure-audit.md](playbooks/structure-audit.md) |
-| 来源覆盖不完整 | [coverage-audit.md](playbooks/coverage-audit.md) |
-| 卡片内容不完整或过浅 | [content-audit.md](playbooks/content-audit.md) |
-| 题目错挂、重复或不完整 | [question-audit.md](playbooks/question-audit.md) |
-| 答案、解法或 provenance 冲突 | [solution-audit.md](playbooks/solution-audit.md) |
-| 数学语义、定理或解法有问题 | [math-audit.md](playbooks/math-audit.md) |
-| LaTeX 语法或公式源文丢失 | [latex-audit.md](playbooks/latex-audit.md) |
-| 关系断链、无类型或方向错误 | [relation-audit.md](playbooks/relation-audit.md) |
-| 页面、公式或交互显示异常 | [rendering-audit.md](playbooks/rendering-audit.md) |
-| 搜索找不到知识点 | [retrieval-audit.md](playbooks/retrieval-audit.md) |
-| 是否可以拿去复习或考试 | [readiness-audit.md](playbooks/readiness-audit.md) |
-| Learner Model 是否有证据且保持私有 | [learner-model-audit.md](playbooks/learner-model-audit.md) |
-| 个性化排序是否新鲜且可解释 | [sort-audit.md](playbooks/sort-audit.md) |
+| Unclear scope or a complete audit | [full-audit.md](playbooks/full-audit.md) |
+| Source, classification, or provenance problems | [source-audit.md](playbooks/source-audit.md) |
+| Card, node, or hierarchy problems | [structure-audit.md](playbooks/structure-audit.md) |
+| Incomplete source coverage | [coverage-audit.md](playbooks/coverage-audit.md) |
+| Incomplete or shallow cards | [content-audit.md](playbooks/content-audit.md) |
+| Misplaced, duplicated, or incomplete questions | [question-audit.md](playbooks/question-audit.md) |
+| Conflicting answers, solutions, or provenance | [solution-audit.md](playbooks/solution-audit.md) |
+| Mathematics semantics, theorems, or solutions | [math-audit.md](playbooks/math-audit.md) |
+| LaTeX syntax or lost formula source | [latex-audit.md](playbooks/latex-audit.md) |
+| Broken, untyped, or wrongly directed relations | [relation-audit.md](playbooks/relation-audit.md) |
+| Broken pages, formulas, or interactions | [rendering-audit.md](playbooks/rendering-audit.md) |
+| Knowledge points that search cannot find | [retrieval-audit.md](playbooks/retrieval-audit.md) |
+| Review or exam readiness | [readiness-audit.md](playbooks/readiness-audit.md) |
+| Learner evidence and privacy | [learner-model-audit.md](playbooks/learner-model-audit.md) |
+| Fresh and explainable review priority | [sort-audit.md](playbooks/sort-audit.md) |
 
-先按用户目标选择审计 playbook，再按 Subject 选择领域 contract。数学检查读取
-study-math 的 schema、validator 和 readiness contract；check 不复制数学规则。
-
-专业代理：[source](agents/source-auditor.md)、[structure](agents/structure-auditor.md)、
-[content](agents/content-auditor.md)、[coverage](agents/coverage-auditor.md)、
-[question](agents/question-auditor.md)、[solution](agents/solution-auditor.md)、
-[math](agents/math-auditor.md)、[latex](agents/latex-auditor.md)、
-[relation](agents/relation-auditor.md)、[provenance](agents/provenance-auditor.md)、
-[rendering](agents/rendering-auditor.md)、[retrieval](agents/retrieval-auditor.md)、
-[learner-model](agents/learner-model-auditor.md)、[sort-state](agents/sort-state-auditor.md)。
-最终由 [Finding Merger](agents/finding-merger.md) 汇总。
+Choose the audit playbook from the user's goal, then load the Subject's domain
+contract. The mathematics audit reads `study-math` schemas, validators, and readiness rules.
 
 ## State machine
 
@@ -67,14 +67,13 @@ NEW_CHECK_REQUEST
 → LOAD_CURRENT_CANONICAL_STATE
 → RUN_DETERMINISTIC_VALIDATORS
 → PLAN_AUDIT_EXECUTION
-→ RUN_AUDIT_QUEUE
-→ MERGE_FINDINGS
-→ WRITE_FINDINGS
-→ REPORT
-→ CLOSED
+→ RUN_AUDIT_QUEUE → MERGE_FINDINGS → WRITE_FINDINGS → REPORT → CLOSED
 ~~~
 
 ## Done gate
 
-使用真实 canonical artifact、Structured Records 和实际 HTML 输出。运行 reset_check_workspace.py，确认 workspace clean，再生成结构化 findings；汇总严重程度、执行和未执行代理、证据路径、rootLayer 和 repairOwner。
-最终结果只能是 PASS、PASS_WITH_WARNINGS、FAIL 或 BLOCKED。检查结束时只报告验证结果，不报告已修复内容。
+Use the real canonical artifact, structured records, and rendered HTML. Run
+`reset_check_workspace.py`, verify a clean workspace, and write findings with
+severity, execution status, evidence paths, root layers, and repair owners.
+The result must be `PASS`, `PASS_WITH_WARNINGS`, `FAIL`, or `BLOCKED`. Report
+validation results only. Do not report repairs.

@@ -3,7 +3,7 @@
   "name": "chinese-student",
   "version": "0.7.0",
   "description": "A local-file study plugin that builds exam-ready subject knowledge graphs, provides math and politics domain models, runs graph-only PDF exams, and checks whether each concept is immediately findable.",
-  "license": "Proprietary - All Rights Reserved",
+  "license": "AGPL-3.0-or-later",
   "author": {
     "name": "Mryan2005"
   },

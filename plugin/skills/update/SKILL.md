@@ -3,21 +3,27 @@ name: update
 description: Use as the plugin and Subject schema migration front door when an existing Subject must move between plugin, content, domain, renderer, or artifact versions. Do not use for learning new material or adding ordinary content.
 ---
 
-# 中式学生：迁移入口
+# Update
 
-update 是插件版本迁移器和 Content Schema Migration Runner。它不是 learn 的内容更新，也不是重新学习原始材料。
+`update` is the plugin and content-schema migration runner. It is not ordinary
+learning and it is not a rebuild of the original material.
 
 ## Non-negotiables
 
-- Source Layer 永远不因 Derived migration 改写。
-- 只迁移 Derived、Subject metadata、artifact 和 progress schema。
-- 每次迁移先 Detect/Plan，再 Snapshot，然后执行连续的小迁移。
-- 每个 migration 必须有稳定 ID、前置版本、目标版本、owner 和 idempotent 声明。
-- 无法确定性迁移时报告 NEEDS_REDERIVATION 或 BLOCKED_BY_SOURCE，不猜、不静默丢数据。
-- 迁移后必须重建受影响 artifact，并调用 `check full-audit` 作为最终 Gate。
-- SNAPSHOT_FROZEN 之后，update 不得影响正在进行的 exam。
+- Never rewrite the Source Layer during a Derived migration.
+- Migrate only Derived data, Subject metadata, artifacts, and progress schemas.
+- Detect and plan before taking a snapshot or applying a migration.
+- Give every migration a stable ID, source version, target version, owner, and
+  idempotence declaration.
+- If deterministic migration is impossible, report `NEEDS_REDERIVATION` or
+  `BLOCKED_BY_SOURCE`. Do not guess or discard data silently.
+- Rebuild affected artifacts and run `check full-audit` as the final gate.
+- Do not affect an exam after `SNAPSHOT_FROZEN`.
 
-平台版本合同见 [platform-contract.md](../../references/platform-contract.md)。迁移合同见 [update-contract.md](references/update-contract.md)、[migration-plan.md](references/migration-plan.md) 和 [change-impact.md](references/change-impact.md)。
+Read [platform-contract.md](../../references/platform-contract.md),
+[update-contract.md](references/update-contract.md),
+[migration-plan.md](references/migration-plan.md), and
+[change-impact.md](references/change-impact.md).
 
 ## State machine
 
@@ -41,15 +47,16 @@ REPORT
 
 | Goal | Playbook |
 | --- | --- |
-| 识别 Subject 是否过期 | [detect.md](playbooks/detect.md) |
-| 生成迁移计划和影响范围 | [plan.md](playbooks/plan.md) |
-| 执行一个或多个连续 migration | [migrate.md](playbooks/migrate.md) |
-| 重建 canonical Markdown/HTML/artifact | [rebuild.md](playbooks/rebuild.md) |
-| 运行 check 并判断迁移是否成功 | [validate.md](playbooks/validate.md) |
-| 汇总迁移结果和阻断项 | [report.md](playbooks/report.md) |
+| Detect an outdated Subject | [detect.md](playbooks/detect.md) |
+| Create a migration plan and impact report | [plan.md](playbooks/plan.md) |
+| Apply one or more migrations | [migrate.md](playbooks/migrate.md) |
+| Rebuild canonical Markdown, HTML, or artifacts | [rebuild.md](playbooks/rebuild.md) |
+| Run `check` and validate the migration | [validate.md](playbooks/validate.md) |
+| Summarize migration results and blockers | [report.md](playbooks/report.md) |
 
 ## Done gate
 
-只有目标版本 metadata 已写入、Source hash/版本保持不变、Derived/artifact 迁移完成、
-迁移可重复执行、`check full-audit` 返回 `PASS` 或 `PASS_WITH_WARNINGS`，并且所有
-rederivation/source blockers 已列出时，才能报告迁移完成。
+Report completion only when target metadata is written, Source hash and version
+are unchanged, Derived artifacts are migrated, the migration is repeatable,
+`check full-audit` returns `PASS` or `PASS_WITH_WARNINGS`, and every
+rederivation or Source blocker is listed.
