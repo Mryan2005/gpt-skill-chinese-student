@@ -3,13 +3,17 @@
   "healRunId": "math-1-heal-001",
   "status": "HEALED_WITH_WARNINGS",
   "stopReason": "PEDAGOGICAL_GATE_REACHED",
-  "maxRounds": 10,
+  "maxRounds": 5,
   "roundsExecuted": 1,
   "workspace": {
     "root": ".heal/current",
     "previousRunDeleted": true,
     "cleanVerified": true,
     "residualPaths": []
+  },
+  "readOnlyChecks": {
+    "initial": {"status": "PASS_WITH_WARNINGS", "readOnly": true, "consumesRound": false},
+    "final": {"status": "PASS_WITH_WARNINGS", "readOnly": true, "consumesRound": false}
   },
   "roles": {
     "novice": {
@@ -86,6 +90,19 @@
           "checks": ["target-ids", "card-schema", "relation-integrity", "path-order"]
         }
       },
+      "checkBefore": {"status": "PASS_WITH_WARNINGS", "readOnly": true, "consumesRound": false},
+      "repairActions": [{"owner": "fix", "operation": "add trigger signals", "status": "APPLIED"}],
+      "knowledgeEnrichmentActions": [{"owner": "learn", "operation": "add sourced prerequisite bridge", "status": "APPLIED"}],
+      "optimizationActions": [],
+      "optimizationRunCount": 1,
+      "optimizationStatus": "NO_OP",
+      "optimizationStability": {"oscillationDetected": false, "newEvidenceRefs": []},
+      "checkAfter": {"status": "PASS_WITH_WARNINGS", "readOnly": true, "consumesRound": false},
+      "coverageDelta": {"before": 0.62, "after": 0.86},
+      "qualityDelta": {"before": {"highFriction": 1, "deadEnds": 0}, "after": {"highFriction": 0, "deadEnds": 0}},
+      "regressions": [],
+      "blockedItems": [],
+      "stopDecision": {"decision": "CONTINUE", "reason": "Optional medium-friction work remains."},
       "progress": {
         "resolvedPedagogical": 3,
         "persisted": 0,

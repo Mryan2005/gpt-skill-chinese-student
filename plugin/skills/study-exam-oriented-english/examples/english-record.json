@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "study-exam-oriented-english.record.v1",
+  "domain": "study-exam-oriented-english",
+  "subjectId": "english-1",
+  "cards": [
+    {
+      "id": "english-card-reason-001",
+      "type": "expression-function",
+      "title": "Express a reason simply",
+      "function": "reason",
+      "coreMeaning": "Give a clear reason for a recommendation or opinion.",
+      "recallPrompt": "How can I give a simple reason without a template?",
+      "difficulty": "standard",
+      "examples": ["This is important because it affects daily life."],
+      "sourceRefs": [{"sourceId": "src-english-writing-001", "locator": "paragraph-2"}],
+      "derivedVersion": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "english-card-idea-bridge-001",
+      "type": "sentence-bridge",
+      "title": "Turn a Chinese idea into simple English",
+      "coreMeaning": "Split a Chinese idea into meaning units and express each unit with usable English.",
+      "recallPrompt": "What does the Chinese idea require me to say before I choose English words?",
+      "difficulty": "basic",
+      "examples": ["More and more people depend on the Internet, but we should also pay attention to its negative effects."],
+      "sourceRefs": [{"sourceId": "src-english-writing-idea-001", "locator": "user-intent"}],
+      "derivedVersion": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "english-card-logic-translation-001",
+      "type": "translation-pattern",
+      "title": "Preserve logic while changing Chinese word order",
+      "coreMeaning": "Reorder English clauses into natural Chinese without losing negation, concession, cause, or comparison.",
+      "recallPrompt": "Which logic relations must remain visible after translation?",
+      "difficulty": "standard",
+      "examples": ["尽管这项政策并不完美，但由于地方办事机构现在会在线共享信息，它比过去更方便更多人获得公共服务。"],
+      "sourceRefs": [{"sourceId": "src-english-translation-001", "locator": "sentence-1"}],
+      "derivedVersion": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "english-card-revision-001",
+      "type": "error-pattern",
+      "title": "Check agreement before adding complex style",
+      "coreMeaning": "Correct a basic grammar error while keeping a clear sentence simple.",
+      "recallPrompt": "Is the problem grammar, meaning, or only a preference for a different style?",
+      "difficulty": "basic",
+      "examples": ["The development of the Internet has made communication easier."],
+      "sourceRefs": [{"sourceId": "src-english-review-001", "locator": "sentence-1"}],
+      "derivedVersion": 1,
+      "status": "ACTIVE"
+    }
+  ],
+  "writing": {
+    "examples": [
+      {
+        "id": "writing-idea-to-simple-001",
+        "taskType": "idea-to-simple-english",
+        "prompt": "Express a balanced view about Internet use.",
+        "sourceIdea": "越来越多的人依赖互联网，但我们也应该注意它的负面影响。",
+        "intentUnits": ["more people depend on the Internet", "we should also pay attention to its negative effects"],
+        "originalText": "",
+        "recommendedText": "More and more people depend on the Internet, but we should also pay attention to its negative effects.",
+        "meaningUnitsPreserved": ["more people depend on the Internet", "we should also pay attention to its negative effects"],
+        "level": "standard",
+        "unchanged": false,
+        "sourceRefs": [{"sourceId": "src-english-writing-idea-001", "locator": "user-intent"}],
+        "quality": {"contentCompletion": 1, "clarity": 0.95, "coherence": 0.9, "grammarAccuracy": 1, "lexicalAccuracy": 0.95, "genreFit": 0.9, "naturalness": 0.9}
+      },
+      {
+        "id": "writing-simplify-001",
+        "taskType": "opinion-essay",
+        "prompt": "State how technology affects daily life.",
+        "originalText": "The rapid advancement of modern technology has exerted a considerable influence on contemporary society.",
+        "recommendedText": "Modern technology is developing quickly and has a great influence on society.",
+        "intentUnits": ["technology develops quickly", "technology has a strong influence on society"],
+        "meaningUnitsPreserved": ["technology develops quickly", "technology has a strong influence on society"],
+        "level": "standard",
+        "unchanged": false,
+        "sourceRefs": [{"sourceId": "src-english-writing-002", "locator": "sentence-1"}],
+        "quality": {"contentCompletion": 1, "clarity": 0.95, "coherence": 0.9, "grammarAccuracy": 1, "lexicalAccuracy": 0.95, "genreFit": 0.9, "naturalness": 0.9}
+      },
+      {
+        "id": "writing-preserve-simple-001",
+        "taskType": "opinion-essay",
+        "prompt": "Give a simple recommendation about time management.",
+        "originalText": "Students should manage their time well.",
+        "recommendedText": "Students should manage their time well.",
+        "intentUnits": ["students should manage their time well"],
+        "meaningUnitsPreserved": ["students should manage their time well"],
+        "level": "basic",
+        "unchanged": true,
+        "preserveReason": "The sentence is grammatical, natural, complete, and already easy to reuse.",
+        "sourceRefs": [{"sourceId": "src-english-writing-003", "locator": "sentence-1"}],
+        "quality": {"contentCompletion": 1, "clarity": 1, "coherence": 0.9, "grammarAccuracy": 1, "lexicalAccuracy": 1, "genreFit": 0.9, "naturalness": 1}
+      }
+    ]
+  },
+  "translation": {
+    "examples": [
+      {
+        "id": "translation-long-sentence-001",
+        "sourceText": "Although the policy is not perfect, it has made it easier for more people to access public services than before because local offices now share information online.",
+        "mainClause": "it has made it easier for more people to access public services than before",
+        "logicRelations": ["concession", "negation", "comparison", "causal"],
+        "preservedLogicRelations": ["concession", "negation", "comparison", "causal"],
+        "meaningUnits": ["the policy is not perfect", "more people can access public services more easily than before", "local offices now share information online", "sharing information is the reason"],
+        "preservedMeaningUnits": ["the policy is not perfect", "more people can access public services more easily than before", "local offices now share information online", "sharing information is the reason"],
+        "keyTerms": [
+          {"term": "policy", "contextMeaning": "政策", "preserved": true},
+          {"term": "public services", "contextMeaning": "公共服务", "preserved": true},
+          {"term": "access", "contextMeaning": "获得或使用", "preserved": true},
+          {"term": "local offices", "contextMeaning": "地方办事机构", "preserved": true}
+        ],
+        "recommendedTranslation": "尽管这项政策并不完美，但由于地方办事机构现在会在线共享信息，它比过去更方便更多人获得公共服务。",
+        "alternativeTranslations": ["虽然这项政策并非完美，但地方机构在线共享信息后，更多人比以前更容易获得公共服务。"],
+        "sourceRefs": [{"sourceId": "src-english-translation-001", "locator": "sentence-1"}],
+        "status": "COMPLETE"
+      }
+    ]
+  },
+  "review": {
+    "writingRevisions": [
+      {
+        "sentenceId": "user-writing-sentence-001",
+        "original": "The development of Internet has make communication easier.",
+        "issueCodes": ["ARTICLE_OR_COUNTABILITY", "SUBJECT_VERB_AGREEMENT"],
+        "recommended": "The development of the Internet has made communication easier.",
+        "reason": "Add the article used for this established noun phrase and change make to the past participle after has. The clear structure is retained.",
+        "preserveIfCorrect": false,
+        "evidenceRefs": [{"sourceId": "src-english-review-001", "locator": "sentence-1"}]
+      },
+      {
+        "sentenceId": "user-writing-sentence-002",
+        "original": "Students should manage their time well.",
+        "issueCodes": ["NO_CHANGE_NEEDED"],
+        "recommended": "Students should manage their time well.",
+        "reason": "The sentence is correct and natural; changing it only to use a more advanced phrase would add learning burden without evidence of improvement.",
+        "preserveIfCorrect": true,
+        "evidenceRefs": [{"sourceId": "src-english-writing-003", "locator": "sentence-1"}]
+      }
+    ],
+    "translationDiagnostics": [
+      {
+        "sentenceId": "user-translation-sentence-001",
+        "sourceFragment": "the policy is not perfect",
+        "userTranslation": "这项政策虽然很好",
+        "errorCodes": ["NEGATION_LOST", "MEANING_CHANGED"],
+        "diagnosis": "The Chinese phrase changes not perfect into very good, so the source's negative qualification is lost.",
+        "recommendation": "保留‘并不完美’或‘并非完美’，再根据上下文调整语序。",
+        "preservedMeaningRelations": ["concession"],
+        "status": "confirmed",
+        "evidenceRefs": [{"sourceId": "src-english-translation-001", "locator": "sentence-1"}]
+      }
+    ]
+  },
+  "integrations": {
+    "practice": {"enabled": true, "questionTypes": ["writing", "translation"], "separateQuestionAndAnswerPdfs": true},
+    "review": {"enabled": true, "modes": ["exam-result", "user-written"], "nativePdfReading": true},
+    "optimize": {"enabled": true, "preserveDistinctMeanings": true},
+    "healExam": {"enabled": true, "maxRounds": 5, "allowsExternalSupplements": true}
+  }
+}

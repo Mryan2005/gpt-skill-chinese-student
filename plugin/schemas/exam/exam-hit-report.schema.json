@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/exam/exam-hit.report.v1.json",
+  "title": "Exam Hit Coverage Report",
+  "type": "object",
+  "required": ["schemaVersion", "examHitRunId", "examId", "subjectId", "auditStatus", "selectionPolicy", "snapshot", "questionResults", "coverageSummary", "sourceMutation", "examResultMutation", "learnerModelMutation", "snapshotMutated"],
+  "properties": {
+    "schemaVersion": {"const": "exam.hit.report.v1"},
+    "examHitRunId": {"type": "string", "minLength": 1},
+    "examId": {"type": "string", "minLength": 1},
+    "subjectId": {"type": "string", "minLength": 1},
+    "auditStatus": {"enum": ["COMPLETE", "PARTIAL"]},
+    "selectionPolicy": {"const": "all_questions"},
+    "snapshot": {"type": "object"},
+    "questionResults": {"type": "array", "minItems": 1},
+    "coverageSummary": {"type": "object"},
+    "sourceMutation": {"const": false},
+    "examResultMutation": {"const": false},
+    "learnerModelMutation": {"const": false},
+    "snapshotMutated": {"const": false}
+  },
+  "additionalProperties": true
+}

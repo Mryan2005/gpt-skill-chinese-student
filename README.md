@@ -30,14 +30,19 @@ schemas and validators, and verify the real artifact before reporting success.
 | `relearn` | Confirmed destructive rebuild. It removes Derived state, preserves Source, and rebuilds through `learn` and the domain model. |
 | `study-math` | Mathematics domain model for card types, question records, formula integrity, typed relations, and exam readiness. |
 | `study-politics` | Politics domain model that keeps textbook wording separate from Derived content. |
+| `study-exam-oriented-english` | Exam-oriented English model for simple, accurate writing and natural English-to-Chinese translation. |
+| `practice` | Generates separate printable questions and answers PDFs with provenance and a new practice run record. |
 | `exam` | Closed-book assessment runner for a frozen Subject snapshot. It records first-pass answers, grading, error analysis, and learning gaps. |
+| `exam hit` | Read-only question-by-question coverage test against a frozen graph snapshot. It derives HIT/PARTIAL/MISS/UNRESOLVED from actual card content. |
 | `review` | Separates Learner Review from Material Review: it diagnoses eligible human evidence, extracts material focus from any reliable Exam Result, creates remediation/retest plans, and emits evidence-backed overlays. |
 | `check` | Read-only QA and audit front door for source integrity, structure, questions, relations, retrieval, rendering, and readiness. |
 | `sort` | Review-priority projection based on exam value, risk, dependencies, weakness, and recent errors. It does not change knowledge content. |
 | `fix` | Repairs allowed Derived, Runtime, and Generated Artifact defects from a current `check` report. |
 | `profile` | Records user-reported weaknesses, thinking habits, explanation preferences, and self-observations. It keeps self-reports separate from system observations. |
-| `heal` | Runs a fresh cold-start novice through the user-facing artifact, records learning friction, and lets a Maintainer repair validated pedagogical problems for up to ten rounds. |
+| `heal` | Runs a fresh cold-start novice loop or `heal exam` exam-driven knowledge-coverage iteration, with bounded routing and no Learner Model mutation. |
+| `optimize` | Analyzes Derived cards and graph structure, then applies only authorized safe migrations with explicit provenance. |
 | `amend` | Applies explicit user feedback to supplement or correct an existing learning artifact. It preserves Source and official provenance and runs local validation. |
+| `help` | Read-only command reference for all workflows, subcommands, inputs, outputs, and data impacts. |
 
 `learn` is the cross-subject front door. Use `study-math` when a task needs a
 systematic mathematics graph, many questions, formulas, proofs, or exam-specific
@@ -46,6 +51,12 @@ mathematics structure.
 `study-politics` is a domain model loaded by `learn`. It defines political
 concepts, principles, canonical wording, comparisons, confusions, timelines,
 policy frameworks, and question mappings.
+
+`study-exam-oriented-english` is a domain model loaded by `learn`. It defines
+reusable expression functions, writing-task structure, Chinese-idea-to-English
+bridges, sentence-level writing review, long-sentence translation analysis,
+meaning-preserving simplification, and evidence-backed language diagnostics.
+It does not optimize for advanced vocabulary or ornate sentence complexity.
 
 ## Boundaries between skills
 
@@ -62,17 +73,30 @@ the migration logic in `update`. Run `check` after `fix` to verify the result.
 each round, records learning friction, and lets an independent Maintainer
 accept, refine, reject, or block each finding. Synthetic traces never update
 the real Learner Model. The run stops after pedagogical convergence, no
-progress, a blocker, or at most ten rounds.
+progress, a blocker, optimization oscillation, or at most five repair rounds.
 
 `exam` reads the original exam and explanation PDFs directly. It does not use
 OCR, OCR output, external OCR services, or delegated OCR. If a page cannot be
 read reliably, the exam record marks it as unreadable.
 
-`review` consumes the closed Exam Result. Learner Review writes only eligible
-human evidence to the local Learner Model; Material Review can process agent
-runs, consume a native-text material catalog, emit question/card study focuses
-plus Markdown/HTML and annotation overlays, and never write mastery. Content
-or system defects route to `amend` or `check`/`fix`/`heal`.
+`exam hit` reads the complete original exam against one frozen graph snapshot.
+It checks actual card content rather than titles, question mappings, answer
+history, or preselected priorities. It is not a learner score and never writes
+Learner State. `heal exam` consumes its PARTIAL, MISS, and UNRESOLVED records.
+
+`practice` owns question and answer PDF generation. `review` consumes the
+closed Exam Result by default, or explicitly reads a user's own submission PDF
+in `user-written` mode. Learner Review writes only eligible human evidence to
+the local Learner Model; Material Review can process agent runs, consume a
+native-text material catalog, emit question/card study focuses plus
+Markdown/HTML and annotation overlays, and never write mastery. Review never
+generates a PDF.
+
+`optimize` is the graph-structure boundary used by `heal`: it detects exact
+duplicates, oversized or fragmented cards, and related-but-distinct concepts,
+then records a migration plan. Analyze is read-only; semantic merge/split/
+deletion operations require explicit confirmation and complete migration
+evidence.
 
 ## Architecture
 
@@ -142,14 +166,18 @@ plugin/
    ├─ relearn/
    ├─ study-math/
    ├─ study-politics/
+   ├─ study-exam-oriented-english/
+   ├─ practice/
    ├─ exam/
    ├─ review/
+   ├─ help/
    ├─ check/
    ├─ sort/
    ├─ fix/
    ├─ profile/
    ├─ amend/
-   └─ heal/
+   ├─ heal/
+   └─ optimize/
 tests/
 ```
 

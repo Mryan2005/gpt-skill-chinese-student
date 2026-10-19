@@ -48,7 +48,9 @@ subject-specific rules out of this front door.
 
 Choose a playbook from the user's goal, then choose a domain model from the
 Subject. Mathematics work reads `study-math`; politics work reads
-`study-politics`. Future subjects can add their own domain models.
+`study-politics`; postgraduate English writing and English-to-Chinese
+translation read `study-exam-oriented-english`. Future subjects can add their
+own domain models.
 
 ## Shared contract
 

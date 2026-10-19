@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/optimize/optimize-report.v1.json",
+  "title": "Chinese Student Optimize Report",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "optimizeRunId",
+    "subjectId",
+    "mode",
+    "status",
+    "currentStateSha256",
+    "operations",
+    "migration",
+    "sourcePreserved",
+    "examResultPreserved",
+    "learnerStatePreserved",
+    "confirmation",
+    "validation"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "optimize.report.v1"},
+    "optimizeRunId": {"type": "string", "minLength": 1},
+    "subjectId": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["analyze", "apply", "verify"]},
+    "status": {"enum": ["NO_OP", "RECOMMENDATIONS", "APPROVED", "APPLIED", "BLOCKED", "FAILED"]},
+    "currentStateSha256": {"type": "string", "minLength": 1},
+    "operations": {"type": "array"},
+    "migration": {"type": "object"},
+    "sourcePreserved": {"const": true},
+    "examResultPreserved": {"const": true},
+    "learnerStatePreserved": {"const": true},
+    "confirmation": {"type": "object"},
+    "validation": {"type": "object"}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,238 @@
+{
+  "schemaVersion": "help-command-index.v1",
+  "commands": [
+    {
+      "name": "learn",
+      "kind": "workflow",
+      "status": "available",
+      "description": "导入资料、整理题目并构建或更新学科知识图谱。",
+      "usage": ["chinese-student: learn"],
+      "subcommands": [],
+      "inputs": ["图片、PDF、教材、笔记、题目或 Subject 路径"],
+      "outputs": ["Source Records、Derived cards、relations、canonical Markdown/HTML"],
+      "sideEffects": ["可能写入 Source/Derived 和学习产物"],
+      "confirmation": "ordinary learning does not require destructive confirmation",
+      "examples": ["chinese-student: learn math", "chinese-student: learn from these notes"]
+    },
+    {
+      "name": "update",
+      "kind": "workflow",
+      "status": "available",
+      "description": "迁移插件、Subject、内容 Schema 和生成产物。",
+      "usage": ["chinese-student: update"],
+      "subcommands": [],
+      "inputs": ["现有 Subject 和迁移计划"],
+      "outputs": ["迁移报告、更新后的兼容 Derived/Generated Artifacts"],
+      "sideEffects": ["可能修改列入迁移计划的 Derived/Generated Artifacts，不修改 Source"],
+      "confirmation": "automatic migration; destructive rebuild belongs to relearn",
+      "examples": ["chinese-student: update"]
+    },
+    {
+      "name": "relearn",
+      "kind": "workflow",
+      "status": "available",
+      "description": "保留 Source，清除当前学科 Derived 状态并重新学习。",
+      "usage": ["chinese-student: relearn <subject>"],
+      "subcommands": [],
+      "inputs": ["Subject、保留的 Source"],
+      "outputs": ["新的 Derived 学习状态、重建报告、后续 check 结果"],
+      "sideEffects": ["删除或重建 cards、relations、mappings、learner state 和生成产物"],
+      "confirmation": "requires explicit user confirmation before deletion",
+      "examples": ["chinese-student: relearn math-1"]
+    },
+    {
+      "name": "exam",
+      "kind": "workflow",
+      "status": "available",
+      "description": "在冻结 Subject 快照上执行闭卷考试并保存不可变 Exam Result。",
+      "usage": ["chinese-student: exam", "chinese-student: exam hit"],
+      "subcommands": [
+        {"name": "hit", "description": "对每道题逐一读取完整原始试卷，在同一个冻结知识图谱快照上阅读实际卡片内容，输出 HIT/PARTIAL/MISS/UNRESOLVED；不依赖作答，也不更新 Learner Model。", "inputs": ["完整原始试卷 PDF、冻结 Subject 图谱快照和实际卡片内容"], "outputs": ["逐题知识需求、卡片内容证据、覆盖矩阵、HIT/PARTIAL/MISS/UNRESOLVED 统计"], "sideEffects": ["只写一次性 exam-hit 工作区；不修改 Exam Result、Source 或 Learner State"], "confirmation": "none"}
+      ],
+      "inputs": ["Subject 图谱、原始试卷 PDF、后续解析 PDF；hit 只需原始试卷和冻结图谱"],
+      "outputs": [".exam/current/、Exam Result、Learning Gap Report、Repair Requests；hit 另输出逐题覆盖报告"],
+      "sideEffects": ["写入一次性考试工作区和冻结记录，不修改学习本体或 Learner Model"],
+      "confirmation": "no destructive confirmation; every run resets only its exam workspace",
+      "examples": ["chinese-student: exam", "chinese-student: exam hit"]
+    },
+    {
+      "name": "practice",
+      "kind": "workflow",
+      "status": "available",
+      "description": "生成可打印或电子作答的独立题目 PDF 和答案解析 PDF。",
+      "usage": ["chinese-student: practice"],
+      "subcommands": [],
+      "inputs": ["可靠题目、题型、来源、知识卡关联和答案 provenance"],
+      "outputs": [".practice/current/questions.pdf、answers.pdf、practice-manifest.json、practice-record.json"],
+      "sideEffects": ["生成练习产物；旧 current 会归档到 history，不写 Learner State"],
+      "confirmation": "no destructive confirmation; history is preserved",
+      "examples": ["chinese-student: practice"]
+    },
+    {
+      "name": "review",
+      "kind": "workflow",
+      "status": "available",
+      "description": "直接读取 PDF，分别执行 Material Review 与 Learner Review。",
+      "usage": ["chinese-student: review", "chinese-student: review exam-result", "chinese-student: review user-written"],
+      "subcommands": [
+        {"name": "exam-result", "description": "默认模式；读取冻结 Exam Result、原始试卷和解析 PDF。agent 结果只做 Material Review，不更新 Learner Model。", "inputs": ["closed Exam Result、questions PDF、answers/solutions PDF"], "outputs": ["题目级/卡片级 Material Review、重点、任务、Markdown/HTML/Overlay"], "sideEffects": ["不修改 Exam Result、Source 或 agent Learner Model"]},
+        {"name": "user-written", "description": "用户明确声明本人作答后，读取 questions.pdf、answers.pdf 和 user-submission.pdf 执行批改与 Learner Review。", "inputs": ["questions.pdf、answers.pdf、用户答卷 PDF、新 attemptId"], "outputs": ["评分、逐题诊断、重点、学习任务、复测计划和 Learner State 更新"], "sideEffects": ["仅在证据充分时更新 Learner State；不修改原始 PDF"], "confirmation": "requires explicit user-owned-submission intent"}
+      ],
+      "inputs": ["按子命令决定；所有 PDF 必须由模型直接读取"],
+      "outputs": [".review/current/结构化报告、Markdown、HTML、Annotation Overlay"],
+      "sideEffects": ["不生成 PDF；Source/Exam Result 保持不变"],
+      "confirmation": "user-written requires explicit identity; relearn is unrelated and remains separately gated",
+      "examples": ["chinese-student: review", "chinese-student: review user-written"]
+    },
+    {
+      "name": "check",
+      "kind": "workflow",
+      "status": "available",
+      "description": "只读审计来源、结构、题目、关系、检索、渲染和 readiness。",
+      "usage": ["chinese-student: check", "chinese-student: check full-audit"],
+      "subcommands": ["source-integrity", "knowledge-structure", "question-integrity", "relation-integrity", "retrieval-integrity", "rendering-integrity", "readiness", "full-audit"],
+      "inputs": ["当前 canonical Subject"],
+      "outputs": [".check/current/findings、审计报告、severity 和 repair owner"],
+      "sideEffects": ["只写一次性检查工作区，不修改学习内容"],
+      "confirmation": "none",
+      "examples": ["chinese-student: check", "chinese-student: check full-audit"]
+    },
+    {
+      "name": "fix",
+      "kind": "workflow",
+      "status": "available",
+      "description": "自动修复最新 check 报告中允许修改的 Derived、Runtime 和 Generated Artifact 缺陷。",
+      "usage": ["chinese-student: fix"],
+      "subcommands": [],
+      "inputs": ["最新有效 check findings"],
+      "outputs": ["fix report、局部验证结果"],
+      "sideEffects": ["可能修改 Derived/Runtime/Generated Artifacts，不修改 Source、Exam Result 或官方答案"],
+      "confirmation": "calling fix authorizes allowed repairs; relearn is never implicit",
+      "examples": ["chinese-student: fix"]
+    },
+    {
+      "name": "heal",
+      "kind": "workflow",
+      "status": "available",
+      "description": "用最多五轮的冷启动或试题驱动循环评估学习体验，并有界编排 check/fix/learn/optimize。",
+      "usage": ["chinese-student: heal"],
+      "subcommands": [
+        {"name": "exam", "description": "exam-driven 的简写：先用 exam hit 逐题检查完整试卷与冻结图谱的实际内容覆盖，再每轮调用 optimize，必要时路由本地补学或可信 External Supplement。", "inputs": ["原始试卷 PDF、当前 Subject、可选可靠答案材料"], "outputs": ["逐题 HIT/PARTIAL/MISS/UNRESOLVED 基线、迭代历史、优化记录、External Supplement provenance、修复路由和最终报告"], "sideEffects": ["可能路由 exam hit/check/fix/learn/amend/optimize；不写 Learner State、不修改原始 PDF"], "confirmation": "最多五轮；无可靠来源、优化振荡或出现回归即停止"},
+        {"name": "exam-driven", "description": "先对完整原始试卷运行 exam hit，再用 iteration/holdout 试题驱动最多五轮修复；每轮 check → fix/learn → optimize → exam hit → check。", "inputs": ["原始试卷 PDF、当前 Subject、可选可靠答案材料"], "outputs": ["逐题覆盖基线、轮次 Hit 报告、优化记录、修复路由、回归/稳定性检查和最终报告"], "sideEffects": ["可能路由 exam hit/check/fix/learn/amend/optimize；不写 Learner State、不修改原始 PDF"], "confirmation": "最多五轮；高风险合并/拆分需明确确认，遇到证据、权限或稳定性阻塞即停止"}
+      ],
+      "inputs": ["学习产物和用户可见学习路径；exam-driven 另需原始试卷 PDF"],
+      "outputs": ["学习摩擦报告、验证后的修复建议、exam-driven 迭代报告"],
+      "sideEffects": ["可能调用有界的 check/fix/learn/amend/optimize，不写真实 Learner Model"],
+      "confirmation": "bounded workflow; no relearn or Source deletion",
+      "examples": ["chinese-student: heal", "chinese-student: heal exam-driven"]
+    },
+    {
+      "name": "optimize",
+      "kind": "workflow",
+      "status": "available",
+      "description": "分析并安全优化 Derived 知识图谱，生成可追溯的重复、拆分、合并和关系迁移计划。",
+      "usage": ["chinese-student: optimize", "chinese-student: optimize analyze", "chinese-student: optimize apply", "chinese-student: optimize verify"],
+      "subcommands": [
+        {"name": "analyze", "description": "只读检测精确重复、过大卡片、碎片化候选和相关但不同的卡片。", "inputs": ["当前 Derived cards、relations、question mappings、状态指纹"], "outputs": ["optimize.report.v1、操作证据、迁移计划"], "sideEffects": ["只写一次性优化分析工作区"], "confirmation": "none"},
+        {"name": "apply", "description": "在当前指纹匹配且获得明确授权时应用安全的引用迁移；高风险语义合并/拆分/删除默认阻塞。", "inputs": ["当前 optimize plan、Derived artifact、明确确认"], "outputs": ["迁移后的 Derived artifact、迁移记录、局部验证结果"], "sideEffects": ["可能修改 Derived 引用和生成投影；不修改 Source、Exam Result 或 Learner State"], "confirmation": "explicit confirmation required"},
+        {"name": "verify", "description": "独立验证迁移、来源保护、关系端点、题目映射、学习者状态引用和幂等性。", "inputs": ["优化报告和迁移后 artifact"], "outputs": ["验证结果和未解决 finding"], "sideEffects": ["只读；不隐式修复"], "confirmation": "none"}
+      ],
+      "inputs": ["Derived cards、relations、题目映射和可追溯证据"],
+      "outputs": ["优化报告、操作计划、迁移/别名记录和验证结果"],
+      "sideEffects": ["默认只读；apply 仅执行获授权且可验证的安全迁移"],
+      "confirmation": "analyze/verify none; apply requires explicit confirmation; high-risk semantic changes require complete migration evidence",
+      "examples": ["chinese-student: optimize", "chinese-student: optimize analyze", "chinese-student: optimize verify"]
+    },
+    {
+      "name": "sort",
+      "kind": "workflow",
+      "status": "available",
+      "description": "按考试价值、风险、依赖和掌握证据生成可解释复习优先级。",
+      "usage": ["chinese-student: sort", "chinese-student: sort tonight"],
+      "subcommands": ["default", "exam", "weakness", "risk", "prerequisite", "tonight"],
+      "inputs": ["canonical cards、Learner Model、review/exam evidence"],
+      "outputs": ["sort-state.json、review-priority projection、review queue"],
+      "sideEffects": ["只修改可重建排序投影，不修改知识本体或掌握状态"],
+      "confirmation": "none",
+      "examples": ["chinese-student: sort", "chinese-student: sort tonight"]
+    },
+    {
+      "name": "profile",
+      "kind": "workflow",
+      "status": "available",
+      "description": "记录用户主动报告的薄弱点、思维习惯和解释偏好。",
+      "usage": ["chinese-student: profile", "chinese-student: profile math"],
+      "subcommands": [],
+      "inputs": ["用户明确自述"],
+      "outputs": ["self-report.json、corrections.jsonl"],
+      "sideEffects": ["只写用户自述，不冒充系统观察或掌握诊断"],
+      "confirmation": "none",
+      "examples": ["chinese-student: profile"]
+    },
+    {
+      "name": "amend",
+      "kind": "workflow",
+      "status": "available",
+      "description": "根据明确反馈补充或修正允许修改的 Derived 内容，并保留 Source/provenance。",
+      "usage": ["chinese-student: amend"],
+      "subcommands": [],
+      "inputs": ["用户明确反馈和受影响的学习产物"],
+      "outputs": ["修订后的 Derived 内容、provenance 和局部验证结果"],
+      "sideEffects": ["可能修改允许写入的 Derived，不覆盖原始 Source 或官方答案"],
+      "confirmation": "requires explicit correction basis when provenance conflicts",
+      "examples": ["chinese-student: amend"]
+    },
+    {
+      "name": "help",
+      "kind": "workflow",
+      "status": "available",
+      "description": "只读显示所有命令、子命令、输入输出和数据影响。",
+      "usage": ["chinese-student: help", "chinese-student: help <command>", "chinese-student: help <command> <subcommand>", "chinese-student: help all"],
+      "subcommands": [],
+      "inputs": ["可选命令名和子命令名"],
+      "outputs": ["终端帮助文本或 JSON 查询结果"],
+      "sideEffects": ["只读；不执行其他 Skill，不修改任何学习数据"],
+      "confirmation": "none",
+      "examples": ["chinese-student: help review", "chinese-student: help practice"]
+    },
+    {
+      "name": "study-math",
+      "kind": "domain-model",
+      "status": "loaded-by-learn",
+      "description": "数学领域模型，定义数学卡片、题目、关系、公式和考试准备规则。",
+      "usage": ["由 chinese-student: learn 在数学任务中加载"],
+      "subcommands": [],
+      "inputs": ["数学学习任务"],
+      "outputs": ["数学领域 contract 和派生结构"],
+      "sideEffects": ["不是独立用户工作流；不建议直接调用"],
+      "confirmation": "none",
+      "examples": ["chinese-student: learn math"]
+    },
+    {
+      "name": "study-politics",
+      "kind": "domain-model",
+      "status": "loaded-by-learn",
+      "description": "政治领域模型，定义规范表述、概念边界、时间线和题目映射规则。",
+      "usage": ["由 chinese-student: learn 在政治任务中加载"],
+      "subcommands": [],
+      "inputs": ["政治学习任务"],
+      "outputs": ["政治领域 contract 和派生结构"],
+      "sideEffects": ["不是独立用户工作流；不建议直接调用"],
+      "confirmation": "none",
+      "examples": ["chinese-student: learn politics"]
+    },
+    {
+      "name": "study-exam-oriented-english",
+      "kind": "domain-model",
+      "status": "loaded-by-learn",
+      "description": "考研英语领域模型，覆盖简单英语作文、中文思路转英文、句子级作文复盘、长难句英译汉和翻译批改；由 learn 加载，并与 practice、review、optimize、heal exam 协作。",
+      "usage": ["由 chinese-student: learn 在考研英语任务中加载"],
+      "subcommands": [],
+      "inputs": ["英语作文、中文思路、英译汉句子、用户作答或练习材料"],
+      "outputs": ["英语表达卡片、写作结构、翻译逻辑、句子级复盘证据、practice/review/heal exam handoff"],
+      "sideEffects": ["不是独立用户工作流；practice/review/heal exam 通过共享 Subject 协作"],
+      "confirmation": "none",
+      "examples": ["chinese-student: learn exam-oriented English", "chinese-student: learn English writing"]
+    }
+  ]
+}

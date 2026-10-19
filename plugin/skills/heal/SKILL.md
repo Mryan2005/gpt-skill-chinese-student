@@ -1,84 +1,66 @@
 ---
 name: heal
-description: Use as the learning-experience optimizer for a learning artifact. Run a fresh cold-start novice through the user-facing study path, record learning friction, let a maintainer evaluate it, repair only validated problems, and repeat with a new novice for at most ten rounds.
+description: Improve a learning artifact through bounded novice-experience or exam-driven evaluation, routing repairs to existing skills without mutating Source or real Learner State.
 ---
 
 # Heal
 
-`heal` tests whether the artifact can teach a first-time learner. It creates a
-fresh cold-start Novice Learner for each round, records the learner's path and
-friction, and gives that evidence to a Maintainer. The Maintainer checks the
-feedback against Source, domain contracts, schemas, mappings, relations, and
-the existing `check` and `fix` contracts before making a repair.
+Default `heal` runs a fresh cold-start Novice Learner through the user-facing
+artifact. An independent Maintainer evaluates friction and only validated
+repairs are applied.
 
-`check` and `fix` remain available as technical verification and repair tools.
-They do not replace the novice learning trace.
+`heal exam` (alias `exam-driven`) first runs `exam hit` on the complete uploaded
+exam PDF against one frozen graph snapshot, evaluates knowledge coverage, keeps iteration and holdout questions separate, and routes repairs to
+`check`/`fix`/`learn`/`amend`, and re-evaluates. It never updates Learner State,
+rewrites Source, or repairs by inserting a tested answer into a card.
 
 ## Non-negotiables
 
-- The Novice Learner is read-only and cold-start. It may see only the normal
-  user-facing learning artifact, navigation, search, and question bank.
-- The Novice Learner must not read Source provenance, code, schemas, validators,
-  `.check/`, `.fix/`, previous heal rounds, or the user's Learner Model.
-- Create a genuinely fresh novice context for every round. Never reuse a novice
-  that has already learned the subject.
-- The Novice Learner may use no outside knowledge to fill a gap. It records the
-  friction, then continues learning through the full path.
-- Synthetic novice traces are not user evidence. Never write them to
-  `.local/learner/`.
-- The Maintainer is independent from the novice. It may read Source, domain
-  contracts, schemas, validators, current artifacts, and the trace. It decides
-  `ACCEPT`, `REFINE`, `REJECT`, or `BLOCKED` for each friction finding.
-- Only validated Maintainer repairs may write Derived, Runtime, or generated
-  artifacts. Source and official provenance remain immutable.
-- Reset and verify `.heal/current/` before loading the current artifact. Keep
-  each round's learner trace and maintainer report isolated inside that
-  workspace.
-- Every repair must be followed by local validation. A later fresh novice must
-  learn the changed artifact; previous friction is comparison data only.
-- Never invoke `relearn` or duplicate `update` inside the loop. Emit
-  `RELEARN_REQUIRED` or `UPDATE_REQUIRED` and stop.
-- Preserve Source and official material. A missing or corrupted required Source
-  is a blocker, not an invitation to guess or fabricate.
-- Use at most 10 rounds. Stop on pedagogical convergence, two rounds with no
-  meaningful friction reduction, unsafe regressions, a blocker, or the limit.
+- The default Novice Learner is fresh, read-only, uses no outside knowledge,
+  and never reads Source, code, prior rounds, or real Learner Model.
+- Synthetic traces are not learner evidence. Maintainer decisions are
+  independent and must be checked against Source, schemas, domain contracts,
+  mappings, relations, and existing check/fix contracts.
+- Source, official provenance, frozen Exam Results, and real Learner State are
+  immutable in every mode.
+- Reset and verify `.heal/current/`; isolate every round and validate every
+  repair. Never invoke `relearn` or duplicate `update` inside a loop.
+- Use at most 5 repair rounds. Each round is
+  `check → fix/learn → optimize → check`; the initial and final read-only
+  checks do not consume rounds. Stop on convergence, no progress, regression,
+  optimization oscillation, blocker, evidence/permission blockage, or the
+  limit. Five rounds is not success.
+- Call the existing `$chinese-student:optimize` Skill at most once per round. A no-op is still
+  recorded, and opposite merge/split proposals without new evidence stop the
+  loop.
+- Exam PDFs are read directly by the model/page reader. OCR, OCR transcripts,
+  web answers, and delegated OCR are prohibited.
 
 Read [heal-contract.md](references/heal-contract.md) and
-[run-state.md](references/run-state.md) before running the loop. Use
-[validate_learning_trace.py](scripts/validate_learning_trace.py) for synthetic
-trace records and [validate_heal_report.py](scripts/validate_heal_report.py)
-for the final report.
-Use [reset_heal_workspace.py](scripts/reset_heal_workspace.py) to reset the
-disposable workspace and [validate_heal_report.py](scripts/validate_heal_report.py)
-to validate the final report.
+[run-state.md](references/run-state.md) for the default loop. For
+exam-driven, read [exam-driven.md](playbooks/exam-driven.md) and
+[exam-driven-contract.md](references/exam-driven-contract.md).
+Use [reset_heal_workspace.py](scripts/reset_heal_workspace.py),
+[validate_heal_report.py](scripts/validate_heal_report.py),
+[validate_learning_trace.py](scripts/validate_learning_trace.py),
+[run_exam_driven.py](scripts/run_exam_driven.py), and
+[validate_exam_driven_report.py](scripts/validate_exam_driven_report.py).
 
-## State machine
+## Routing
 
-~~~text
-NEW_HEAL_REQUEST
-→ RESET_HEAL_WORKSPACE
-→ WORKSPACE_VERIFIED_CLEAN
-→ LOAD_CURRENT_ARTIFACT
-→ FRESH_COLD_START_NOVICE
-→ LEARN_USER_FACING_PATH
-→ RECORD_LEARNING_FRICTION
-→ MAINTAINER_EVALUATION
-├─ ACCEPT / REFINE → REPAIR
-├─ REJECT → KEEP_TRACE_ONLY
-├─ BLOCKED → STOP_BLOCKED
-└─ no pedagogical progress → STOP_STALLED
-→ LOCAL_VALIDATE
-→ NEXT_FRESH_NOVICE
-→ ...
-→ PEDAGOGICAL_FINAL_EVALUATION
-→ REPORT
-→ CLOSED
-~~~
+`heal` coordinates evaluation, diagnosis, repair routing, re-evaluation, graph
+optimization, and stop decisions. It does not reimplement `check`, `fix`,
+`learn`, `amend`, or `optimize`.
+
+For `heal exam` / `exam-driven`, the same five-round protocol applies. The
+original PDF remains authoritative; optional web research is only an explicitly
+provenanced External Supplement and never replaces the PDF or inserts answers.
 
 ## Done gate
 
-Write a `heal.report.v2` report containing every novice trace, friction
-fingerprint, Maintainer decision, repair, learning-progress summary, local
-validation, and stop reason. Report `HEALED`, `HEALED_WITH_WARNINGS`,
-`STALLED`, `BLOCKED`, or `MAX_ROUNDS_REACHED`; do not report success from a
-technical check or Maintainer claim alone.
+Default mode writes `heal.report.v2` with novice traces, Maintainer decisions,
+repairs, validation, and stop reason. `exam-driven` writes
+`heal.exam-driven.report.v1` with PDF provenance, baseline, iteration/holdout
+split, round metrics, repair owners, regression checks, and stop reason.
+Report `HEALED`, `PARTIAL`, `STALLED`, `BLOCKED`, or `MAX_ROUNDS_REACHED`; do
+not report success from a technical check or Maintainer claim alone.

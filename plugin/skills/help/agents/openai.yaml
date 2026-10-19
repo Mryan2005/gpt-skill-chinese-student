@@ -1,0 +1,4 @@
+interface:
+  display_name: "$中式学生:help"
+  short_description: "查看 Chinese Student 命令帮助"
+  default_prompt: "Use $chinese-student:help to show the read-only command reference. It must not execute another workflow."

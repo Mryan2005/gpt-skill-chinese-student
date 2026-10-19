@@ -1,4 +1,4 @@
 interface:
   display_name: "$中式学生:exam"
   short_description: "只用图谱完成闭卷考试"
-  default_prompt: "Use $chinese-student:exam to answer every question from the current subject graph, then append a PDF-based review."
+  default_prompt: "Use $chinese-student:exam for a closed-book assessment, or $chinese-student:exam hit for a read-only question-by-question knowledge coverage test against a frozen Subject snapshot. Exam hit must read every original PDF question and actual card content, preserve HIT/PARTIAL/MISS/UNRESOLVED evidence, and never update Learner State."

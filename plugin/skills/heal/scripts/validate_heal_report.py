@@ -12,6 +12,7 @@ from typing import Any
 STATUSES = {"HEALED", "HEALED_WITH_WARNINGS", "STALLED", "BLOCKED", "MAX_ROUNDS_REACHED"}
 DECISIONS = {"ACCEPT", "REFINE", "REJECT", "BLOCKED"}
 SEVERITIES = ("blocker", "error", "warning", "info")
+MAX_ROUNDS = 5
 
 
 def _text(value: Any) -> bool:
@@ -41,6 +42,70 @@ def _pedagogy(value: Any, path: str) -> list[str]:
     return errors
 
 
+def _check_gate(value: Any, path: str) -> list[str]:
+    if not isinstance(value, dict):
+        return [f"{path} must be an object"]
+    errors: list[str] = []
+    if value.get("readOnly") is not True:
+        errors.append(f"{path}.readOnly must be true")
+    if value.get("consumesRound") is not False:
+        errors.append(f"{path}.consumesRound must be false")
+    if not _text(value.get("status")):
+        errors.append(f"{path}.status must be non-empty")
+    return errors
+
+
+def _optimization_oscillation(rounds: list[Any]) -> bool:
+    history: list[tuple[set[str], str, bool]] = []
+    for item in rounds:
+        if not isinstance(item, dict):
+            continue
+        for action in item.get("optimizationActions", []):
+            if not isinstance(action, dict):
+                continue
+            operation = str(action.get("operation", action.get("type", ""))).casefold()
+            if "merge" in operation:
+                operation = "merge"
+            elif "split" in operation:
+                operation = "split"
+            else:
+                continue
+            history.append(({str(value) for value in action.get("targetIds", [])}, operation, bool(action.get("newEvidenceRefs"))))
+    return any(left[0] and left[0] == right[0] and {left[1], right[1]} == {"merge", "split"} and not right[2] for left, right in zip(history, history[1:]))
+
+
+def _round_protocol(value: Any, path: str) -> list[str]:
+    if not isinstance(value, dict):
+        return [f"{path} must be an object"]
+    errors: list[str] = []
+    errors.extend(_check_gate(value.get("checkBefore"), f"{path}.checkBefore"))
+    errors.extend(_check_gate(value.get("checkAfter"), f"{path}.checkAfter"))
+    for field in ("repairActions", "knowledgeEnrichmentActions", "optimizationActions", "regressions", "blockedItems"):
+        if not isinstance(value.get(field), list):
+            errors.append(f"{path}.{field} must be a list")
+        elif field in {"repairActions", "knowledgeEnrichmentActions"}:
+            for action in value[field]:
+                if isinstance(action, dict) and action.get("owner") == "heal":
+                    errors.append(f"{path}.{field} cannot invoke heal recursively")
+    if value.get("optimizationRunCount") != 1:
+        errors.append(f"{path}.optimizationRunCount must be exactly 1")
+    if value.get("optimizationStatus") not in {"APPLIED", "RECOMMENDED", "NO_OP", "BLOCKED"}:
+        errors.append(f"{path}.optimizationStatus is invalid")
+    stability = value.get("optimizationStability")
+    if not isinstance(stability, dict) or not isinstance(stability.get("oscillationDetected"), bool) or not isinstance(stability.get("newEvidenceRefs"), list):
+        errors.append(f"{path}.optimizationStability is incomplete")
+    elif stability["oscillationDetected"] and value.get("stopDecision", {}).get("decision") not in {"STOP", "BLOCK"}:
+        errors.append(f"{path}.optimizationStability requires a stop or block decision")
+    for field in ("coverageDelta", "qualityDelta"):
+        delta = value.get(field)
+        if not isinstance(delta, dict) or "before" not in delta or "after" not in delta:
+            errors.append(f"{path}.{field} must contain before and after")
+    decision = value.get("stopDecision")
+    if not isinstance(decision, dict) or not _text(decision.get("decision")) or not _text(decision.get("reason")):
+        errors.append(f"{path}.stopDecision must contain decision and reason")
+    return errors
+
+
 def validate_report(report: Any) -> list[str]:
     if not isinstance(report, dict):
         return ["report must be an object"]
@@ -53,8 +118,8 @@ def validate_report(report: Any) -> list[str]:
     if report.get("status") not in STATUSES:
         errors.append("status is invalid")
     max_rounds = report.get("maxRounds")
-    if not _non_negative_int(max_rounds) or not 1 <= max_rounds <= 10:
-        errors.append("maxRounds must be between 1 and 10")
+    if not _non_negative_int(max_rounds) or not 1 <= max_rounds <= MAX_ROUNDS:
+        errors.append(f"maxRounds must be between 1 and {MAX_ROUNDS}")
     rounds = report.get("rounds")
     if not isinstance(rounds, list):
         errors.append("rounds must be a list")
@@ -63,6 +128,13 @@ def validate_report(report: Any) -> list[str]:
         errors.append("roundsExecuted must equal rounds length")
     if _non_negative_int(max_rounds) and len(rounds) > max_rounds:
         errors.append("rounds cannot exceed maxRounds")
+
+    read_only_checks = report.get("readOnlyChecks")
+    if not isinstance(read_only_checks, dict):
+        errors.append("readOnlyChecks is required")
+    else:
+        errors.extend(_check_gate(read_only_checks.get("initial"), "readOnlyChecks.initial"))
+        errors.extend(_check_gate(read_only_checks.get("final"), "readOnlyChecks.final"))
 
     workspace = report.get("workspace")
     if not isinstance(workspace, dict):
@@ -97,6 +169,7 @@ def validate_report(report: Any) -> list[str]:
         if not isinstance(item, dict) or item.get("round") != expected:
             errors.append(f"{path}.round must be {expected}")
             continue
+        errors.extend(_round_protocol(item, path))
         novice = item.get("novice")
         if not isinstance(novice, dict):
             errors.append(f"{path}.novice is required")
@@ -150,6 +223,9 @@ def validate_report(report: Any) -> list[str]:
                     errors.append(f"{path}.progress.{field} must be a non-negative integer")
             if not isinstance(progress.get("noProgress"), bool):
                 errors.append(f"{path}.progress.noProgress must be boolean")
+
+    if _optimization_oscillation(rounds) and not any(item.get("optimizationStability", {}).get("oscillationDetected") is True for item in rounds if isinstance(item, dict)):
+        errors.append("OPTIMIZATION_OSCILLATION must be recorded when opposite operations repeat without new evidence")
 
     final_check = report.get("finalTechnicalCheck")
     if final_check is not None:

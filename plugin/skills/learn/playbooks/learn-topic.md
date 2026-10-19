@@ -19,7 +19,10 @@ ingest-material
 → validate-readiness
 ~~~
 
-For mathematics, load study-math and choose the matching math playbook. Do not add mathematical card or formula rules to this playbook.
+For mathematics, load study-math and choose the matching math playbook. For
+exam-oriented English writing or English-to-Chinese translation, load
+study-exam-oriented-english and choose its writing or translation contract.
+Do not add domain card or language rules to this playbook.
 
 ## Procedure
 

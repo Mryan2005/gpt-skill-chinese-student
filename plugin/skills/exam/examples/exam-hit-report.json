@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "exam.hit.report.v1",
+  "examHitRunId": "math-1-hit-demo-001",
+  "examId": "math-1-demo-paper-001",
+  "subjectId": "math-1",
+  "auditStatus": "PARTIAL",
+  "selectionPolicy": "all_questions",
+  "generatedFromAllQuestions": true,
+  "preselectedFocusUsed": false,
+  "examPdf": {"source": "original_pdf", "path": "exam/questions.pdf", "readingMode": "native_pdf_text_and_page", "ocrUsed": false, "delegatedOcr": false, "intermediateTextSources": []},
+  "snapshot": {"snapshotId": "math-1-snapshot-001", "subjectId": "math-1", "artifactVersion": "math-records.v2", "contentSha256": "sha256:math-snapshot", "frozenAt": "2026-10-19T09:00:00+08:00", "frozen": true, "readOnly": true},
+  "questionResults": [
+    {"questionId": "math-hit-q1", "examId": "math-1-demo-paper-001", "examPage": {"source": "original_pdf", "path": "exam/questions.pdf", "page": 1}, "readStatus": "READABLE", "requiredKnowledge": [{"requirementId": "q1-r1", "kind": "method", "description": "Choose substitution and transform the differential."}], "hitResult": {"hitStatus": "HIT", "supportingCardIds": ["card:substitution"], "supportingCardContentRefs": [{"cardId": "card:substitution", "field": "method", "excerpt": "transform the differential, change bounds", "contentSha256": "sha256:substitution"}], "supportedReasoning": "The method card supplies the transformation and bound handling.", "missingKnowledge": [], "mappingIssues": ["direct_mapping_missing"], "evidenceRefs": ["question:math-hit-q1", "card:substitution"], "confidence": 0.96}},
+    {"questionId": "math-hit-q2", "examId": "math-1-demo-paper-001", "examPage": {"source": "original_pdf", "path": "exam/questions.pdf", "page": 1}, "readStatus": "READABLE", "requiredKnowledge": [{"requirementId": "q2-r1", "kind": "condition", "description": "Check positive orientation and a closed curve."}], "hitResult": {"hitStatus": "PARTIAL", "supportingCardIds": ["card:green"], "supportingCardContentRefs": [{"cardId": "card:green", "field": "formula", "excerpt": "∮C P dx + Q dy", "contentSha256": "sha256:green"}], "supportedReasoning": "The formula is present, but the conditions and region setup are absent.", "missingKnowledge": ["positive-orientation condition", "region setup procedure"], "mappingIssues": [], "evidenceRefs": ["question:math-hit-q2", "card:green"], "confidence": 0.9}},
+    {"questionId": "math-hit-q3", "examId": "math-1-demo-paper-001", "examPage": {"source": "original_pdf", "path": "exam/questions.pdf", "page": 2}, "readStatus": "READABLE", "requiredKnowledge": [{"requirementId": "q3-r1", "kind": "algorithm", "description": "Run a safe-sequence check."}], "hitResult": {"hitStatus": "HIT", "supportingCardIds": ["card:banker"], "supportingCardContentRefs": [{"cardId": "card:banker", "field": "method", "excerpt": "Need = Max − Allocation, repeatedly select a process with Need ≤ Work", "contentSha256": "sha256:banker"}], "supportedReasoning": "The full Need, selection, and Work update procedure is recorded.", "missingKnowledge": [], "mappingIssues": ["no_question_mapping"], "evidenceRefs": ["question:math-hit-q3", "card:banker"], "confidence": 0.94}},
+    {"questionId": "math-hit-q4", "examId": "math-1-demo-paper-001", "examPage": {"source": "original_pdf", "path": "exam/questions.pdf", "page": 3}, "readStatus": "UNREADABLE", "requiredKnowledge": [], "hitResult": {"hitStatus": "UNRESOLVED", "supportingCardIds": [], "supportingCardContentRefs": [], "supportedReasoning": "", "missingKnowledge": [], "mappingIssues": [], "unresolvedReason": "The original formula and figure are unreadable.", "evidenceRefs": ["question:math-hit-q4", "page:3"], "confidence": 0.1}}
+  ],
+  "coverageSummary": {
+    "totalQuestions": 4,
+    "counts": {"HIT": 2, "PARTIAL": 1, "MISS": 0, "UNRESOLVED": 1},
+    "determinateQuestions": 3,
+    "completeCoverageRate": 0.5,
+    "determinateCoverageRate": 0.6666666666666666,
+    "cardHitStatistics": [{"cardId": "card:banker", "HIT": 1, "PARTIAL": 0, "questionIds": ["math-hit-q3"]}, {"cardId": "card:substitution", "HIT": 1, "PARTIAL": 0, "questionIds": ["math-hit-q1"]}],
+    "derivedFocusFromObservedHits": ["card:banker", "card:substitution"]
+  },
+  "sourceMutation": false,
+  "examResultMutation": false,
+  "learnerModelMutation": false,
+  "snapshotMutated": false
+}

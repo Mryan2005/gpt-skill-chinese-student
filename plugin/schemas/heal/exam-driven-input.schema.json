@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/heal/exam-driven.input.v1.json",
+  "title": "Exam-driven Heal Input",
+  "type": "object",
+  "required": ["schemaVersion", "healRunId", "subjectId", "examPdfPath", "baseline", "examHit", "split", "rounds"],
+  "properties": {
+    "schemaVersion": {"const": "heal.exam-driven.input.v1"},
+    "healRunId": {"type": "string", "minLength": 1},
+    "subjectId": {"type": "string", "minLength": 1},
+    "examPdfPath": {"type": "string", "pattern": "\\.pdf$"},
+    "baseline": {"type": "object"},
+    "examHit": {"type": "object"},
+    "split": {"type": "object"},
+    "rounds": {"type": "array", "maxItems": 5}
+  },
+  "additionalProperties": true
+}

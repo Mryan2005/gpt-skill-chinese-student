@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "exam.hit.input.v1",
+  "examHitRunId": "math-1-hit-demo-001",
+  "examId": "math-1-demo-paper-001",
+  "subjectId": "math-1",
+  "selectionPolicy": "all_questions",
+  "examPdf": {
+    "source": "original_pdf",
+    "path": "exam/questions.pdf",
+    "readingMode": "native_pdf_text_and_page",
+    "ocrUsed": false,
+    "delegatedOcr": false,
+    "intermediateTextSources": []
+  },
+  "snapshot": {
+    "snapshotId": "math-1-snapshot-001",
+    "subjectId": "math-1",
+    "artifactVersion": "math-records.v2",
+    "contentSha256": "sha256:math-snapshot",
+    "frozenAt": "2026-10-19T09:00:00+08:00",
+    "frozen": true,
+    "readOnly": true
+  },
+  "cards": [
+    {"cardId": "card:substitution", "content": {"coreMeaning": "Use a substitution when the differential and bounds can be transformed consistently.", "method": "Set a new variable, transform the differential, change bounds when needed, and verify the resulting integral."}, "contentSha256": "sha256:substitution"},
+    {"cardId": "card:green", "content": {"coreMeaning": "Green's theorem relates a positively oriented closed plane curve to a double integral over its region.", "formula": "∮C P dx + Q dy = ∬D (∂Q/∂x − ∂P/∂y) dA"}, "contentSha256": "sha256:green"},
+    {"cardId": "card:cache", "content": {"coreMeaning": "A cache address is divided into tag, index, and block offset according to the cache organization.", "method": "Compute block offset bits, set/index bits, and remaining tag bits from the given address and cache parameters."}, "contentSha256": "sha256:cache"},
+    {"cardId": "card:banker", "content": {"coreMeaning": "The banker algorithm tests whether a safe sequence exists by comparing each process's remaining need with available resources and releasing its allocation when it can finish.", "method": "Compute Need = Max − Allocation, repeatedly select a process with Need ≤ Work, then update Work."}, "contentSha256": "sha256:banker"}
+  ],
+  "questions": [
+    {
+      "questionId": "math-hit-q1",
+      "originalNumber": 1,
+      "readStatus": "READABLE",
+      "examPage": {"source": "original_pdf", "path": "exam/questions.pdf", "page": 1},
+      "requiredKnowledge": [
+        {"requirementId": "q1-r1", "kind": "method", "description": "Choose substitution and transform the differential."},
+        {"requirementId": "q1-r2", "kind": "condition", "description": "Transform bounds consistently."}
+      ],
+      "hitResult": {
+        "hitStatus": "HIT",
+        "supportingCardIds": ["card:substitution"],
+        "supportingCardContentRefs": [
+          {"cardId": "card:substitution", "field": "method", "excerpt": "transform the differential, change bounds", "contentSha256": "sha256:substitution"}
+        ],
+        "supportedReasoning": "The method card supplies variable choice, differential transformation, and bound handling, so the integral can be solved without an outside rule.",
+        "missingKnowledge": [],
+        "mappingIssues": ["direct_mapping_missing"],
+        "evidenceRefs": ["question:math-hit-q1", "card:substitution"],
+        "confidence": 0.96
+      }
+    },
+    {
+      "questionId": "math-hit-q2",
+      "originalNumber": 2,
+      "readStatus": "READABLE",
+      "examPage": {"source": "original_pdf", "path": "exam/questions.pdf", "page": 1},
+      "requiredKnowledge": [
+        {"requirementId": "q2-r1", "kind": "formula", "description": "Use Green's theorem."},
+        {"requirementId": "q2-r2", "kind": "condition", "description": "Check positive orientation and a closed curve."},
+        {"requirementId": "q2-r3", "kind": "operation", "description": "Set up the region integral."}
+      ],
+      "hitResult": {
+        "hitStatus": "PARTIAL",
+        "supportingCardIds": ["card:green"],
+        "supportingCardContentRefs": [
+          {"cardId": "card:green", "field": "formula", "excerpt": "∮C P dx + Q dy", "contentSha256": "sha256:green"}
+        ],
+        "supportedReasoning": "The formula is available, but the card does not explain the orientation and closed-curve conditions or region setup.",
+        "missingKnowledge": ["positive-orientation condition", "region setup procedure"],
+        "mappingIssues": [],
+        "evidenceRefs": ["question:math-hit-q2", "card:green"],
+        "confidence": 0.9
+      }
+    },
+    {
+      "questionId": "math-hit-q3",
+      "originalNumber": 3,
+      "readStatus": "READABLE",
+      "examPage": {"source": "original_pdf", "path": "exam/questions.pdf", "page": 2},
+      "requiredKnowledge": [{"requirementId": "q3-r1", "kind": "algorithm", "description": "Run a safe-sequence check for the banker algorithm."}],
+      "hitResult": {
+        "hitStatus": "HIT",
+        "supportingCardIds": ["card:banker"],
+        "supportingCardContentRefs": [
+          {"cardId": "card:banker", "field": "method", "excerpt": "Need = Max − Allocation, repeatedly select a process with Need ≤ Work", "contentSha256": "sha256:banker"}
+        ],
+        "supportedReasoning": "The algorithm card contains the Need calculation, selection condition, and Work update required to simulate the safe sequence.",
+        "missingKnowledge": [],
+        "mappingIssues": ["no_question_mapping"],
+        "evidenceRefs": ["question:math-hit-q3", "card:banker"],
+        "confidence": 0.94
+      }
+    },
+    {
+      "questionId": "math-hit-q4",
+      "originalNumber": 4,
+      "readStatus": "UNREADABLE",
+      "examPage": {"source": "original_pdf", "path": "exam/questions.pdf", "page": 3},
+      "requiredKnowledge": [],
+      "hitResult": {
+        "hitStatus": "UNRESOLVED",
+        "supportingCardIds": [],
+        "supportingCardContentRefs": [],
+        "supportedReasoning": "",
+        "missingKnowledge": [],
+        "mappingIssues": [],
+        "unresolvedReason": "The formula and figure on the original page are not readable enough to identify the required operation.",
+        "evidenceRefs": ["question:math-hit-q4", "page:3"],
+        "confidence": 0.1
+      }
+    }
+  ]
+}

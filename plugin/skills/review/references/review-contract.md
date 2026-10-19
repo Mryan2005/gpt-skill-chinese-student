@@ -1,8 +1,12 @@
 # Review contract
 
-`review` converts a closed Exam Result into evidence-backed learner feedback.
-It does not rerun the exam, regrade, reread PDFs, remap the graph, audit Source,
-or repair the learning artifact.
+`review` has two independent modes. `exam-result` consumes a closed Exam Result
+and directly reads the original question/solution PDFs for Material Review;
+`user-written` directly reads questions, answers, and a user's submission PDF
+for Learner Review. Review does not generate a PDF.
+
+It does not rerun the exam, use OCR, remap the graph, audit Source, or repair the
+learning artifact.
 
 ## Frozen input
 
@@ -20,8 +24,9 @@ The result must identify the answerer as `human`, `agent`, `model`, or
 model performance may still produce coverage, artifact, and routing findings,
 but it must not lower the user's mastery.
 
-Review also records a scope declaration. `reanswered`, `regraded`, `readPdf`,
-`remappedGraph`, `auditedArtifact`, and `mutatedArtifact` must all be false.
+Review also records a scope declaration. `readPdf` must be true because both
+review modes directly inspect original PDF pages. `reanswered`, `regraded`,
+`remappedGraph`, `auditedArtifact`, and `mutatedArtifact` must be false.
 
 ## Question outcome and diagnosis
 
@@ -163,3 +168,13 @@ must be reported as `unresolved_anchor`, not guessed.
 
 Use `.review/current/` for input manifest, report, learner updates, routes, and
 validation. Reset it before each run. Preserve `.exam/` and `.local/learner/`.
+
+## Exam-oriented English handoff
+
+When the Subject domain is `study-exam-oriented-english`, use the domain
+contract for writing and translation diagnostics. Preserve correct simple
+sentences, identify sentence-level grammar or meaning problems, and keep
+negation, causality, comparison, conditions, scope, uncertainty, and key terms
+explicit. `practice` remains the PDF writer; `review` reads the original
+questions, answers, and eligible user submission PDFs and returns structured
+feedback, not a replacement PDF.

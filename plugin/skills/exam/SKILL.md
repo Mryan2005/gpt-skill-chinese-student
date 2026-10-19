@@ -34,35 +34,18 @@ knowledge, define card semantics, or audit Subject quality.
   during the exam run.
 - Emit an immutable Exam Result, Learning Gap Report, and Repair Requests.
   `review` consumes it for Learner Model updates; `learn` teaches remediation.
+- `exam hit` is a separate read-only coverage audit: it reads every question
+  against one frozen graph snapshot and records `HIT`, `PARTIAL`, `MISS`, or
+  `UNRESOLVED` from actual card content. It never changes the Exam Result or
+  Learner Model.
 
 Read [exam-contract.md](references/exam-contract.md), [exam-workspace.md](references/exam-workspace.md),
 [pdf-reading.md](references/pdf-reading.md), [answer-record.md](references/answer-record.md),
-[grading.md](references/grading.md), and [error-taxonomy.md](references/error-taxonomy.md).
+[grading.md](references/grading.md), [hit-contract.md](references/hit-contract.md),
+and [error-taxonomy.md](references/error-taxonomy.md).
 
-## State machine
-
-~~~text
-NEW_EXAM_REQUEST
-  ↓
-CLEANUP_PREVIOUS_RUN
-  ↓
-WORKSPACE_VERIFIED_CLEAN
-  ↓
-LOAD_EXAM_PDF
-  ↓
-SNAPSHOT_FROZEN
-  ↓
-FIRST_PASS
-  ↓
-ANSWERS_FROZEN
-  ↓
-SOLUTION_RELEASED
-  ↓
-GRADING
-  ↓ POSTMORTEM ↓ CLOSED
-~~~
-
-The state moves forward only; rollback or first-pass overwrite is a structure error.
+The state machine moves forward only; rollback or first-pass overwrite is a
+structure error. `exam hit` has its own disposable `.exam-hit/current/` run.
 ## Routing
 
 | User goal | Playbook |
@@ -71,6 +54,7 @@ The state moves forward only; rollback or first-pass overwrite is a structure er
 | Grade a frozen first attempt with an explanation | [grade-exam.md](playbooks/grade-exam.md) |
 | Create error categories and learning gaps | [analyze-errors.md](playbooks/analyze-errors.md) |
 | Replay an exam or error history | [replay-errors.md](playbooks/replay-errors.md) |
+| Test graph coverage against every question | [hit.md](playbooks/hit.md) |
 
 ## Done gate
 

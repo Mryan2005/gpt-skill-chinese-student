@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "optimize.report.v1",
+  "optimizeRunId": "optimize-demo-001",
+  "subjectId": "math-1",
+  "mode": "analyze",
+  "status": "RECOMMENDATIONS",
+  "currentStateSha256": "sha256:current-derived-state",
+  "operations": [
+    {
+      "operationId": "op-exact-duplicate-card-ratio-test-copy",
+      "type": "exact_duplicate",
+      "targetIds": ["card:ratio-test", "card:ratio-test-copy"],
+      "risk": "low",
+      "decision": "RECOMMEND",
+      "requiresConfirmation": false,
+      "evidenceRefs": ["card:ratio-test", "card:ratio-test-copy", "source:math-textbook"],
+      "reason": "Normalized content and source references are identical; keep the stable canonical ID and add an alias.",
+      "newEvidenceRefs": []
+    },
+    {
+      "operationId": "op-oversized-card-series-tests",
+      "type": "oversized_split",
+      "targetIds": ["card:series-tests"],
+      "risk": "high",
+      "decision": "RECOMMEND",
+      "requiresConfirmation": true,
+      "evidenceRefs": ["card:series-tests", "source:math-textbook"],
+      "reason": "The card contains several independent recall cores; a domain-aware split plan is required.",
+      "newEvidenceRefs": []
+    }
+  ],
+  "migration": {
+    "cardAliases": [{"oldId": "card:ratio-test-copy", "newId": "card:ratio-test"}],
+    "cardIdMappings": [{"oldId": "card:ratio-test-copy", "newId": "card:ratio-test"}],
+    "relationRemaps": [],
+    "questionMappingRemaps": [],
+    "learnerStateEffects": [{"kind": "alias_only", "oldId": "card:ratio-test-copy", "newId": "card:ratio-test"}],
+    "validation": {"status": "PASS", "checks": ["source-preserved", "exam-result-preserved", "learner-state-preserved", "aliases-complete"]}
+  },
+  "confirmation": {"required": true, "received": false, "scope": "analysis only"},
+  "validation": {"status": "PASS", "idempotent": true, "errors": []},
+  "sourcePreserved": true,
+  "examResultPreserved": true,
+  "learnerStatePreserved": true
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/heal/exam-driven.report.v1.json",
+  "title": "Exam-driven Heal Report",
+  "type": "object",
+  "required": ["schemaVersion", "healRunId", "mode", "subjectId", "status", "maxRounds", "input", "baseline", "examHitBaseline", "split", "rounds", "stop", "sourceMutation", "examResultMutation", "learnerModelMutation", "answerOnlyRepair"],
+  "properties": {
+    "schemaVersion": {"const": "heal.exam-driven.report.v1"},
+    "healRunId": {"type": "string", "minLength": 1},
+    "mode": {"const": "exam-driven"},
+    "subjectId": {"type": "string", "minLength": 1},
+    "status": {"enum": ["HEALED", "CONTINUE", "PARTIAL", "BLOCKED", "STALLED"]},
+    "maxRounds": {"type": "integer", "minimum": 1, "maximum": 5},
+    "input": {"type": "object"},
+    "baseline": {"type": "object"},
+    "examHitBaseline": {"type": "object"},
+    "split": {"type": "object"},
+    "webResearch": {"type": "object"},
+    "externalSupplements": {"type": "array"},
+    "rounds": {"type": "array"},
+    "stop": {"type": "object"},
+    "sourceMutation": {"const": false},
+    "examResultMutation": {"const": false},
+    "learnerModelMutation": {"const": false},
+    "answerOnlyRepair": {"const": false}
+  },
+  "additionalProperties": true
+}

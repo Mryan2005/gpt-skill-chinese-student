@@ -1,0 +1,4 @@
+interface:
+  display_name: "$中式学生:optimize"
+  short_description: "安全分析与优化知识图谱"
+  default_prompt: "Use $chinese-student:optimize to analyze the derived knowledge graph, produce an evidence-backed duplicate/split/merge plan, and apply only explicitly authorized safe migrations while preserving Source, Exam Results, and Learner State."

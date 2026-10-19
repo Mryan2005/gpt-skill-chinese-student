@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "heal.exam-driven.report.v1",
+  "healRunId": "heal-exam-demo-001",
+  "mode": "exam-driven",
+  "command": "exam",
+  "subjectId": "math-1",
+  "status": "PARTIAL",
+  "maxRounds": 5,
+  "input": {"examPdfPath": "exam/questions.pdf", "examPdfSha256": "sha256:exam", "ocrUsed": false, "delegatedOcr": false, "sourceImmutable": true},
+  "baseline": {"readableQuestions": 2, "coveredQuestions": 1, "mappedQuestions": 1, "completeSolutions": 1, "formulaComplete": 1, "sourceComplete": 2, "retrievalSuccess": 1, "unresolvedQuestions": 1},
+  "examHitBaseline": {"reportPath": ".exam-hit/current/exam-hit-report.json", "reportSha256": "sha256:hit-before", "snapshotId": "math-1-snapshot-before", "snapshotContentSha256": "sha256:math-before", "selectionPolicy": "all_questions", "totalQuestions": 2, "counts": {"HIT": 1, "PARTIAL": 1, "MISS": 0, "UNRESOLVED": 0}},
+  "split": {"iterationQuestionIds": ["series-mcq-17"], "holdoutQuestionIds": ["series-mcq-12"], "generalizationStatus": "available"},
+  "webResearch": {"requested": false, "available": false, "performed": false},
+  "externalSupplements": [],
+  "readOnlyChecks": {
+    "initial": {"status": "PASS_WITH_WARNINGS", "readOnly": true, "consumesRound": false},
+    "final": {"status": "PASS", "readOnly": true, "consumesRound": false}
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "evaluation": {"readableQuestions": 2, "coveredQuestions": 1, "mappedQuestions": 1, "completeSolutions": 1, "formulaComplete": 1, "sourceComplete": 2, "retrievalSuccess": 1, "unresolvedQuestions": 1},
+      "diagnosis": [{"code": "MISSING_METHOD_BRIDGE", "questionIds": ["series-mcq-17"], "rootCause": "The relation from positive-series structure to ratio-test is not explicit.", "evidenceRefs": ["question:series-mcq-17"]}],
+      "repairPlan": [{"owner": "learn", "operation": "add sourced method bridge", "questionIds": ["series-mcq-17"], "answerOnly": false}],
+      "repairActions": [],
+      "knowledgeEnrichmentActions": [{"owner": "learn", "operation": "add sourced method bridge", "questionIds": ["series-mcq-17"], "answerOnly": false}],
+      "optimizationActions": [],
+      "optimizationRunCount": 1,
+      "optimizationStatus": "NO_OP",
+      "repairResult": {"status": "APPLIED", "changedArtifacts": ["card:ratio-test", "relation:positive-series-to-ratio-test"], "evidenceRefs": ["source:math-textbook"]},
+      "reEvaluation": {"readableQuestions": 2, "coveredQuestions": 2, "mappedQuestions": 2, "completeSolutions": 2, "formulaComplete": 1, "sourceComplete": 2, "retrievalSuccess": 2, "unresolvedQuestions": 0},
+      "regression": {"detected": false, "evidenceRefs": ["holdout:series-mcq-12"]},
+      "overfit": {"answerOnlyImprovement": false, "reason": "Coverage and holdout retrieval also improved."},
+      "checkBefore": {"status": "PASS_WITH_WARNINGS", "readOnly": true, "consumesRound": false},
+      "checkAfter": {"status": "PASS", "readOnly": true, "consumesRound": false},
+      "coverageDelta": {"before": 0.5, "after": 1.0},
+      "qualityDelta": {"before": {"unresolvedQuestions": 1}, "after": {"unresolvedQuestions": 0}},
+      "examHitAfter": {"reportPath": ".exam-hit/current/round-1/exam-hit-report.json", "reportSha256": "sha256:hit-after", "snapshotId": "math-1-snapshot-after-1", "snapshotContentSha256": "sha256:math-after-1", "selectionPolicy": "all_questions", "totalQuestions": 2, "counts": {"HIT": 2, "PARTIAL": 0, "MISS": 0, "UNRESOLVED": 0}},
+      "regressions": [],
+      "blockedItems": [],
+      "optimizationStability": {"oscillationDetected": false, "newEvidenceRefs": []},
+      "stopDecision": {"decision": "CONVERGED", "reason": "No unresolved evaluable question remains."},
+      "evidenceRefs": ["question:series-mcq-17", "source:math-textbook"]
+    }
+  ],
+  "stop": {"reason": "CONVERGED", "detail": "No unresolved evaluable question remains."},
+  "sourceMutation": false,
+  "examResultMutation": false,
+  "learnerModelMutation": false,
+  "answerOnlyRepair": false
+}

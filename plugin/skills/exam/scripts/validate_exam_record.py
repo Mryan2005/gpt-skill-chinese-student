@@ -299,7 +299,7 @@ def validate_record(record: Any) -> list[str]:
             if not isinstance(request, dict):
                 errors.append(f"repairRequests[{index}] must be an object")
                 continue
-            if request.get("owner") not in {"review", "learn", "study-math", "study-politics", "domain-model", "check", "fix", "heal", "amend"}:
+            if request.get("owner") not in {"review", "learn", "study-math", "study-politics", "study-exam-oriented-english", "domain-model", "check", "fix", "heal", "amend"}:
                 errors.append(f"REPAIR_REQUEST_OWNER_INVALID: repairRequests[{index}].owner is not supported")
             for field in ("questionId", "reason", "evidence"):
                 if not _text(request.get(field)):

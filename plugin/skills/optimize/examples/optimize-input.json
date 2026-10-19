@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "optimize.input.v1",
+  "optimizeRunId": "optimize-demo-input-001",
+  "subjectId": "math-1",
+  "cards": [
+    {"id": "card:ratio-test", "title": "Ratio test", "body": "Compute the ratio limit and compare it with one.", "sourceIds": ["source:math-textbook"]},
+    {"id": "card:ratio-test-copy", "title": "Ratio test", "body": "Compute the ratio limit and compare it with one.", "sourceIds": ["source:math-textbook"]},
+    {"id": "card:series-tests", "title": "Series tests", "body": "A deliberately oversized card containing several independent recall units. Split it only after a domain-aware migration plan is written.", "splitRecommended": true, "sourceIds": ["source:math-textbook"]}
+  ],
+  "relatedCandidates": []
+}

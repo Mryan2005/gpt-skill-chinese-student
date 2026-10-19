@@ -1,4 +1,4 @@
 interface:
   display_name: "$中式学生:heal"
   short_description: "用冷启动新手优化学习体验"
-  default_prompt: "Use $chinese-student:heal as the learning-experience optimizer. Run a fresh cold-start novice through the user-facing artifact, record learning friction, let an independent Maintainer accept, refine, reject, or block each finding, repair only validated issues, and repeat with a new novice for at most ten rounds without contaminating the real Learner Model."
+  default_prompt: "Use $chinese-student:heal for a bounded maximum-five-round artifact improvement loop. Every round runs check, routes fix/learn, calls optimize once (including a no-op), then checks again. Default to the cold-start learning-experience loop; use $chinese-student:heal exam-driven only when the user supplies an exam PDF and wants knowledge-coverage pressure testing with iteration/holdout evaluation, optional provenanced External Supplements, routed repairs, and no Learner Model mutation."

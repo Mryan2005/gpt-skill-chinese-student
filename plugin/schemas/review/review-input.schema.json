@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/review/review-input.v2.json",
+  "title": "Review Routing Input",
+  "type": "object",
+  "required": ["schemaVersion", "reviewMode", "reviewRunId", "answererType", "learnerModelWriteAllowed", "outputPolicy"],
+  "properties": {
+    "schemaVersion": {"const": "review-input.v2"},
+    "reviewMode": {"enum": ["exam-result", "user-written"]},
+    "reviewRunId": {"type": "string", "minLength": 1},
+    "examRunId": {"type": ["string", "null"]},
+    "attemptId": {"type": ["string", "null"]},
+    "answererType": {"enum": ["human", "agent", "model", "unknown"]},
+    "learnerModelWriteAllowed": {"type": "boolean"},
+    "examResultPath": {"type": ["string", "null"]},
+    "sources": {"type": "array"},
+    "outputPolicy": {"type": "object"}
+  },
+  "additionalProperties": true
+}

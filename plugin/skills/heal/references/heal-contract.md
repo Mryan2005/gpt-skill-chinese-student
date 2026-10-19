@@ -6,19 +6,20 @@ independent Maintainer decide whether the friction justifies a repair.
 
 ## Round contract
 
-Each round has six stages:
+Each repair round has the following stages:
 
 ~~~text
-COLD_START
-→ LEARN
-→ REFLECT
+COLD_START / CHECK_BEFORE
+→ LEARN / REFLECT
 → MAINTAINER_EVALUATE
 → REPAIR
-→ LOCAL_VALIDATE
+→ OPTIMIZE (once, including NO_OP)
+→ CHECK_AFTER / LOCAL_VALIDATE
 ~~~
 
-The next round creates a new novice context and reloads the current user-facing
-artifact. The previous trace is comparison data, not current truth.
+The initial and final checks are read-only gates and do not consume repair
+rounds. The next round creates a new novice context and reloads the current
+user-facing artifact. The previous trace is comparison data, not current truth.
 
 The novice must continue through the complete available learning path after
 recording friction. It must not stop at the first problem or use outside
@@ -101,8 +102,9 @@ Source, official answers, official solutions, historical observations, and
 user-owned Learner Model data.
 
 Use the existing `check` and `fix` contracts for technical validation or repair
-when useful. A technical `PASS` does not prove that the artifact is easy to
-learn, and a novice complaint does not prove that cards should be merged.
+when useful, and call the existing `optimize` contract once per round. A
+technical `PASS` does not prove that the artifact is easy to learn, and a
+novice complaint does not prove that cards should be merged.
 
 ## Convergence and stop conditions
 
@@ -120,7 +122,9 @@ Stop with `HEALED` when high friction, dead ends, and unresolved
 optional medium-friction refinements remain. Stop with `STALLED` after two
 rounds without meaningful pedagogical improvement. Stop with `BLOCKED` when
 Source is missing, corrupted, unreadable, or insufficient for a safe repair.
-Stop with `MAX_ROUNDS_REACHED` after ten rounds.
+Stop with `STOP_OPTIMIZATION_OSCILLATION` when opposite merge/split operations
+target the same entities without new evidence. Stop with `MAX_ROUNDS_REACHED`
+after five repair rounds.
 
 `relearn` and `update` remain explicit escalation paths. Emit
 `RELEARN_REQUIRED` or `UPDATE_REQUIRED` instead of invoking them.

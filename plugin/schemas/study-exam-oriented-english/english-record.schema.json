@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/study-exam-oriented-english/english-record.v1.json",
+  "title": "Exam-oriented English Domain Record",
+  "type": "object",
+  "required": ["schemaVersion", "domain", "subjectId", "cards", "writing", "translation", "review", "integrations"],
+  "properties": {
+    "schemaVersion": {"const": "study-exam-oriented-english.record.v1"},
+    "domain": {"const": "study-exam-oriented-english"},
+    "subjectId": {"type": "string", "minLength": 1},
+    "cards": {"type": "array", "minItems": 1},
+    "writing": {"type": "object"},
+    "translation": {"type": "object"},
+    "review": {"type": "object"},
+    "integrations": {"type": "object"}
+  },
+  "additionalProperties": true
+}

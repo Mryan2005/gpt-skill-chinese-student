@@ -1,0 +1,4 @@
+interface:
+  display_name: "$中式学生:study-exam-oriented-english"
+  short_description: "考研英语简单写作与英译汉模型"
+  default_prompt: "Use $chinese-student:study-exam-oriented-english as the exam-oriented English domain model while $chinese-student:learn orchestrates the shared Subject. Prioritize simple, accurate, natural expression and preserve meaning, logic, provenance, and learner evidence."

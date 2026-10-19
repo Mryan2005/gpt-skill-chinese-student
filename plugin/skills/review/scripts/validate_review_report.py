@@ -93,7 +93,9 @@ def validate_report(report: Any) -> list[str]:
     if not isinstance(scope, dict):
         errors.append("reviewScope is required")
     else:
-        for field in ("reanswered", "regraded", "readPdf", "remappedGraph", "auditedArtifact", "mutatedArtifact"):
+        if scope.get("readPdf") is not True:
+            errors.append("REVIEW_SCOPE_VIOLATION: readPdf must be true")
+        for field in ("reanswered", "regraded", "remappedGraph", "auditedArtifact", "mutatedArtifact"):
             if scope.get(field) is not False:
                 errors.append(f"REVIEW_SCOPE_VIOLATION: {field} must be false")
 

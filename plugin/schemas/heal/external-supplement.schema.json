@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/heal/external-supplement.v1.json",
+  "title": "External Supplement",
+  "type": "object",
+  "required": ["supplementId", "sourceUrl", "sourceTitle", "publisher", "accessedAt", "supportedClaims", "evidenceStatus", "provenanceType"],
+  "properties": {
+    "supplementId": {"type": "string", "minLength": 1},
+    "sourceUrl": {"type": "string", "pattern": "^https?://"},
+    "sourceTitle": {"type": "string", "minLength": 1},
+    "publisher": {"type": "string", "minLength": 1},
+    "accessedAt": {"type": "string", "minLength": 1},
+    "relatedQuestionIds": {"type": "array", "items": {"type": "string"}},
+    "relatedCardIds": {"type": "array", "items": {"type": "string"}},
+    "supportedClaims": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "evidenceStatus": {"enum": ["supported", "needs_verification", "rejected"]},
+    "provenanceType": {"const": "external_supplement"},
+    "contentHash": {"type": "string"}
+  },
+  "additionalProperties": true
+}

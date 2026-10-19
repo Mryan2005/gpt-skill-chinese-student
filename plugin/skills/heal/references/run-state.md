@@ -16,6 +16,7 @@ The disposable workspace is:
     │       └── repair-report.json
     └── state/
         ├── round-state.json
+        ├── optimize-report.json
         └── heal-report.json
 ~~~
 
@@ -29,6 +30,9 @@ Every round must record:
 - understanding coverage, dead ends, and friction counts;
 - each Maintainer decision and its evidence;
 - repair changes, source-mutation flags, and local validation;
+- the non-consuming `checkBefore` and `checkAfter` gates;
+- exactly one `optimizationRunCount` and its actions, including a recorded
+  `NO_OP` and any stability-gate result;
 - whether synthetic data stayed inside the heal workspace.
 
 Previous round traces are comparison data only. The next Novice must not read

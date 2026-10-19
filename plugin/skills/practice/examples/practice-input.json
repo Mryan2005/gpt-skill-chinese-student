@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "practice-input.v1",
+  "subjectId": "math-1",
+  "title": "数学一：级数方法练习",
+  "scope": "正项级数与判别法",
+  "durationMinutes": 30,
+  "totalPoints": 4,
+  "instructions": ["请独立作答。提交后再开放答案与解析。"],
+  "questions": [
+    {
+      "questionId": "practice-series-001",
+      "number": 1,
+      "type": "multiple_choice",
+      "points": 2,
+      "stem": "关于正项级数的比值判别法，正确的表述是：",
+      "options": [
+        {"letter": "A", "text": "比值极限小于 1 时级数收敛。"},
+        {"letter": "B", "text": "比值极限等于 1 时可以直接判断收敛。"},
+        {"letter": "C", "text": "需要先确认题目中的级数满足判别法的适用条件。"},
+        {"letter": "D", "text": "比值判别法可以替代所有级数判别法。"}
+      ],
+      "officialAnswer": ["A", "C"],
+      "officialSolution": "比值极限小于 1 时收敛；等于 1 时判别法失效，不能直接推出结论。",
+      "answerStatus": "OFFICIAL",
+      "solutionStatus": "COMPLETE",
+      "knowledgeCardIds": ["ratio-test"],
+      "sourceRefs": [{"sourceId": "math-textbook", "locator": "series/ratio-test"}]
+    },
+    {
+      "questionId": "practice-series-002",
+      "number": 2,
+      "type": "short_answer",
+      "points": 2,
+      "stem": "说明为什么比值极限等于 1 时不能仅凭比值判别法判断级数收敛性。",
+      "officialSolution": "比值判别法只在极限严格小于 1 或严格大于 1 时给出结论；等于 1 时属于判别法失效的边界情形，应改用其他方法。",
+      "answerStatus": "DERIVED_VERIFIED",
+      "solutionStatus": "DERIVED_COMPLETE",
+      "derivedSolution": "先写出比值判别法的严格条件，再说明等于 1 是失效边界。",
+      "knowledgeCardIds": ["ratio-test"],
+      "sourceRefs": [{"sourceId": "math-textbook", "locator": "series/ratio-test"}]
+    }
+  ]
+}

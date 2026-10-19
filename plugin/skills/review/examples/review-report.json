@@ -21,7 +21,7 @@
   "reviewScope": {
     "reanswered": false,
     "regraded": false,
-    "readPdf": false,
+    "readPdf": true,
     "remappedGraph": false,
     "auditedArtifact": false,
     "mutatedArtifact": false

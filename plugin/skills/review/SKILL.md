@@ -17,9 +17,9 @@ conflicts, while `check`, `fix`, and `heal` handle artifact defects.
 
 - Consume only a closed Exam Result with immutable first-pass answers, grading
   evidence, artifact identity, and question-level provenance.
-- Do not rerun the exam, solve a question again, regrade, reread PDFs, remap
-  graph links, audit Source, or repair any artifact. Those actions belong to
-  `exam`, `check`, `fix`, `amend`, or `heal`.
+- Do not rerun the exam, re-answer, regrade, remap graph links, audit Source,
+  or repair any artifact. Review must directly read the original PDFs with
+  native PDF/page capability and must never use OCR or a surrogate transcript.
 - Reset and verify `.review/current/` before processing. Read the Exam Result
   from `.exam/` or the project's equivalent closed-result path; never delete
   the Exam workspace.
@@ -45,8 +45,9 @@ conflicts, while `check`, `fix`, and `heal` handle artifact defects.
   `heal`. A student mistake alone is not an artifact defect.
 - Run local Learner Model validation only. Do not run a full `check` silently.
 
-Run [postmortem.md](playbooks/postmortem.md) and read
-[review-contract.md](references/review-contract.md) before Learner Review.
+Run [exam-result.md](playbooks/exam-result.md) by default, or
+[user-written.md](playbooks/user-written.md) only after explicit user-submission
+intent. Read [review-contract.md](references/review-contract.md) before review.
 Reset with [reset_review_workspace.py](scripts/reset_review_workspace.py),
 validate with [validate_review_report.py](scripts/validate_review_report.py),
 and apply observations only through the idempotent
@@ -55,27 +56,28 @@ Validate overlays with [validate_annotations.py](scripts/validate_annotations.py
 rendering never edits Source.
 ## Review modes
 
-`Learner Review` requires reliable human evidence before writing user mastery.
-`Material Review` accepts a closed review report, optional Exam Result details,
-and a canonical material catalog for any answerer type. It may produce
-card-backed focus, scoped frequency, blocker routes, and Markdown/HTML outputs,
-but it never updates the user's Learner Model. Use
-[material-review.md](playbooks/material-review.md),
-[material_review.py](scripts/material_review.py), and
-[validate_material_review.py](scripts/validate_material_review.py).
+`review` defaults to `exam-result`; `review user-written` requires explicit
+human-submission intent and a new `attemptId`. `exam-result` runs Material
+Review for any answerer, then runs Learner Review only for eligible human
+evidence. `user-written` directly reads questions, answers, and the user's PDF
+submission and may update Learner State only from verified human evidence.
+Both modes produce structured/Markdown/HTML review outputs and never generate
+PDF. Use [material-review.md](playbooks/material-review.md),
+[material_review.py](scripts/material_review.py),
+[route_review.py](scripts/route_review.py), and
+[validate_review_mode.py](scripts/validate_review_mode.py).
 
 ## State machine
 
 ~~~text
 NEW_REVIEW_REQUEST
-→ LOAD_CLOSED_EXAM_RESULT
-→ VERIFY_FROZEN_ATTEMPTS_AND_ARTIFACT_IDENTITY
-→ CLASSIFY_OUTCOME_AND_ERROR_EVIDENCE
-→ ASSESS_KNOWLEDGE_AND_QUESTION_MASTERY
-→ BUILD_LEARNING_TASKS_AND_RETEST_PLANS
-→ COMPARE_HISTORY
-→ APPLY_IDEMPOTENT_LEARNER_UPDATE
-→ WRITE_REVIEW_REPORT
+→ ROUTE_EXAM_RESULT_OR_USER_WRITTEN
+→ READ_ORIGINAL_PDF_INPUTS
+→ RUN_MATERIAL_REVIEW
+→ RUN_ELIGIBLE_LEARNER_REVIEW
+→ BUILD_TASKS_HIGHLIGHTS_AND_RETESTS
+→ APPLY_IDEMPOTENT_LEARNER_UPDATE_IF_ALLOWED
+→ WRITE_SEPARATE_STATUS_REPORT
 → CLOSED
 ~~~
 

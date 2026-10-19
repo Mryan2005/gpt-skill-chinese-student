@@ -15,6 +15,9 @@ sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from validate_exam_record import validate_record  # noqa: E402
 from reset_exam_workspace import reset_workspace, validate_target  # noqa: E402
+from reset_exam_hit_workspace import reset_workspace as reset_hit_workspace, validate_target as validate_hit_target  # noqa: E402
+from run_hit import build_report  # noqa: E402
+from validate_hit_report import validate_report as validate_hit_report  # noqa: E402
 
 
 PLAYBOOKS = {
@@ -22,6 +25,7 @@ PLAYBOOKS = {
     "grade-exam.md",
     "analyze-errors.md",
     "replay-errors.md",
+    "hit.md",
 }
 
 REFERENCES = {
@@ -32,6 +36,7 @@ REFERENCES = {
     "answer-record.md",
     "grading.md",
     "error-taxonomy.md",
+    "hit-contract.md",
 }
 
 
@@ -64,6 +69,78 @@ class ExamStructureTests(unittest.TestCase):
 
     def test_closed_example_is_valid(self) -> None:
         self.assertEqual(validate_record(load_example()), [])
+
+    def test_exam_hit_example_is_valid_and_covers_every_question(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "exam-hit-report.json").read_text(encoding="utf-8"))
+        self.assertEqual(validate_hit_report(report), [])
+        self.assertEqual(report["coverageSummary"]["totalQuestions"], len(report["questionResults"]))
+        self.assertTrue(report["generatedFromAllQuestions"])
+
+    def test_exam_hit_is_content_based_not_title_based(self) -> None:
+        data = json.loads((SKILL_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        data["questions"][0]["hitResult"]["supportingCardContentRefs"][0]["field"] = "title"
+        with self.assertRaises(ValueError):
+            build_report(data)
+
+    def test_exam_hit_missing_mapping_can_still_be_hit(self) -> None:
+        data = json.loads((SKILL_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        result = build_report(data)
+        first = next(item for item in result["questionResults"] if item["questionId"] == "math-hit-q1")
+        self.assertEqual(first["hitResult"]["hitStatus"], "HIT")
+        self.assertIn("direct_mapping_missing", first["hitResult"]["mappingIssues"])
+
+    def test_exam_hit_does_not_turn_unreadable_into_miss(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "exam-hit-report.json").read_text(encoding="utf-8"))
+        statuses = {item["questionId"]: item["hitResult"]["hitStatus"] for item in report["questionResults"]}
+        self.assertEqual(statuses["math-hit-q4"], "UNRESOLVED")
+        self.assertEqual(report["coverageSummary"]["counts"]["MISS"], 0)
+
+    def test_exam_hit_can_record_a_readable_true_miss(self) -> None:
+        data = json.loads((SKILL_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        question = data["questions"][1]
+        question["hitResult"] = {
+            "hitStatus": "MISS",
+            "supportingCardIds": [],
+            "supportingCardContentRefs": [],
+            "supportedReasoning": "The readable question requires a region setup procedure that no frozen card contains.",
+            "missingKnowledge": ["region setup procedure"],
+            "mappingIssues": ["direct_mapping_missing"],
+            "evidenceRefs": ["question:math-hit-q2", "snapshot:math-1-snapshot-001"],
+            "confidence": 0.88
+        }
+        report = build_report(data)
+        self.assertEqual(report["coverageSummary"]["counts"]["MISS"], 1)
+
+    def test_exam_hit_does_not_mutate_learner_or_snapshot(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "exam-hit-report.json").read_text(encoding="utf-8"))
+        self.assertFalse(report["learnerModelMutation"])
+        self.assertFalse(report["snapshotMutated"])
+        mutated = copy.deepcopy(report)
+        mutated["snapshotMutated"] = True
+        self.assertTrue(any("snapshotMutated" in error for error in validate_hit_report(mutated)))
+
+    def test_exam_hit_domain_cases_cover_math_408_politics_and_english(self) -> None:
+        base = json.loads((SKILL_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        cases = [
+            ("math-1", "card:substitution", "method", "transform the differential, change bounds"),
+            ("computer-408", "card:cache", "method", "Compute block offset bits, set/index bits"),
+            ("politics-1", "card:principle", "coreMeaning", "The principle requires a concrete condition and canonical wording."),
+            ("english-1", "card:translation", "method", "Identify the main clause and preserve logic relations.")
+        ]
+        for subject_id, card_id, field, excerpt in cases:
+            data = copy.deepcopy(base)
+            data["subjectId"] = subject_id
+            data["snapshot"]["subjectId"] = subject_id
+            data["cards"] = [{"cardId": card_id, "content": {field: excerpt}, "contentSha256": f"sha256:{subject_id}"}]
+            question = data["questions"][0]
+            question["questionId"] = f"{subject_id}-q1"
+            question["requiredKnowledge"] = [{"requirementId": "r1", "kind": "method", "description": "Use the domain method."}]
+            question["hitResult"]["supportingCardIds"] = [card_id]
+            question["hitResult"]["supportingCardContentRefs"] = [{"cardId": card_id, "field": field, "excerpt": excerpt, "contentSha256": f"sha256:{subject_id}"}]
+            question["hitResult"]["evidenceRefs"] = [f"question:{question['questionId']}", card_id]
+            data["questions"] = [question]
+            report = build_report(data)
+            self.assertEqual(report["coverageSummary"]["counts"]["HIT"], 1, subject_id)
 
     def test_frozen_answers_cannot_be_mutated(self) -> None:
         record = copy.deepcopy(load_example())
@@ -154,6 +231,15 @@ class ExamStructureTests(unittest.TestCase):
             (root / "old-answers.json").write_text("old", encoding="utf-8")
             target = validate_target(str(root))
             reset_workspace(target, True)
+            self.assertEqual(list(target.iterdir()), [])
+
+    def test_exam_hit_reset_script_targets_only_exam_hit_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / ".exam-hit" / "current"
+            root.mkdir(parents=True)
+            (root / "old-hit-report.json").write_text("old", encoding="utf-8")
+            target = validate_hit_target(str(root))
+            reset_hit_workspace(target, True)
             self.assertEqual(list(target.iterdir()), [])
 
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "$中式学生:practice"
+  short_description: "生成独立题目与答案 PDF"
+  default_prompt: "Use $chinese-student:practice to generate a printable questions PDF and a separate answers PDF with provenance and validation."

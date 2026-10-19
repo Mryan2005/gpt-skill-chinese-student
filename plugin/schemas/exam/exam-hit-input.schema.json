@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/exam/exam-hit.input.v1.json",
+  "title": "Exam Hit Input",
+  "type": "object",
+  "required": ["schemaVersion", "examHitRunId", "examId", "subjectId", "selectionPolicy", "examPdf", "snapshot", "cards", "questions"],
+  "properties": {
+    "schemaVersion": {"const": "exam.hit.input.v1"},
+    "examHitRunId": {"type": "string", "minLength": 1},
+    "examId": {"type": "string", "minLength": 1},
+    "subjectId": {"type": "string", "minLength": 1},
+    "selectionPolicy": {"const": "all_questions"},
+    "examPdf": {"type": "object"},
+    "snapshot": {"type": "object"},
+    "cards": {"type": "array", "minItems": 1},
+    "questions": {"type": "array", "minItems": 1}
+  },
+  "additionalProperties": true
+}
