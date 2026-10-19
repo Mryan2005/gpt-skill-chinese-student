@@ -171,7 +171,7 @@ validation. Reset it before each run. Preserve `.exam/` and `.local/learner/`.
 
 ## Exam Hit enrichment
 
-Both review modes run the shared `exam hit` coverage stage. The complete paper
+Both review modes consume the shared Exam Hit coverage stage. The complete paper
 is checked question by question against one frozen graph snapshot, and actual
 card fields—not titles or IDs—supply the coverage evidence. Highlights are
 stored in an independent Annotation Overlay with a `contentAnchor`, question

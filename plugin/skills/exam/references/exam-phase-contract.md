@@ -1,6 +1,6 @@
-# Exam hit contract
+# Exam phase contract
 
-`exam hit` is a Question-by-Question Knowledge Coverage Test. Its only input
+The Exam Hit phase is a Question-by-Question Knowledge Coverage Test. Its only input
 for the coverage judgment is the complete original exam and the actual content
 of one frozen Subject snapshot.
 

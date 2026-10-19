@@ -67,7 +67,7 @@ def validate_input(data: Any) -> list[str]:
         if not _text(data.get(field)):
             errors.append(f"{field} must be non-empty")
     if data.get("selectionPolicy") != "all_questions":
-        errors.append("selectionPolicy must be all_questions; exam hit cannot sample")
+        errors.append("selectionPolicy must be all_questions; the Exam Hit phase cannot sample")
     exam_pdf = data.get("examPdf")
     errors.extend(_pdf_errors(exam_pdf, "examPdf"))
     snapshot = data.get("snapshot")

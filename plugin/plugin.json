@@ -13,7 +13,7 @@
       "interface": {
         "displayName": "中式学生",
         "shortDescription": "知识图谱学习、考试、检查、修复",
-        "longDescription": "核心工作流：学习，把图片和资料整理成可考试的学科知识图谱；practice，生成独立题目与答案 PDF；更新，迁移旧 Subject 的插件和内容 schema；重学，在确认后丢弃 Derived 并从 Source 重建；数学学习，使用数学专属卡片、题库、关系和公式完整性模型；政治学习，维护教材原文、规范表述、概念边界和题目映射；考研英语学习，维护简单、准确、自然的作文表达、中文思路转英文、英译汉逻辑和句子级复盘；考试，只调用当前图谱并在解析后复盘；exam hit，逐道读取完整试卷并在冻结图谱快照上检查实际知识覆盖；review，分别处理 AI Exam Result 与用户手写答卷 PDF；检查，验证知识点能否唯一定位到主卡或关联卡；排序，按学习价值与风险生成可解释的复习优先级；修复，消费检查报告并自动修复允许修改的派生和生成产物；optimize，分析并受控迁移派生知识图谱结构；profile，接收用户主动报告的薄弱点、思维习惯和解释偏好；heal，最多五轮编排 check/fix/learn/amend/optimize，或用 heal exam 根据逐题 Hit 结果压力测试知识覆盖并路由可信 External Supplement；help，只读显示所有可用命令与准确用法。插件同时维护本地、证据型 Learner Model，但不建立人格画像。",
+        "longDescription": "核心工作流：学习，把图片和资料整理成可考试的学科知识图谱；practice，生成独立题目与答案 PDF；更新，迁移旧 Subject 的插件和内容 schema；重学，在确认后丢弃 Derived 并从 Source 重建；数学学习，使用数学专属卡片、题库、关系和公式完整性模型；政治学习，维护教材原文、规范表述、概念边界和题目映射；考研英语学习，维护简单、准确、自然的作文表达、中文思路转英文、英译汉逻辑和句子级复盘；考试在每道题作答前执行内部 Exam Hit 阶段，然后隔离作答、判分并冻结结果；review，消费冻结 Hit 并执行高亮、缺口研究和补充后复核；检查，验证知识点能否唯一定位到主卡或关联卡；排序，按学习价值与风险生成可解释的复习优先级；修复，消费检查报告并自动修复允许修改的派生和生成产物；optimize，分析并受控迁移派生知识图谱结构；profile，接收用户主动报告的薄弱点、思维习惯和解释偏好；heal，最多五轮编排 check/fix/learn/amend/optimize，或用 heal exam 根据逐题 Hit 结果压力测试知识覆盖并路由可信 External Supplement；help，只读显示所有可用命令与准确用法。插件同时维护本地、证据型 Learner Model，但不建立人格画像。",
         "developerName": "Mryan2005",
         "category": "Education",
         "capabilities": [],

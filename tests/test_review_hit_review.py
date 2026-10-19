@@ -23,8 +23,8 @@ from validate_material_review import validate_material_review  # noqa: E402
 class ReviewHitReviewTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.hit = json.loads((EXAM_ROOT / "examples" / "exam-hit-report.json").read_text(encoding="utf-8"))
-        cls.catalog = json.loads((EXAM_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        cls.hit = json.loads((EXAM_ROOT / "examples" / "exam-phase-hit-report.json").read_text(encoding="utf-8"))
+        cls.catalog = json.loads((EXAM_ROOT / "examples" / "exam-phase-hit-input.json").read_text(encoding="utf-8"))
 
     def test_hit_review_detects_gaps_and_content_anchors(self) -> None:
         report = compose_hit_review(self.hit, review_run_id="review-hit-001", subject_id="math-1", catalog=self.catalog)
@@ -72,6 +72,26 @@ class ReviewHitReviewTests(unittest.TestCase):
         self.assertIn("original_exam_hit", stages)
         self.assertIn("enriched_exam_coverage", stages)
 
+    def test_recovered_hit_remains_distinct_from_original_and_enriched(self) -> None:
+        recovered = copy.deepcopy(self.hit)
+        q4 = next(item for item in recovered["questionResults"] if item["questionId"] == "math-hit-q4")
+        q4["readStatus"] = "READABLE"
+        q4["hitResult"] = {
+            "hitStatus": "HIT",
+            "supportingCardIds": ["card:banker"],
+            "supportingCardContentRefs": [{"cardId": "card:banker", "field": "method", "excerpt": "Need = Max − Allocation, repeatedly select a process with Need ≤ Work", "contentSha256": "sha256:banker"}],
+            "supportedReasoning": "Source recovery made the original page readable.",
+            "missingKnowledge": [],
+            "mappingIssues": [],
+            "evidenceRefs": ["recovery:math-hit-q4"],
+            "confidence": 0.8
+        }
+        report = compose_hit_review(self.hit, review_run_id="review-hit-recovered-001", subject_id="math-1", catalog=self.catalog, hit_recovered=recovered)
+        self.assertEqual(validate_hit_review(report), [])
+        self.assertIsNotNone(report["hitRecovered"])
+        self.assertIn("math-hit-q4", report["comparison"]["recovery"]["improvedQuestionIds"])
+        self.assertIn("recovered_exam_hit", {item["coverageStage"] for item in report["highlights"]})
+
     def test_unreliable_external_source_does_not_close_gap(self) -> None:
         initial = compose_hit_review(self.hit, review_run_id="review-hit-006", subject_id="math-1", catalog=self.catalog)
         gap = initial["gaps"][0]
@@ -90,6 +110,15 @@ class ReviewHitReviewTests(unittest.TestCase):
         self.assertEqual(report["research"]["status"], "PARTIAL")
         self.assertTrue(report["research"]["unresolvedGapIds"])
 
+    def test_failure_reason_is_preserved_and_routes_to_owner(self) -> None:
+        hit = copy.deepcopy(self.hit)
+        question = next(item for item in hit["questionResults"] if item["questionId"] == "math-hit-q2")
+        question["hitResult"]["failureReason"] = "card_content_incomplete"
+        report = compose_hit_review(hit, review_run_id="review-hit-failure-reason-001", subject_id="math-1", catalog=self.catalog)
+        gap = next(item for item in report["gaps"] if "math-hit-q2" in item["questionIds"])
+        self.assertEqual(gap["gapType"], "card_content_incomplete")
+        self.assertEqual(gap["repairOwner"], "learn")
+
     def test_repeated_review_deduplicates_same_content_anchor(self) -> None:
         report = compose_hit_review(self.hit, review_run_id="review-hit-005", subject_id="math-1", catalog=self.catalog)
         keys = [(item["targetId"], item["contentAnchor"]["field"], item["contentAnchor"]["excerpt"], item["coverageStage"]) for item in report["highlights"]]
@@ -102,8 +131,8 @@ class ReviewHitReviewTests(unittest.TestCase):
                 sys.executable,
                 str(REVIEW_ROOT / "scripts" / "material_review.py"),
                 "--review-report", str(REVIEW_ROOT / "examples" / "review-report.json"),
-                "--exam-hit-before", str(EXAM_ROOT / "examples" / "exam-hit-report.json"),
-                "--catalog", str(EXAM_ROOT / "examples" / "exam-hit-input.json"),
+                "--exam-hit-before", str(EXAM_ROOT / "examples" / "exam-phase-hit-report.json"),
+                "--catalog", str(EXAM_ROOT / "examples" / "exam-phase-hit-input.json"),
                 "--output-dir", str(output),
                 "--review-run-id", "review-hit-cli-001"
             ], capture_output=True, text=True, encoding="utf-8")

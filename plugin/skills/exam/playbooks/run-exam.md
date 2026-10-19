@@ -20,7 +20,7 @@ Use it when the user wants to begin or complete a closed-book exam against the c
 4. Load the original question PDF directly and only then transition to LOAD_EXAM_PDF.
 5. Create and freeze an Exam Snapshot before answering.
 6. For each question, create separate Hit Inspector and Independent Answerer
-   contexts. Read the original question, run `exam hit` against the frozen
+   contexts. Read the original question, run the internal Exam Hit phase against the frozen
    snapshot, save the Hit record, then give only the original question to the
    answerer. Never pass card content, Hit status, missing knowledge, or
    research results to the answerer.

@@ -10,6 +10,11 @@ from typing import Any
 
 
 STATUSES = {"HIT", "PARTIAL", "MISS", "UNRESOLVED"}
+FAILURE_REASONS = {
+    "question_boundary_missing", "question_text_incomplete", "source_evidence_missing", "question_unreadable",
+    "mapping_missing", "card_content_incomplete", "knowledge_missing", "solution_evidence_insufficient",
+    "answer_provenance_conflict",
+}
 
 
 def _text(value: Any) -> bool:
@@ -97,6 +102,11 @@ def validate_report(report: Any) -> list[str]:
             errors.append(f"{path}.hitResult.supportedReasoning must be non-empty")
         if status == "UNRESOLVED" and not _text(result.get("unresolvedReason")):
             errors.append(f"{path}.hitResult.unresolvedReason is required")
+        failure_reason = result.get("failureReason")
+        if failure_reason is not None and failure_reason not in FAILURE_REASONS:
+            errors.append(f"{path}.hitResult.failureReason is invalid")
+        if status == "UNRESOLVED" and failure_reason is None:
+            errors.append(f"{path}.hitResult.failureReason is required for UNRESOLVED")
         missing = result.get("missingKnowledge")
         if status in {"PARTIAL", "MISS"} and (not isinstance(missing, list) or not missing):
             errors.append(f"{path}.missingKnowledge is required for {status}")

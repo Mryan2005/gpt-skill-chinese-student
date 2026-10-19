@@ -15,9 +15,11 @@ sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from validate_exam_record import validate_record  # noqa: E402
 from reset_exam_workspace import reset_workspace, validate_target  # noqa: E402
-from reset_exam_hit_workspace import reset_workspace as reset_hit_workspace, validate_target as validate_hit_target  # noqa: E402
-from run_hit import build_report  # noqa: E402
-from validate_hit_report import validate_report as validate_hit_report  # noqa: E402
+from run_exam_hit_stage import build_report  # noqa: E402
+from validate_exam_hit_stage import validate_report as validate_hit_report  # noqa: E402
+from build_recovery_tasks import build_tasks  # noqa: E402
+from run_recovery import run_recovery  # noqa: E402
+from validate_recovery_tasks import validate_tasks  # noqa: E402
 
 
 PLAYBOOKS = {
@@ -25,7 +27,6 @@ PLAYBOOKS = {
     "grade-exam.md",
     "analyze-errors.md",
     "replay-errors.md",
-    "hit.md",
 }
 
 REFERENCES = {
@@ -36,7 +37,7 @@ REFERENCES = {
     "answer-record.md",
     "grading.md",
     "error-taxonomy.md",
-    "hit-contract.md",
+    "exam-phase-contract.md",
 }
 
 
@@ -71,32 +72,81 @@ class ExamStructureTests(unittest.TestCase):
         self.assertEqual(validate_record(load_example()), [])
 
     def test_exam_hit_example_is_valid_and_covers_every_question(self) -> None:
-        report = json.loads((SKILL_ROOT / "examples" / "exam-hit-report.json").read_text(encoding="utf-8"))
+        report = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-report.json").read_text(encoding="utf-8"))
         self.assertEqual(validate_hit_report(report), [])
         self.assertEqual(report["coverageSummary"]["totalQuestions"], len(report["questionResults"]))
         self.assertTrue(report["generatedFromAllQuestions"])
 
     def test_exam_hit_is_content_based_not_title_based(self) -> None:
-        data = json.loads((SKILL_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        data = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-input.json").read_text(encoding="utf-8"))
         data["questions"][0]["hitResult"]["supportingCardContentRefs"][0]["field"] = "title"
         with self.assertRaises(ValueError):
             build_report(data)
 
     def test_exam_hit_missing_mapping_can_still_be_hit(self) -> None:
-        data = json.loads((SKILL_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        data = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-input.json").read_text(encoding="utf-8"))
         result = build_report(data)
         first = next(item for item in result["questionResults"] if item["questionId"] == "math-hit-q1")
         self.assertEqual(first["hitResult"]["hitStatus"], "HIT")
         self.assertIn("direct_mapping_missing", first["hitResult"]["mappingIssues"])
 
     def test_exam_hit_does_not_turn_unreadable_into_miss(self) -> None:
-        report = json.loads((SKILL_ROOT / "examples" / "exam-hit-report.json").read_text(encoding="utf-8"))
+        report = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-report.json").read_text(encoding="utf-8"))
         statuses = {item["questionId"]: item["hitResult"]["hitStatus"] for item in report["questionResults"]}
         self.assertEqual(statuses["math-hit-q4"], "UNRESOLVED")
         self.assertEqual(report["coverageSummary"]["counts"]["MISS"], 0)
 
+    def test_exam_hit_requires_a_failure_reason_for_unresolved(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-report.json").read_text(encoding="utf-8"))
+        report["questionResults"][-1]["hitResult"].pop("failureReason")
+        errors = validate_hit_report(report)
+        self.assertTrue(any("failureReason is required" in error for error in errors))
+
+    def test_recovery_tasks_keep_one_task_per_non_hit_question(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-report.json").read_text(encoding="utf-8"))
+        tasks = build_tasks(report)
+        self.assertEqual(len(tasks["tasks"]), 2)
+        self.assertEqual({item["questionId"] for item in tasks["tasks"]}, {"math-hit-q2", "math-hit-q4"})
+        self.assertIn(tasks["tasks"][-1]["failureReason"], {"question_unreadable", "question_boundary_missing"})
+
+    def test_recovery_runner_resumes_and_preserves_original_hit(self) -> None:
+        report = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-report.json").read_text(encoding="utf-8"))
+        ledger = build_tasks(report)
+        attempt = {
+            "attemptId": "recovery-math-hit-q4-001",
+            "questionId": "math-hit-q4",
+            "action": "source_recovery",
+            "status": "RECOVERED",
+            "attemptedAt": "2026-10-19T13:00:00+08:00",
+            "method": "native_pdf_visual_recheck",
+            "ocrUsed": False,
+            "delegatedOcr": False,
+            "intermediateTextSources": [],
+            "evidenceRefs": ["original_pdf:exam/questions.pdf:page-3"],
+            "result": {
+                "readStatus": "READABLE",
+                "hitResult": {
+                    "hitStatus": "HIT",
+                    "supportingCardIds": ["card:banker"],
+                    "supportingCardContentRefs": [{"cardId": "card:banker", "field": "method", "excerpt": "Need = Max − Allocation, repeatedly select a process with Need ≤ Work", "contentSha256": "sha256:banker"}],
+                    "supportedReasoning": "Recovered page content makes the algorithm requirement readable.",
+                    "missingKnowledge": [],
+                    "mappingIssues": [],
+                    "evidenceRefs": ["original_pdf:exam/questions.pdf:page-3"],
+                    "confidence": 0.82
+                }
+            }
+        }
+        first = run_recovery(report, ledger, [attempt])
+        self.assertEqual(first["recoveredHit"]["questionResults"][-1]["hitResult"]["hitStatus"], "HIT")
+        self.assertFalse(first["examResultMutation"])
+        self.assertEqual(validate_tasks(first["ledger"]), [])
+        second = run_recovery(report, first["ledger"], [attempt])
+        self.assertEqual(second["ledger"]["tasks"], first["ledger"]["tasks"])
+        self.assertEqual(second["originalHit"]["coverageSummary"], report["coverageSummary"])
+
     def test_exam_hit_can_record_a_readable_true_miss(self) -> None:
-        data = json.loads((SKILL_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        data = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-input.json").read_text(encoding="utf-8"))
         question = data["questions"][1]
         question["hitResult"] = {
             "hitStatus": "MISS",
@@ -112,7 +162,7 @@ class ExamStructureTests(unittest.TestCase):
         self.assertEqual(report["coverageSummary"]["counts"]["MISS"], 1)
 
     def test_exam_hit_does_not_mutate_learner_or_snapshot(self) -> None:
-        report = json.loads((SKILL_ROOT / "examples" / "exam-hit-report.json").read_text(encoding="utf-8"))
+        report = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-report.json").read_text(encoding="utf-8"))
         self.assertFalse(report["learnerModelMutation"])
         self.assertFalse(report["snapshotMutated"])
         mutated = copy.deepcopy(report)
@@ -120,7 +170,7 @@ class ExamStructureTests(unittest.TestCase):
         self.assertTrue(any("snapshotMutated" in error for error in validate_hit_report(mutated)))
 
     def test_exam_hit_domain_cases_cover_math_408_politics_and_english(self) -> None:
-        base = json.loads((SKILL_ROOT / "examples" / "exam-hit-input.json").read_text(encoding="utf-8"))
+        base = json.loads((SKILL_ROOT / "examples" / "exam-phase-hit-input.json").read_text(encoding="utf-8"))
         cases = [
             ("math-1", "card:substitution", "method", "transform the differential, change bounds"),
             ("computer-408", "card:cache", "method", "Compute block offset bits, set/index bits"),
@@ -236,14 +286,6 @@ class ExamStructureTests(unittest.TestCase):
             reset_workspace(target, True)
             self.assertEqual(list(target.iterdir()), [])
 
-    def test_exam_hit_reset_script_targets_only_exam_hit_workspace(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory) / ".exam-hit" / "current"
-            root.mkdir(parents=True)
-            (root / "old-hit-report.json").write_text("old", encoding="utf-8")
-            target = validate_hit_target(str(root))
-            reset_hit_workspace(target, True)
-            self.assertEqual(list(target.iterdir()), [])
 
 
 if __name__ == "__main__":

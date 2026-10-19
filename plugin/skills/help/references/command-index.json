@@ -45,15 +45,13 @@
       "kind": "workflow",
       "status": "available",
       "description": "在冻结 Subject 快照上执行闭卷考试并保存不可变 Exam Result。",
-      "usage": ["chinese-student: exam", "chinese-student: exam hit"],
-      "subcommands": [
-        {"name": "hit", "description": "对每道题逐一读取完整原始试卷，在同一个冻结知识图谱快照上阅读实际卡片内容，输出 HIT/PARTIAL/MISS/UNRESOLVED；不依赖作答，也不更新 Learner Model。", "inputs": ["完整原始试卷 PDF、冻结 Subject 图谱快照和实际卡片内容"], "outputs": ["逐题知识需求、卡片内容证据、覆盖矩阵、HIT/PARTIAL/MISS/UNRESOLVED 统计"], "sideEffects": ["只写一次性 exam-hit 工作区；不修改 Exam Result、Source 或 Learner State"], "confirmation": "none"}
-      ],
-      "inputs": ["Subject 图谱、原始试卷 PDF、后续解析 PDF；hit 只需原始试卷和冻结图谱"],
-      "outputs": [".exam/current/、Exam Result、Learning Gap Report、Repair Requests；hit 另输出逐题覆盖报告"],
+      "usage": ["chinese-student: exam"],
+      "subcommands": [],
+      "inputs": ["Subject 图谱、原始试卷 PDF、后续解析 PDF"],
+      "outputs": [".exam/current/、逐题 Hit 证据、Exam Result、Learning Gap Report、Repair Requests"],
       "sideEffects": ["写入一次性考试工作区和冻结记录，不修改学习本体或 Learner Model"],
       "confirmation": "no destructive confirmation; every run resets only its exam workspace",
-      "examples": ["chinese-student: exam", "chinese-student: exam hit"]
+      "examples": ["chinese-student: exam"]
     },
     {
       "name": "practice",
@@ -117,8 +115,8 @@
       "description": "用最多五轮的冷启动或试题驱动循环评估学习体验，并有界编排 check/fix/learn/optimize。",
       "usage": ["chinese-student: heal"],
       "subcommands": [
-        {"name": "exam", "description": "exam-driven 的简写：先用 exam hit 逐题检查完整试卷与冻结图谱的实际内容覆盖，再每轮调用 optimize，必要时路由本地补学或可信 External Supplement。", "inputs": ["原始试卷 PDF、当前 Subject、可选可靠答案材料"], "outputs": ["逐题 HIT/PARTIAL/MISS/UNRESOLVED 基线、迭代历史、优化记录、External Supplement provenance、修复路由和最终报告"], "sideEffects": ["可能路由 exam hit/check/fix/learn/amend/optimize；不写 Learner State、不修改原始 PDF"], "confirmation": "最多五轮；无可靠来源、优化振荡或出现回归即停止"},
-        {"name": "exam-driven", "description": "先对完整原始试卷运行 exam hit，再用 iteration/holdout 试题驱动最多五轮修复；每轮 check → fix/learn → optimize → exam hit → check。", "inputs": ["原始试卷 PDF、当前 Subject、可选可靠答案材料"], "outputs": ["逐题覆盖基线、轮次 Hit 报告、优化记录、修复路由、回归/稳定性检查和最终报告"], "sideEffects": ["可能路由 exam hit/check/fix/learn/amend/optimize；不写 Learner State、不修改原始 PDF"], "confirmation": "最多五轮；高风险合并/拆分需明确确认，遇到证据、权限或稳定性阻塞即停止"}
+        {"name": "exam", "description": "exam-driven 的简写：复用 Exam 内部逐题 Hit 阶段建立覆盖基线，再每轮调用 optimize，必要时路由本地补学或可信 External Supplement。", "inputs": ["原始试卷 PDF、当前 Subject、可选可靠答案材料"], "outputs": ["逐题 HIT/PARTIAL/MISS/UNRESOLVED 基线、迭代历史、优化记录、External Supplement provenance、修复路由和最终报告"], "sideEffects": ["可能路由 Exam Hit phase/check/fix/learn/amend/optimize；不写 Learner State、不修改原始 PDF"], "confirmation": "最多五轮；无可靠来源、优化振荡或出现回归即停止"},
+        {"name": "exam-driven", "description": "复用 Exam 内部 Hit 阶段建立覆盖基线，再用 iteration/holdout 试题驱动最多五轮修复；每轮 check → fix/learn → optimize → Exam Hit phase → check。", "inputs": ["原始试卷 PDF、当前 Subject、可选可靠答案材料"], "outputs": ["逐题覆盖基线、轮次 Hit 报告、优化记录、修复路由、回归/稳定性检查和最终报告"], "sideEffects": ["可能路由 Exam Hit phase/check/fix/learn/amend/optimize；不写 Learner State、不修改原始 PDF"], "confirmation": "最多五轮；高风险合并/拆分需明确确认，遇到证据、权限或稳定性阻塞即停止"}
       ],
       "inputs": ["学习产物和用户可见学习路径；exam-driven 另需原始试卷 PDF"],
       "outputs": ["学习摩擦报告、验证后的修复建议、exam-driven 迭代报告"],

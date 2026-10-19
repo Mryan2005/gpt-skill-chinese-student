@@ -15,7 +15,7 @@ from typing import Any
 SCHEMA_VERSION = "review.hit-review.report.v1"
 STATUSES = {"HIT", "PARTIAL", "MISS", "UNRESOLVED"}
 STATUS_RANK = {"MISS": 0, "UNRESOLVED": 0, "PARTIAL": 1, "HIT": 2}
-GAP_TYPES = {"mapping_missing", "content_incomplete", "knowledge_missing", "relation_missing", "source_insufficient", "answer_conflict", "question_unreadable"}
+GAP_TYPES = {"mapping_missing", "content_incomplete", "knowledge_missing", "relation_missing", "source_insufficient", "answer_conflict", "question_unreadable", "question_boundary_missing", "question_text_incomplete", "source_evidence_missing", "solution_evidence_insufficient", "answer_provenance_conflict", "card_content_incomplete"}
 
 
 def _text(value: Any) -> str:
@@ -122,6 +122,9 @@ def _snapshot_id(hit: dict[str, Any]) -> str:
 def _classify_gap(question: dict[str, Any]) -> str:
     result = question.get("hitResult", {}) if isinstance(question.get("hitResult"), dict) else {}
     status = result.get("hitStatus")
+    explicit = _text(result.get("failureReason"))
+    if explicit in GAP_TYPES:
+        return explicit
     issues = {str(item).casefold() for item in _list(result.get("mappingIssues"))}
     missing = " ".join(str(item).casefold() for item in _list(result.get("missingKnowledge")))
     if "answer" in " ".join(issues) or "conflict" in " ".join(issues):
@@ -140,7 +143,7 @@ def _classify_gap(question: dict[str, Any]) -> str:
 
 
 def _gap_owner(gap_type: str) -> str:
-    return {"mapping_missing": "learn", "content_incomplete": "learn", "knowledge_missing": "learn", "relation_missing": "learn", "source_insufficient": "check", "answer_conflict": "amend", "question_unreadable": "check"}.get(gap_type, "learn")
+    return {"mapping_missing": "learn", "content_incomplete": "learn", "knowledge_missing": "learn", "relation_missing": "learn", "card_content_incomplete": "learn", "source_insufficient": "check", "source_evidence_missing": "check", "question_boundary_missing": "check", "question_text_incomplete": "check", "question_unreadable": "check", "solution_evidence_insufficient": "check", "answer_conflict": "amend", "answer_provenance_conflict": "amend"}.get(gap_type, "learn")
 
 
 def _gap_records(hit_before: dict[str, Any]) -> list[dict[str, Any]]:
@@ -163,17 +166,20 @@ def _gap_records(hit_before: dict[str, Any]) -> list[dict[str, Any]]:
             "missingKnowledge": [],
             "evidenceRefs": [],
             "repairOwner": _gap_owner(gap_type),
+            "failureReasons": [],
             "status": "open",
         })
         item["questionIds"].append(question.get("questionId"))
         item["cardIds"].extend(result.get("supportingCardIds", []))
         item["missingKnowledge"].extend(missing)
         item["evidenceRefs"].extend(result.get("evidenceRefs", []))
+        item["failureReasons"].append(gap_type)
     for item in gaps.values():
         item["questionIds"] = sorted(set(item["questionIds"]))
         item["cardIds"] = sorted(set(item["cardIds"]))
         item["missingKnowledge"] = sorted(set(_text(value) for value in item["missingKnowledge"] if _text(value)))
         item["evidenceRefs"] = sorted(set(_text(value) for value in item["evidenceRefs"] if _text(value)))
+        item["failureReasons"] = sorted(set(item["failureReasons"]))
         item["researchQuery"] = " ".join(item["missingKnowledge"]) or f"{item['gapType']} knowledge for questions {' '.join(item['questionIds'])}"
     return list(gaps.values())
 
@@ -326,8 +332,10 @@ def _html_section(report: dict[str, Any]) -> str:
     return "".join(blocks)
 
 
-def compose_hit_review(hit_before: dict[str, Any], *, review_run_id: str, subject_id: str, catalog: dict[str, Any] | None = None, hit_after: dict[str, Any] | None = None, catalog_after: dict[str, Any] | None = None, supplements: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+def compose_hit_review(hit_before: dict[str, Any], *, review_run_id: str, subject_id: str, catalog: dict[str, Any] | None = None, hit_recovered: dict[str, Any] | None = None, hit_after: dict[str, Any] | None = None, catalog_after: dict[str, Any] | None = None, supplements: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     hit_before = _normalize_hit_report(hit_before)
+    if hit_recovered is not None:
+        hit_recovered = _normalize_hit_report(hit_recovered)
     if hit_after is not None:
         hit_after = _normalize_hit_report(hit_after)
     if hit_before.get("schemaVersion") != "exam.hit.report.v1":
@@ -335,9 +343,11 @@ def compose_hit_review(hit_before: dict[str, Any], *, review_run_id: str, subjec
     if hit_after is not None and hit_after.get("schemaVersion") != "exam.hit.report.v1":
         raise ValueError("hit_after must be exam.hit.report.v1")
     supplements = supplements or []
-    gaps = _gap_records(hit_before)
+    gaps = _gap_records(hit_recovered or hit_before)
     research, research_errors = _research(gaps, supplements)
     highlights = _highlights(hit_before, catalog, stage="original_exam_hit", review_run_id=review_run_id)
+    if hit_recovered:
+        highlights.extend(_highlights(hit_recovered, catalog, stage="recovered_exam_hit", review_run_id=review_run_id))
     if hit_after:
         highlights.extend(_highlights(hit_after, catalog_after or catalog, stage="enriched_exam_coverage", review_run_id=review_run_id))
     # Keep one record per stable content anchor and stage; a second run must not duplicate counts.
@@ -355,14 +365,16 @@ def compose_hit_review(hit_before: dict[str, Any], *, review_run_id: str, subjec
         "reviewRunId": review_run_id,
         "subjectId": subject_id,
         "graphSnapshotBefore": hit_before.get("snapshot"),
+        "graphSnapshotRecovered": hit_recovered.get("snapshot") if hit_recovered else None,
         "graphSnapshotAfter": hit_after.get("snapshot") if hit_after else None,
         "hitBefore": {"runId": hit_before.get("examHitRunId"), "snapshot": hit_before.get("snapshot"), "coverageSummary": _coverage_summary(hit_before), "questionResults": hit_before.get("questionResults", [])},
+        "hitRecovered": {"runId": hit_recovered.get("examHitRunId"), "snapshot": hit_recovered.get("snapshot"), "coverageSummary": _coverage_summary(hit_recovered), "questionResults": hit_recovered.get("questionResults", [])} if hit_recovered else None,
         "hitAfter": {"runId": hit_after.get("examHitRunId"), "snapshot": hit_after.get("snapshot"), "coverageSummary": _coverage_summary(hit_after), "questionResults": hit_after.get("questionResults", [])} if hit_after else None,
         "highlights": highlights,
         "gaps": gaps,
         "research": research,
         "learnHandoffs": _learn_handoffs(gaps, research),
-        "comparison": _compare(hit_before, hit_after),
+        "comparison": {"status": "RECHECKED" if hit_after or hit_recovered else "NOT_RECHECKED", "before": _coverage_summary(hit_before), "after": _coverage_summary(hit_after) if hit_after else None, "recovery": _compare(hit_before, hit_recovered) if hit_recovered else None, "enrichment": _compare(hit_recovered or hit_before, hit_after) if hit_after else None, "improvedQuestionIds": _compare(hit_recovered or hit_before, hit_after)["improvedQuestionIds"] if hit_after else [], "worsenedQuestionIds": _compare(hit_recovered or hit_before, hit_after)["worsenedQuestionIds"] if hit_after else [], "unchangedQuestionIds": _compare(hit_recovered or hit_before, hit_after)["unchangedQuestionIds"] if hit_after else []},
         "annotationOverlay": {"schemaVersion": "review.annotation-overlay.v1", "subjectId": subject_id, "reviewRunId": review_run_id, "annotations": highlights},
         "learnerModelMutation": False,
         "examResultMutation": False,
@@ -382,6 +394,7 @@ def _load(path: Path) -> Any:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Compose cross-domain Review Exam Hit enrichment artifacts.")
     parser.add_argument("--hit-before", type=Path, required=True)
+    parser.add_argument("--hit-recovered", type=Path)
     parser.add_argument("--hit-after", type=Path)
     parser.add_argument("--catalog", type=Path)
     parser.add_argument("--catalog-after", type=Path)
@@ -394,7 +407,7 @@ def main() -> int:
         supplements = _load(args.supplements) if args.supplements else []
         if not isinstance(supplements, list):
             raise ValueError("supplements must be a list")
-        report = compose_hit_review(_load(args.hit_before), review_run_id=args.review_run_id, subject_id=args.subject_id, catalog=_load(args.catalog) if args.catalog else None, hit_after=_load(args.hit_after) if args.hit_after else None, catalog_after=_load(args.catalog_after) if args.catalog_after else None, supplements=supplements)
+        report = compose_hit_review(_load(args.hit_before), review_run_id=args.review_run_id, subject_id=args.subject_id, catalog=_load(args.catalog) if args.catalog else None, hit_recovered=_load(args.hit_recovered) if args.hit_recovered else None, hit_after=_load(args.hit_after) if args.hit_after else None, catalog_after=_load(args.catalog_after) if args.catalog_after else None, supplements=supplements)
         args.output_dir.mkdir(parents=True, exist_ok=True)
         (args.output_dir / "hit-review-report.v1.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         (args.output_dir / "hit-review-annotations.json").write_text(json.dumps(report["annotationOverlay"], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

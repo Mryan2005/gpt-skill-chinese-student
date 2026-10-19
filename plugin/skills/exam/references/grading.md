@@ -58,7 +58,7 @@ graph_knowledge_gap
 
 Do not infer knowledge mastery from one correct question. Do not infer graph quality from the learner score alone.
 
-`exam hit` is separate from these learner-performance metrics. It tests whether
+The internal Exam Hit phase is separate from these learner-performance metrics. It tests whether
 the frozen graph content can support each complete question, including a new
 derivation or calculation. It does not require a learner answer and does not
 turn an unanswered question into a learner error.

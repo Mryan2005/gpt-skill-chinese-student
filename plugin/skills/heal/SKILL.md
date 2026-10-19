@@ -9,7 +9,7 @@ Default `heal` runs a fresh cold-start Novice Learner through the user-facing
 artifact. An independent Maintainer evaluates friction and only validated
 repairs are applied.
 
-`heal exam` (alias `exam-driven`) first runs `exam hit` on the complete uploaded
+`heal exam` (alias `exam-driven`) reuses the Exam-internal Hit phase on the complete uploaded
 exam PDF against one frozen graph snapshot, evaluates knowledge coverage, keeps iteration and holdout questions separate, and routes repairs to
 `check`/`fix`/`learn`/`amend`, and re-evaluates. It never updates Learner State,
 rewrites Source, or repairs by inserting a tested answer into a card.

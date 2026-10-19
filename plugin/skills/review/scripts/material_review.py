@@ -821,6 +821,7 @@ def main() -> int:
     parser.add_argument("--exam-result", type=Path)
     parser.add_argument("--catalog", type=Path, help="Exported canonical card/question/relation catalog.")
     parser.add_argument("--exam-hit-before", "--exam-hit", dest="exam_hit_before", type=Path, help="Full exam.hit.report.v1 produced from the original frozen graph snapshot.")
+    parser.add_argument("--exam-hit-recovered", dest="exam_hit_recovered", type=Path, help="Optional recoveredHit report derived from an immutable recovery ledger.")
     parser.add_argument("--exam-hit-after", dest="exam_hit_after", type=Path, help="Optional recheck report from the enriched graph snapshot.")
     parser.add_argument("--catalog-after", type=Path, help="Optional catalog from the enriched graph snapshot.")
     parser.add_argument("--supplements", type=Path, help="Validated External Supplement records returned by the research stage.")
@@ -853,6 +854,7 @@ def main() -> int:
                 review_run_id=args.review_run_id or report["reviewRunId"],
                 subject_id=report["subjectId"],
                 catalog=catalog,
+                hit_recovered=_load_json(args.exam_hit_recovered) if args.exam_hit_recovered else None,
                 hit_after=_load_json(args.exam_hit_after) if args.exam_hit_after else None,
                 catalog_after=_load_json(args.catalog_after) if args.catalog_after else None,
                 supplements=supplements,

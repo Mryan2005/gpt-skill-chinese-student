@@ -33,8 +33,7 @@ schemas and validators, and verify the real artifact before reporting success.
 | `study-exam-oriented-english` | Exam-oriented English model for simple, accurate writing and natural English-to-Chinese translation. |
 | `practice` | Generates separate printable questions and answers PDFs with provenance and a new practice run record. |
 | `exam` | Closed-book assessment runner for a frozen Subject snapshot. It records first-pass answers, grading, error analysis, and learning gaps. |
-| `exam hit` | Read-only question-by-question coverage test against a frozen graph snapshot. It derives HIT/PARTIAL/MISS/UNRESOLVED from actual card content. |
-| `review` | Runs full-paper Exam Hit, content-level highlights, evidence-backed gap research, Material Review, and eligible Learner Review without mutating the frozen Exam Result. |
+| `review` | Consumes frozen per-question Exam Hit records, then performs recovery, content-level highlights, evidence-backed gap research, Material Review, and eligible Learner Review without mutating the Exam Result. |
 | `check` | Read-only QA and audit front door for source integrity, structure, questions, relations, retrieval, rendering, and readiness. |
 | `sort` | Review-priority projection based on exam value, risk, dependencies, weakness, and recent errors. It does not change knowledge content. |
 | `fix` | Repairs allowed Derived, Runtime, and Generated Artifact defects from a current `check` report. |
@@ -79,10 +78,10 @@ progress, a blocker, optimization oscillation, or at most five repair rounds.
 OCR, OCR output, external OCR services, or delegated OCR. If a page cannot be
 read reliably, the exam record marks it as unreadable.
 
-`exam hit` reads the complete original exam against one frozen graph snapshot.
-It checks actual card content rather than titles, question mappings, answer
-history, or preselected priorities. It is not a learner score and never writes
-Learner State. `heal exam` consumes its PARTIAL, MISS, and UNRESOLVED records.
+The Exam workflow runs an internal question-by-question Hit phase before each
+isolated answer. It checks actual card content rather than titles, question
+mappings, answer history, or preselected priorities. It is not a learner score
+and never writes Learner State. `review` consumes the frozen Hit records.
 
 `practice` owns question and answer PDF generation. `review` consumes the
 closed Exam Result by default, or explicitly reads a user's own submission PDF

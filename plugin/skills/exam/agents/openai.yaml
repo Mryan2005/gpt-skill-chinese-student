@@ -1,4 +1,4 @@
 interface:
   display_name: "$中式学生:exam"
   short_description: "只用图谱完成闭卷考试"
-  default_prompt: "Use $chinese-student:exam for a closed-book assessment, or $chinese-student:exam hit for a read-only question-by-question knowledge coverage test against a frozen Subject snapshot. Exam hit must read every original PDF question and actual card content, preserve HIT/PARTIAL/MISS/UNRESOLVED evidence, and never update Learner State."
+  default_prompt: "Use $chinese-student:exam for a closed-book assessment. For every question, execute the internal Exam Hit phase before the isolated Independent Answerer, preserve HIT/PARTIAL/MISS/UNRESOLVED evidence, then grade and freeze the result without updating Learner State."

@@ -10,7 +10,7 @@ from typing import Any
 
 
 STATUSES = {"HIT", "PARTIAL", "MISS", "UNRESOLVED"}
-GAP_TYPES = {"mapping_missing", "content_incomplete", "knowledge_missing", "relation_missing", "source_insufficient", "answer_conflict", "question_unreadable"}
+GAP_TYPES = {"mapping_missing", "content_incomplete", "knowledge_missing", "relation_missing", "source_insufficient", "answer_conflict", "question_unreadable", "question_boundary_missing", "question_text_incomplete", "source_evidence_missing", "solution_evidence_insufficient", "answer_provenance_conflict", "card_content_incomplete"}
 
 
 def _text(value: Any) -> bool:
@@ -28,6 +28,8 @@ def validate_hit_review(report: Any) -> list[str]:
             errors.append(f"{field} must be non-empty")
     if not isinstance(report.get("graphSnapshotBefore"), dict):
         errors.append("graphSnapshotBefore is required")
+    if report.get("graphSnapshotRecovered") is not None and not isinstance(report.get("graphSnapshotRecovered"), dict):
+        errors.append("graphSnapshotRecovered must be an object or null")
     if report.get("graphSnapshotAfter") is not None and not isinstance(report.get("graphSnapshotAfter"), dict):
         errors.append("graphSnapshotAfter must be an object or null")
     for field in ("learnerModelMutation", "examResultMutation", "artifactMutation", "sourceMutation"):
@@ -36,6 +38,8 @@ def validate_hit_review(report: Any) -> list[str]:
     hit_before = report.get("hitBefore")
     if not isinstance(hit_before, dict) or not isinstance(hit_before.get("questionResults"), list) or not isinstance(hit_before.get("coverageSummary"), dict):
         errors.append("hitBefore must contain questionResults and coverageSummary")
+    if report.get("hitRecovered") is not None and (not isinstance(report.get("hitRecovered"), dict) or not isinstance(report["hitRecovered"].get("questionResults"), list)):
+        errors.append("hitRecovered must contain questionResults when present")
     highlights = report.get("highlights")
     if not isinstance(highlights, list):
         errors.append("highlights must be a list")
@@ -54,7 +58,7 @@ def validate_hit_review(report: Any) -> list[str]:
         seen_highlights.add(item.get("highlightId"))
         if item.get("hitStatus") not in {"HIT", "PARTIAL"}:
             errors.append(f"{path}.hitStatus must be HIT or PARTIAL")
-        if item.get("coverageStage") not in {"original_exam_hit", "enriched_exam_coverage"}:
+        if item.get("coverageStage") not in {"original_exam_hit", "recovered_exam_hit", "enriched_exam_coverage"}:
             errors.append(f"{path}.coverageStage is invalid")
         if item.get("highlightType") not in {"exam_hit_content", "exam_partial_content"}:
             errors.append(f"{path}.highlightType is invalid")

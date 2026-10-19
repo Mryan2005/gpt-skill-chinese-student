@@ -32,10 +32,10 @@ class HelpStructureTests(unittest.TestCase):
         self.assertIn("user-submission.pdf", user_written)
         self.assertIn("不生成 PDF", review)
 
-    def test_exam_hit_help_is_explicitly_question_by_question(self) -> None:
-        detail = render_help(load_registry(HELP_ROOT, HELP_ROOT.parent), "exam", "hit")
-        self.assertIn("HIT/PARTIAL/MISS/UNRESOLVED", detail)
-        self.assertIn("每道题", detail)
+    def test_exam_help_exposes_internal_hit_without_public_subcommand(self) -> None:
+        detail = render_help(load_registry(HELP_ROOT, HELP_ROOT.parent), "exam")
+        self.assertIn("逐题 Hit", detail)
+        self.assertNotIn("Subcommands", detail)
 
     def test_all_help_expands_every_command(self) -> None:
         output = render_help(load_registry(HELP_ROOT, HELP_ROOT.parent), all_commands=True)

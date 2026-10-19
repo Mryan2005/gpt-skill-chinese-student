@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/exam/exam-hit-recovery.v1.json",
+  "title": "Exam Hit Recovery Tasks",
+  "type": "object",
+  "required": ["schemaVersion", "examHitRunId", "snapshot", "tasks"],
+  "properties": {
+    "schemaVersion": {"const": "exam.hit.recovery.v1"},
+    "examHitRunId": {"type": "string", "minLength": 1},
+    "snapshot": {"type": "object"},
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["taskId", "questionId", "failureReason", "status", "attempts", "nextAction"],
+        "properties": {
+          "taskId": {"type": "string", "minLength": 1},
+          "questionId": {"type": "string", "minLength": 1},
+          "failureReason": {"enum": ["question_boundary_missing", "question_text_incomplete", "source_evidence_missing", "question_unreadable", "mapping_missing", "card_content_incomplete", "knowledge_missing", "solution_evidence_insufficient", "answer_provenance_conflict"]},
+          "status": {"enum": ["OPEN", "RECOVERED", "REVALIDATED", "BLOCKED", "HANDOFF"]},
+          "attempts": {"type": "array"},
+          "evidenceRefs": {"type": "array"},
+          "nextAction": {"enum": ["source_recovery", "mapping_repair", "knowledge_enrichment", "solution_provenance_review", "manual_review"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "externalSupplements": {"type": "array"}
+  },
+  "additionalProperties": true
+}
