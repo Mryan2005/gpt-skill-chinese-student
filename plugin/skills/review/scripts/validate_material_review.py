@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from validate_hit_review import validate_hit_review
+
 
 MATERIAL_SCHEMA_VERSIONS = {"material-review.report.v1", "material-review.report.v2"}
 MATERIAL_HIGHLIGHTS = {"confirmed_weakness", "suspected_weakness"}
@@ -133,6 +135,8 @@ def validate_material_review(report: Any) -> list[str]:
     if not isinstance(report.get("questionLearningOrder", []), list):
         errors.append("questionLearningOrder must be a list")
     _validate_overlay(report.get("annotationOverlay"), errors)
+    if "examHitReview" in report:
+        errors.extend(f"examHitReview: {error}" for error in validate_hit_review(report["examHitReview"]))
     learner_model = report.get("learnerModel")
     if isinstance(learner_model, dict):
         for field in ("observationsAppended", "masteryChanges", "selfReportChanges"):

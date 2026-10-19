@@ -28,6 +28,7 @@ RETRIEVAL_RESULTS = {"FOUND", "PARTIAL_FOUND", "NOT_FOUND", "NOT_ATTEMPTED"}
 ARTIFACT_STATUSES = {"OK", "DIRECT_MAPPING_MISSING", "GRAPH_KNOWLEDGE_GAP", "GRAPH_MAPPING_MISSING", "GRAPH_MAPPING_AMBIGUOUS", "SOURCE_MISSING", "SOURCE_INCOMPLETE", "ANSWER_PROVENANCE_CONFLICT", "QUESTION_UNREADABLE", "REFERENCE_ANSWER_MISSING"}
 GRADING_STATUSES = {"GRADED", "UNGRADED", "BLOCKED"}
 ANSWERER_TYPES = {"human", "agent", "model", "unknown"}
+HIT_STATUSES = {"HIT", "PARTIAL", "MISS", "UNRESOLVED"}
 PDF_READING_MODES = {"native_pdf_page_image", "native_pdf_text_and_page"}
 PDF_BANNED_TOKENS = {
     "ocr",
@@ -129,6 +130,66 @@ def _validate_workspace(record: dict[str, Any], state_index: int, errors: list[s
         errors.append("EXAM_WORKSPACE_NOT_CLEAN: examLoaded must be true after LOAD_EXAM_PDF")
 
 
+def _validate_execution_isolation(record: dict[str, Any], state_index: int, errors: list[str]) -> None:
+    if state_index < STATES.index("FIRST_PASS"):
+        return
+    isolation = record.get("executionIsolation")
+    if not isinstance(isolation, dict):
+        errors.append("EXAM_HIT_ISOLATION: executionIsolation is required from FIRST_PASS onward")
+        return
+    for field in ("hitInspectorContextId", "independentAnswererContextId", "answererInputPolicy"):
+        if not _text(isolation.get(field)):
+            errors.append(f"EXAM_HIT_ISOLATION: executionIsolation.{field} is required")
+    if isolation.get("hitInspectorContextId") == isolation.get("independentAnswererContextId"):
+        errors.append("EXAM_HIT_ISOLATION: Hit Inspector and Independent Answerer contexts must differ")
+    if isolation.get("phaseOrder") != ["READ_QUESTION", "EXAM_HIT", "INDEPENDENT_ANSWER", "GRADE", "FREEZE"]:
+        errors.append("EXAM_HIT_ORDER: phaseOrder must be Read → Hit → Answer → Grade → Freeze")
+    if isolation.get("hitCompletedBeforeAnswer") is not True or isolation.get("verified") is not True:
+        errors.append("EXAM_HIT_ISOLATION: isolation and Hit-before-answer gate must be verified")
+    forbidden = {"hit_analysis", "candidate_card_content", "hit_status", "missing_knowledge", "external_research", "official_answer", "official_solution"}
+    if not forbidden.issubset(set(isolation.get("answererDidNotReceive", []))):
+        errors.append("EXAM_HIT_ISOLATION: answererDidNotReceive must include Hit and solution data")
+
+
+def _validate_question_hit(question: dict[str, Any], path: str, snapshot: dict[str, Any], isolation: dict[str, Any], errors: list[str]) -> None:
+    hit = question.get("hit")
+    if not isinstance(hit, dict):
+        errors.append(f"EXAM_HIT_REQUIRED: {path}.hit is required before independent answer")
+        return
+    if hit.get("hitStatus") not in HIT_STATUSES:
+        errors.append(f"EXAM_HIT_STATUS_INVALID: {path}.hit.hitStatus is invalid")
+    if hit.get("graphSnapshotId") != snapshot.get("id"):
+        errors.append(f"EXAM_HIT_SNAPSHOT_MISMATCH: {path}.hit.graphSnapshotId must match frozen snapshot")
+    for field in ("requiredKnowledge", "supportingCardIds", "supportingContentRefs", "missingKnowledge", "hitEvidenceRefs"):
+        if not isinstance(hit.get(field), list):
+            errors.append(f"EXAM_HIT_EVIDENCE: {path}.hit.{field} must be a list")
+    if hit.get("hitStatus") != "UNRESOLVED" and not hit.get("requiredKnowledge"):
+        errors.append(f"EXAM_HIT_EVIDENCE: {path}.hit.requiredKnowledge must be non-empty")
+    if hit.get("hitStatus") == "UNRESOLVED" and not _text(hit.get("unresolvedReason")):
+        errors.append(f"EXAM_HIT_EVIDENCE: {path}.hit.unresolvedReason is required")
+    if not _text(hit.get("hitCompletedAt")) or not _text(hit.get("inspectorContextId")):
+        errors.append(f"EXAM_HIT_EVIDENCE: {path}.hit completion and inspector context are required")
+    if hit.get("inspectorContextId") != isolation.get("hitInspectorContextId"):
+        errors.append(f"EXAM_HIT_ISOLATION: {path}.hit inspector context mismatch")
+    ref_ids: set[str] = set()
+    for index, ref in enumerate(hit.get("supportingContentRefs", [])):
+        ref_path = f"{path}.hit.supportingContentRefs[{index}]"
+        if not isinstance(ref, dict) or not _text(ref.get("cardId")) or not _text(ref.get("field")) or not _text(ref.get("excerpt")) or not _text(ref.get("contentSha256")):
+            errors.append(f"EXAM_HIT_EVIDENCE: {ref_path} must point to actual card content")
+            continue
+        if ref.get("field") in {"id", "title", "name", "label"}:
+            errors.append(f"EXAM_HIT_EVIDENCE: {ref_path} cannot use title-only evidence")
+        ref_ids.add(ref["cardId"])
+    if ref_ids != set(hit.get("supportingCardIds", [])):
+        errors.append(f"EXAM_HIT_EVIDENCE: {path}.hit.supportingCardIds must match content references")
+    if not hit.get("hitEvidenceRefs"):
+        errors.append(f"EXAM_HIT_EVIDENCE: {path}.hit.hitEvidenceRefs must be non-empty")
+    if hit.get("hitStatus") == "HIT" and hit.get("missingKnowledge"):
+        errors.append(f"EXAM_HIT_STATUS: {path}.HIT cannot contain missingKnowledge")
+    if hit.get("hitStatus") in {"PARTIAL", "MISS"} and not hit.get("missingKnowledge"):
+        errors.append(f"EXAM_HIT_STATUS: {path}.{hit.get('hitStatus')} requires missingKnowledge")
+
+
 def validate_record(record: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(record, dict):
@@ -149,6 +210,7 @@ def validate_record(record: Any) -> list[str]:
     elif state == "CLOSED" and not _text(answerer.get("id")):
         errors.append("answerer.id is required for a CLOSED exam")
     _validate_workspace(record, state_index, errors)
+    _validate_execution_isolation(record, state_index, errors)
     snapshot = record.get("snapshot")
     if not isinstance(snapshot, dict):
         errors.append("snapshot is required")
@@ -183,12 +245,20 @@ def validate_record(record: Any) -> list[str]:
             question_ids.add(question_id)
         first_pass = question.get("firstPass")
         if state_index >= STATES.index("FIRST_PASS"):
+            isolation = record.get("executionIsolation", {}) if isinstance(record.get("executionIsolation"), dict) else {}
+            _validate_question_hit(question, path, snapshot if isinstance(snapshot, dict) else {}, isolation, errors)
             if not isinstance(first_pass, dict):
                 errors.append(f"{path}.firstPass is required from FIRST_PASS onward")
             else:
                 for field in ("confidence", "reasoningSummary", "order", "attemptStatus", "retrieval"):
                     if field not in first_pass:
                         errors.append(f"{path}.firstPass.{field} is required")
+                if first_pass.get("answererContextId") != isolation.get("independentAnswererContextId"):
+                    errors.append(f"EXAM_HIT_ISOLATION: {path}.firstPass.answererContextId mismatch")
+                if first_pass.get("answererInputPolicy") != "question_only_after_hit":
+                    errors.append(f"EXAM_HIT_ISOLATION: {path}.firstPass.answererInputPolicy must be question_only_after_hit")
+                if first_pass.get("phaseOrder") != ["READ_QUESTION", "EXAM_HIT", "INDEPENDENT_ANSWER"]:
+                    errors.append(f"EXAM_HIT_ORDER: {path}.firstPass.phaseOrder is invalid")
                 attempt_status = first_pass.get("attemptStatus")
                 if attempt_status not in ATTEMPT_STATUSES:
                     errors.append(f"FIRST_PASS_STATUS_MISSING: {path}.firstPass.attemptStatus is invalid")
@@ -205,7 +275,10 @@ def validate_record(record: Any) -> list[str]:
                     for field in ("candidateCardIds", "selectedCardIds", "evidence"):
                         if not isinstance(retrieval.get(field), list):
                             errors.append(f"{path}.firstPass.retrieval.{field} must be a list")
-                    if not retrieval.get("directMappingAvailable") and retrieval.get("result") == "NOT_ATTEMPTED" and attempt_status not in {"BLOCKED_BY_UNREADABLE_QUESTION", "BLOCKED_BY_EXAM_SYSTEM"}:
+                    if record.get("executionIsolation", {}).get("answererInputPolicy") == "question_only_after_hit":
+                        if retrieval.get("attempted") is not False or retrieval.get("result") != "NOT_ATTEMPTED" or any(retrieval.get(field) for field in ("queries", "candidateCardIds", "selectedCardIds", "evidence")):
+                            errors.append(f"EXAM_HIT_ISOLATION: {path}.firstPass.retrieval must not expose graph retrieval to the Independent Answerer")
+                    if not retrieval.get("directMappingAvailable") and retrieval.get("result") == "NOT_ATTEMPTED" and record.get("executionIsolation", {}).get("answererInputPolicy") != "question_only_after_hit" and attempt_status not in {"BLOCKED_BY_UNREADABLE_QUESTION", "BLOCKED_BY_EXAM_SYSTEM"}:
                         errors.append(f"FIRST_PASS_RETRIEVAL_NOT_ATTEMPTED: {path}")
                 answer = first_pass.get("answer")
                 reasoning = first_pass.get("reasoningSummary")
@@ -220,8 +293,13 @@ def validate_record(record: Any) -> list[str]:
                 else:
                     if not isinstance(question.get("blockerEvidence"), list) or not question["blockerEvidence"]:
                         errors.append(f"BLOCKED_WITHOUT_EVIDENCE: {path}.blockerEvidence is required")
-                    if attempt_status == "BLOCKED_BY_GRAPH_KNOWLEDGE_GAP" and (not isinstance(retrieval, dict) or retrieval.get("attempted") is not True or retrieval.get("result") != "NOT_FOUND"):
-                        errors.append(f"GRAPH_GAP_WITHOUT_RETRIEVAL: {path}")
+                    if attempt_status == "BLOCKED_BY_GRAPH_KNOWLEDGE_GAP":
+                        hit_status = (question.get("hit") or {}).get("hitStatus")
+                        if record.get("executionIsolation", {}).get("answererInputPolicy") == "question_only_after_hit":
+                            if hit_status not in {"PARTIAL", "MISS", "UNRESOLVED"}:
+                                errors.append(f"GRAPH_GAP_WITHOUT_HIT: {path}")
+                        elif not isinstance(retrieval, dict) or retrieval.get("attempted") is not True or retrieval.get("result") != "NOT_FOUND":
+                            errors.append(f"GRAPH_GAP_WITHOUT_RETRIEVAL: {path}")
                     if attempt_status == "BLOCKED_BY_UNREADABLE_QUESTION" and isinstance(retrieval, dict) and retrieval.get("attempted") is True:
                         errors.append(f"UNREADABLE_QUESTION_RETRIEVAL_MISMATCH: {path}")
         if state_index >= STATES.index("ANSWERS_FROZEN") and question.get("firstPassFrozen") is not True:

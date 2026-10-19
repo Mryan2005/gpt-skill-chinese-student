@@ -18,7 +18,7 @@ def _source(path: Path, role: str) -> dict[str, Any]:
     return {"role": role, "path": str(path), "sha256": _hash(path), "source": "original_pdf", "readingMode": "native_pdf_page_or_text", "ocrUsed": False, "delegatedOcr": False, "intermediateTextSources": []}
 
 
-def route_review(mode: str | None, *, exam_result: Path | None, questions_pdf: Path | None, answers_pdf: Path | None, submission_pdf: Path | None, attempt_id: str | None, review_run_id: str) -> dict[str, Any]:
+def route_review(mode: str | None, *, exam_result: Path | None, questions_pdf: Path | None, answers_pdf: Path | None, submission_pdf: Path | None, attempt_id: str | None, review_run_id: str, exam_hit: Path | None = None, catalog: Path | None = None) -> dict[str, Any]:
     selected = mode or "exam-result"
     if selected not in {"exam-result", "user-written"}:
         raise ValueError("mode must be exam-result or user-written")
@@ -38,6 +38,10 @@ def route_review(mode: str | None, *, exam_result: Path | None, questions_pdf: P
             "learnerModelWriteAllowed": False,
             "examResultPath": str(exam_result),
             "sources": [],
+            "examHitPath": str(exam_hit) if exam_hit else None,
+            "catalogPath": str(catalog) if catalog else None,
+            "reviewPipeline": ["pdf", "consume_exam_hit", "highlight", "gap_detection", "research", "learn_handoff", "recheck", "report"],
+            "researchPolicy": {"allowed": True, "requiresProvenance": True},
             "outputPolicy": {"generatesPdf": False, "writesLearnerModel": False},
         }
     if not attempt_id:
@@ -55,6 +59,10 @@ def route_review(mode: str | None, *, exam_result: Path | None, questions_pdf: P
         "learnerModelWriteAllowed": True,
         "examResultPath": None,
         "sources": [_source(questions_pdf, "questions"), _source(answers_pdf, "answers"), _source(submission_pdf, "user-submission")],
+        "examHitPath": str(exam_hit) if exam_hit else None,
+        "catalogPath": str(catalog) if catalog else None,
+        "reviewPipeline": ["pdf", "consume_or_delegate_exam_hit", "highlight", "gap_detection", "research", "learn_handoff", "recheck", "report"],
+        "researchPolicy": {"allowed": True, "requiresProvenance": True},
         "outputPolicy": {"generatesPdf": False, "writesLearnerModel": True},
     }
 
@@ -68,10 +76,12 @@ def main() -> int:
     parser.add_argument("--submission-pdf", type=Path)
     parser.add_argument("--attempt-id")
     parser.add_argument("--review-run-id", required=True)
+    parser.add_argument("--exam-hit", type=Path)
+    parser.add_argument("--catalog", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
-        manifest = route_review(args.mode, exam_result=args.exam_result, questions_pdf=args.questions_pdf, answers_pdf=args.answers_pdf, submission_pdf=args.submission_pdf, attempt_id=args.attempt_id, review_run_id=args.review_run_id)
+        manifest = route_review(args.mode, exam_result=args.exam_result, questions_pdf=args.questions_pdf, answers_pdf=args.answers_pdf, submission_pdf=args.submission_pdf, attempt_id=args.attempt_id, review_run_id=args.review_run_id, exam_hit=args.exam_hit, catalog=args.catalog)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"status": "PASS", "mode": manifest["reviewMode"], "output": str(args.output)}, ensure_ascii=False))

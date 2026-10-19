@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/exam/exam-record.v1.json",
+  "title": "Frozen Exam Result with Pre-answer Hit",
+  "type": "object",
+  "required": ["schemaVersion", "examId", "state", "snapshot", "executionIsolation", "questions"],
+  "properties": {
+    "schemaVersion": {"const": "exam-record.v1"},
+    "examId": {"type": "string", "minLength": 1},
+    "state": {"type": "string"},
+    "snapshot": {"type": "object"},
+    "executionIsolation": {"type": "object"},
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["questionId", "hit", "firstPass"],
+        "properties": {
+          "questionId": {"type": "string", "minLength": 1},
+          "hit": {"type": "object"},
+          "firstPass": {"type": "object"}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

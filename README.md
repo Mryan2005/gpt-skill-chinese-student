@@ -34,7 +34,7 @@ schemas and validators, and verify the real artifact before reporting success.
 | `practice` | Generates separate printable questions and answers PDFs with provenance and a new practice run record. |
 | `exam` | Closed-book assessment runner for a frozen Subject snapshot. It records first-pass answers, grading, error analysis, and learning gaps. |
 | `exam hit` | Read-only question-by-question coverage test against a frozen graph snapshot. It derives HIT/PARTIAL/MISS/UNRESOLVED from actual card content. |
-| `review` | Separates Learner Review from Material Review: it diagnoses eligible human evidence, extracts material focus from any reliable Exam Result, creates remediation/retest plans, and emits evidence-backed overlays. |
+| `review` | Runs full-paper Exam Hit, content-level highlights, evidence-backed gap research, Material Review, and eligible Learner Review without mutating the frozen Exam Result. |
 | `check` | Read-only QA and audit front door for source integrity, structure, questions, relations, retrieval, rendering, and readiness. |
 | `sort` | Review-priority projection based on exam value, risk, dependencies, weakness, and recent errors. It does not change knowledge content. |
 | `fix` | Repairs allowed Derived, Runtime, and Generated Artifact defects from a current `check` report. |
@@ -91,6 +91,11 @@ the local Learner Model; Material Review can process agent runs, consume a
 native-text material catalog, emit question/card study focuses plus
 Markdown/HTML and annotation overlays, and never write mastery. Review never
 generates a PDF.
+
+Exam owns `PDF → Exam Hit → Independent Answer → Grade → Freeze`. Review
+consumes the frozen Hit output, then runs `Highlight → Gap Detection → Research
+→ learn handoff → Recheck → Report`. Original hits and coverage gained after a
+validated supplement remain separate snapshots and overlay stages.
 
 `optimize` is the graph-structure boundary used by `heal`: it detects exact
 duplicates, oversized or fragmented cards, and related-but-distinct concepts,

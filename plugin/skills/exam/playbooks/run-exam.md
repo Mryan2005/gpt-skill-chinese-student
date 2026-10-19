@@ -19,13 +19,16 @@ Use it when the user wants to begin or complete a closed-book exam against the c
 3. Load the exact Subject artifact and readiness state.
 4. Load the original question PDF directly and only then transition to LOAD_EXAM_PDF.
 5. Create and freeze an Exam Snapshot before answering.
-6. Enter FIRST_PASS. Use only the snapshot and questions.
-7. Process every readable question. Save one first-pass record with
-   `attemptStatus`, answer or explicit null, confidence, reasoning, direct
-   mapping availability, retrieval queries and result, actual cards used,
-   original PDF page, and evidence boundary. A missing direct mapping does not
-   stop retrieval.
-8. Verify `processedQuestionCount == totalQuestionCount` and
+6. For each question, create separate Hit Inspector and Independent Answerer
+   contexts. Read the original question, run `exam hit` against the frozen
+   snapshot, save the Hit record, then give only the original question to the
+   answerer. Never pass card content, Hit status, missing knowledge, or
+   research results to the answerer.
+7. Save one first-pass record with `attemptStatus`, answer or explicit null,
+   confidence, reasoning, phase order, and the answerer's question-only input
+   policy. Hit evidence remains in the separate question `hit` record.
+8. Verify every question has a completed Hit record, then verify
+   `processedQuestionCount == totalQuestionCount` and
    `unprocessedQuestionCount == 0`. Freeze all first-pass records and transition
    to ANSWERS_FROZEN only when the coverage gate passes.
 9. Stop. Route later explanation reading to grade-exam.

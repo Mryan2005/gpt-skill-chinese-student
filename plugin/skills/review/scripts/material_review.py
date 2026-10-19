@@ -820,6 +820,10 @@ def main() -> int:
     parser.add_argument("--review-report", type=Path, required=True)
     parser.add_argument("--exam-result", type=Path)
     parser.add_argument("--catalog", type=Path, help="Exported canonical card/question/relation catalog.")
+    parser.add_argument("--exam-hit-before", "--exam-hit", dest="exam_hit_before", type=Path, help="Full exam.hit.report.v1 produced from the original frozen graph snapshot.")
+    parser.add_argument("--exam-hit-after", dest="exam_hit_after", type=Path, help="Optional recheck report from the enriched graph snapshot.")
+    parser.add_argument("--catalog-after", type=Path, help="Optional catalog from the enriched graph snapshot.")
+    parser.add_argument("--supplements", type=Path, help="Validated External Supplement records returned by the research stage.")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--review-run-id")
     args = parser.parse_args()
@@ -837,11 +841,35 @@ def main() -> int:
         report["studyGuideMarkdown"] = _markdown(report)
         report["studyGuideHtml"] = _html(report)
         args.output_dir.mkdir(parents=True, exist_ok=True)
+        hit_review = None
+        if args.exam_hit_before:
+            from compose_hit_review import compose_hit_review
+
+            supplements = _load_json(args.supplements) if args.supplements else []
+            if not isinstance(supplements, list):
+                raise ValueError("--supplements must contain a JSON list")
+            hit_review = compose_hit_review(
+                _load_json(args.exam_hit_before),
+                review_run_id=args.review_run_id or report["reviewRunId"],
+                subject_id=report["subjectId"],
+                catalog=catalog,
+                hit_after=_load_json(args.exam_hit_after) if args.exam_hit_after else None,
+                catalog_after=_load_json(args.catalog_after) if args.catalog_after else None,
+                supplements=supplements,
+            )
+            report["examHitReview"] = hit_review
+            report["annotationOverlay"]["annotations"].extend(hit_review["annotationOverlay"]["annotations"])
+            report["studyGuideMarkdown"] += "\n\n" + hit_review["studyGuideMarkdown"]
+            report["studyGuideHtml"] = report["studyGuideHtml"].replace("</body>", hit_review["studyGuideHtml"] + "</body>")
+            (args.output_dir / "hit-review-report.v1.json").write_text(json.dumps(hit_review, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            (args.output_dir / "hit-review-annotations.json").write_text(json.dumps(hit_review["annotationOverlay"], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            (args.output_dir / "hit-review.md").write_text(hit_review["studyGuideMarkdown"] + "\n", encoding="utf-8")
+            (args.output_dir / "hit-review.html").write_text("<!doctype html><html><head><meta charset=\"utf-8\"><style>body{font-family:system-ui;max-width:1100px;margin:2rem auto;padding:0 1rem}.notice{padding:1rem;background:#eef7f3}.hit-card{padding:1rem;margin:1rem 0;border:1px solid #ccd8d2}.hit-card.partial{background:#fffaf0}.hit-card.hit{background:#f2fbf5}mark{background:#fff08a}</style></head><body>" + hit_review["studyGuideHtml"] + "</body></html>\n", encoding="utf-8")
         (args.output_dir / "material-review-report.v2.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         (args.output_dir / "material-review-annotations.json").write_text(json.dumps(report["annotationOverlay"], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         (args.output_dir / "material-review.md").write_text(report["studyGuideMarkdown"] + "\n", encoding="utf-8")
         (args.output_dir / "material-review.html").write_text(report["studyGuideHtml"] + "\n", encoding="utf-8")
-        print(json.dumps({"status": "PASS", "outputDir": str(args.output_dir), "focusCards": len(report["focuses"]), "questionAnalysisProduced": report["coverage"]["questionAnalysisProducedCount"], "uniqueAffectedQuestions": report["blockerAnalysis"]["uniqueAffectedQuestionCount"], "examResultUnchanged": report["examResultIntegrity"]["unchanged"]}, ensure_ascii=False))
+        print(json.dumps({"status": "PASS", "outputDir": str(args.output_dir), "focusCards": len(report["focuses"]), "questionAnalysisProduced": report["coverage"]["questionAnalysisProducedCount"], "uniqueAffectedQuestions": report["blockerAnalysis"]["uniqueAffectedQuestionCount"], "examHitHighlights": len(hit_review["highlights"]) if hit_review else 0, "examHitGaps": len(hit_review["gaps"]) if hit_review else 0, "examResultUnchanged": report["examResultIntegrity"]["unchanged"]}, ensure_ascii=False))
         return 0
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"INPUT_ERROR: {exc}", file=sys.stderr)

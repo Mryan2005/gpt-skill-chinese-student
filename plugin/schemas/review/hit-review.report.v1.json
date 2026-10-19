@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/review/hit-review.report.v1.json",
+  "title": "Review Exam Hit Enrichment Report",
+  "type": "object",
+  "required": ["schemaVersion", "reviewRunId", "subjectId", "graphSnapshotBefore", "graphSnapshotAfter", "hitBefore", "highlights", "gaps", "research", "learnHandoffs", "comparison", "annotationOverlay", "studyGuideMarkdown", "studyGuideHtml", "learnerModelMutation", "examResultMutation", "artifactMutation", "sourceMutation"],
+  "properties": {
+    "schemaVersion": {"const": "review.hit-review.report.v1"},
+    "reviewRunId": {"type": "string", "minLength": 1},
+    "subjectId": {"type": "string", "minLength": 1},
+    "graphSnapshotBefore": {"type": "object"},
+    "graphSnapshotAfter": {"type": ["object", "null"]},
+    "hitBefore": {"type": "object"},
+    "hitAfter": {"type": ["object", "null"]},
+    "highlights": {"type": "array"},
+    "gaps": {"type": "array"},
+    "research": {"type": "object"},
+    "learnHandoffs": {"type": "array"},
+    "comparison": {"type": "object"},
+    "annotationOverlay": {"type": "object"},
+    "studyGuideMarkdown": {"type": "string", "minLength": 1},
+    "studyGuideHtml": {"type": "string", "minLength": 1},
+    "learnerModelMutation": {"const": false},
+    "examResultMutation": {"const": false},
+    "artifactMutation": {"const": false},
+    "sourceMutation": {"const": false}
+  },
+  "additionalProperties": true
+}

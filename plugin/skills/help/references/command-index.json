@@ -72,14 +72,14 @@
       "name": "review",
       "kind": "workflow",
       "status": "available",
-      "description": "直接读取 PDF，分别执行 Material Review 与 Learner Review。",
+      "description": "直接读取 PDF，消费 Exam 产生的逐题 Hit，执行内容高亮、知识缺口检测、证据化补充与 Material/Learner Review。",
       "usage": ["chinese-student: review", "chinese-student: review exam-result", "chinese-student: review user-written"],
       "subcommands": [
-        {"name": "exam-result", "description": "默认模式；读取冻结 Exam Result、原始试卷和解析 PDF。agent 结果只做 Material Review，不更新 Learner Model。", "inputs": ["closed Exam Result、questions PDF、answers/solutions PDF"], "outputs": ["题目级/卡片级 Material Review、重点、任务、Markdown/HTML/Overlay"], "sideEffects": ["不修改 Exam Result、Source 或 agent Learner Model"]},
-        {"name": "user-written", "description": "用户明确声明本人作答后，读取 questions.pdf、answers.pdf 和 user-submission.pdf 执行批改与 Learner Review。", "inputs": ["questions.pdf、answers.pdf、用户答卷 PDF、新 attemptId"], "outputs": ["评分、逐题诊断、重点、学习任务、复测计划和 Learner State 更新"], "sideEffects": ["仅在证据充分时更新 Learner State；不修改原始 PDF"], "confirmation": "requires explicit user-owned-submission intent"}
+        {"name": "exam-result", "description": "默认模式；读取冻结 Exam Result、原始试卷和解析 PDF，消费 Exam 已冻结的逐题 Hit，执行内容高亮、缺口研究和 Material Review。agent 结果不更新 Learner Model。", "inputs": ["closed Exam Result（含逐题 Hit）、questions PDF、answers/solutions PDF、冻结图谱快照"], "outputs": ["逐题 HIT/PARTIAL/MISS/UNRESOLVED、卡片正文高亮、External Supplement、Markdown/HTML/Overlay"], "sideEffects": ["不修改 Exam Result、Source 或 agent Learner Model"]},
+        {"name": "user-written", "description": "用户明确声明本人作答后，读取 questions.pdf、answers.pdf 和 user-submission.pdf；优先消费随附 Hit，缺失时委托隔离 Hit Inspector，再执行高亮、缺口研究与 Learner Review。", "inputs": ["questions.pdf、answers.pdf、用户答卷 PDF、新 attemptId、指定历史图谱快照"], "outputs": ["覆盖报告、逐题诊断、重点、External Supplement、学习任务、复测计划和 Learner State 更新"], "sideEffects": ["仅在证据充分时更新 Learner State；不修改原始 PDF"], "confirmation": "requires explicit user-owned-submission intent"}
       ],
       "inputs": ["按子命令决定；所有 PDF 必须由模型直接读取"],
-      "outputs": [".review/current/结构化报告、Markdown、HTML、Annotation Overlay"],
+      "outputs": [".review/current/逐题 Hit 报告、补充前后覆盖、External Supplement、Markdown、HTML、Annotation Overlay"],
       "sideEffects": ["不生成 PDF；Source/Exam Result 保持不变"],
       "confirmation": "user-written requires explicit identity; relearn is unrelated and remains separately gated",
       "examples": ["chinese-student: review", "chinese-student: review user-written"]

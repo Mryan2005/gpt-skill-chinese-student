@@ -180,12 +180,13 @@ class ExamStructureTests(unittest.TestCase):
         errors = validate_record(record)
         self.assertTrue(any("EXAM_WORKSPACE_NOT_CLEAN" in error for error in errors))
 
-    def test_missing_direct_mapping_does_not_block_retrieval(self) -> None:
+    def test_independent_answerer_cannot_retrieve_graph_after_hit(self) -> None:
         record = copy.deepcopy(load_example())
         first_pass = record["questions"][0]["firstPass"]
         first_pass["retrieval"]["directMappingAvailable"] = False
         first_pass["retrieval"]["result"] = "FOUND"
-        self.assertEqual(validate_record(record), [])
+        errors = validate_record(record)
+        self.assertTrue(any("EXAM_HIT_ISOLATION" in error for error in errors))
 
     def test_graph_gap_requires_broad_retrieval_and_blocked_grading(self) -> None:
         record = copy.deepcopy(load_example())
@@ -197,15 +198,17 @@ class ExamStructureTests(unittest.TestCase):
                 "reasoningSummary": "已完成冻结图谱检索，但未找到足以支持判断的知识。",
                 "retrieval": {
                     "directMappingAvailable": False,
-                    "attempted": True,
-                    "queries": ["未知结构"],
+                    "attempted": False,
+                    "queries": [],
                     "candidateCardIds": [],
                     "selectedCardIds": [],
-                    "result": "NOT_FOUND",
-                    "evidence": ["broad-search:math-1"]
+                    "result": "NOT_ATTEMPTED",
+                    "evidence": []
                 }
             }
         )
+        question["hit"]["hitStatus"] = "MISS"
+        question["hit"]["missingKnowledge"] = ["required method"]
         question["blockerEvidence"] = ["retrieval:broad-search:math-1"]
         question["artifactStatus"] = "GRAPH_KNOWLEDGE_GAP"
         question["grading"] = {"gradingStatus": "BLOCKED", "result": "blocked", "score": 0, "errorTypes": []}

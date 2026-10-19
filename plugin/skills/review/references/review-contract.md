@@ -169,6 +169,25 @@ must be reported as `unresolved_anchor`, not guessed.
 Use `.review/current/` for input manifest, report, learner updates, routes, and
 validation. Reset it before each run. Preserve `.exam/` and `.local/learner/`.
 
+## Exam Hit enrichment
+
+Both review modes run the shared `exam hit` coverage stage. The complete paper
+is checked question by question against one frozen graph snapshot, and actual
+card fields—not titles or IDs—supply the coverage evidence. Highlights are
+stored in an independent Annotation Overlay with a `contentAnchor`, question
+IDs, hit status, card version, snapshot ID, and evidence references.
+
+Gaps are classified as `mapping_missing`, `content_incomplete`,
+`knowledge_missing`, `relation_missing`, `source_insufficient`,
+`answer_conflict`, or `question_unreadable`. A research query is generated only
+for an observed gap. Verified web material is recorded as
+`provenanceType: external_supplement` and handed to `learn`; it never becomes
+official Source or an official answer.
+
+The before snapshot is immutable. A later recheck uses a new graph snapshot and
+labels newly supported content `enriched_exam_coverage`, keeping it distinct
+from `original_exam_hit`. Research failure remains an explicit unresolved gap.
+
 ## Exam-oriented English handoff
 
 When the Subject domain is `study-exam-oriented-english`, use the domain

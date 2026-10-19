@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 
-HIGHLIGHT_TYPES = {"high_frequency", "confirmed_weakness", "suspected_weakness", "confusion", "prerequisite_gap", "error_step", "must_memorize", "must_understand", "must_practice", "key_source_span", "scoring_point", "retest_target"}
+HIGHLIGHT_TYPES = {"high_frequency", "confirmed_weakness", "suspected_weakness", "confusion", "prerequisite_gap", "error_step", "must_memorize", "must_understand", "must_practice", "key_source_span", "scoring_point", "retest_target", "exam_hit_content", "exam_partial_content"}
 PRIORITIES = {"critical", "high", "medium", "low"}
 STRENGTHS = {"confirmed", "supported", "tentative", "unknown"}
 
@@ -50,6 +50,10 @@ def validate_overlay(overlay: Any) -> list[str]:
             errors.append(f"{path}.evidenceStrength is invalid")
         if not isinstance(annotation.get("evidenceRefs"), list) or not annotation["evidenceRefs"]:
             errors.append(f"{path}.evidenceRefs must be non-empty")
+        if annotation.get("highlightType") in {"exam_hit_content", "exam_partial_content"}:
+            anchor = annotation.get("contentAnchor")
+            if not isinstance(anchor, dict) or not _text(anchor.get("field")) or not _text(anchor.get("excerpt")) or not _text(anchor.get("contentSha256")):
+                errors.append(f"{path}.contentAnchor must identify actual card content")
         if annotation.get("status") not in {"active", "resolved", "stale", "unresolved_anchor"}:
             errors.append(f"{path}.status is invalid")
         if annotation.get("highlightType") == "confirmed_weakness" and annotation.get("evidenceStrength") not in {"confirmed", "supported"}:

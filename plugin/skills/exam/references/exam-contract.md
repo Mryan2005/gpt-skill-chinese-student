@@ -8,7 +8,8 @@ The original exam PDF and explanation PDF are authoritative inputs. Read them wi
 
 ~~~text
 NEW_EXAM_REQUEST → CLEANUP_PREVIOUS_RUN → WORKSPACE_VERIFIED_CLEAN
-      → LOAD_EXAM_PDF → SNAPSHOT_FROZEN → FIRST_PASS → ANSWERS_FROZEN
+      → LOAD_EXAM_PDF → SNAPSHOT_FROZEN → READ_QUESTION → EXAM_HIT
+      → INDEPENDENT_ANSWER → ANSWERS_FROZEN
       → SOLUTION_RELEASED → GRADING → POSTMORTEM → CLOSED
 ~~~
 
@@ -25,6 +26,19 @@ During FIRST_PASS, allowed inputs are:
 - the frozen Subject knowledge graph and its mapped evidence;
 - the exam questions, figures, and instructions;
 - the local answer record being written.
+
+For each question the order is mandatory:
+
+```text
+READ_QUESTION → EXAM_HIT → INDEPENDENT_ANSWER → GRADE → FREEZE
+```
+
+`EXAM_HIT` uses a Hit Inspector context that can read the frozen graph.
+`INDEPENDENT_ANSWER` uses a distinct context that receives only the original
+question and exam instructions. The answerer must not receive Hit analysis,
+card content, Hit status, missing-knowledge hints, external research, official
+answers, or official solutions. If this isolation cannot be verified, the run
+must report that independent closed-book validity is unavailable.
 
 Forbidden inputs are Web, solution PDFs, answer keys, other notes, hidden new knowledge, and any mutation of the Subject. If the graph cannot support a question, record 图谱缺口 instead of guessing.
 

@@ -15,11 +15,16 @@ knowledge, define card semantics, or audit Subject quality.
   workspace before loading the new paper.
 - Read the original exam and explanation PDFs directly. Do not use OCR, OCR
   packages, external OCR APIs, transcript substitutes, or delegated OCR.
-- During `FIRST_PASS`, access only the frozen graph and questions.
+- For every question, execute `READ_QUESTION → EXAM_HIT → INDEPENDENT_ANSWER`.
+  Hit is the first formal stage of the exam, never a post-exam review step.
+- The Hit Inspector and Independent Answerer use separate contexts. The
+  answerer receives the original question only after Hit completes; it never
+  receives card content, Hit analysis, missing-knowledge hints, or solutions.
 - A pre-existing question-to-card mapping is optional. A direct mapping is a
   retrieval hint, never a gate for attempting a question.
-- For every readable question, interpret the question and attempt retrieval
-  across the frozen Subject. Record the actual cards and evidence used.
+- For every valid question, save a Hit record with required knowledge, actual
+  card-content refs, missing knowledge, evidence, snapshot ID, and completion
+  time. `UNRESOLVED` is a record, not a skipped question.
 - Give every question an explicit `attemptStatus` and retrieval record before
   freezing answers. Unprocessed questions block `ANSWERS_FROZEN`.
 - During the first pass, do not use the Web, explanations, answer keys, other
@@ -30,8 +35,8 @@ knowledge, define card semantics, or audit Subject quality.
 - Save and freeze first-pass answers before releasing explanations. Append
   revisions after the freeze. Never overwrite the first attempt.
 - Release explanations, grade, and analyze errors only after answers are frozen.
-- Do not call `learn`, `study-math`, or `review` to modify the tested artifact
-  during the exam run.
+- Do not call `learn`, `study-math`, `review`, Web, or `optimize` to modify the
+  tested artifact during the exam run.
 - Emit an immutable Exam Result, Learning Gap Report, and Repair Requests.
   `review` consumes it for Learner Model updates; `learn` teaches remediation.
 - `exam hit` is a separate read-only coverage audit: it reads every question

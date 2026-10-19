@@ -59,7 +59,8 @@
     "examResultIntegrity": {"type": "object"},
     "examResultMutation": {"const": false},
     "artifactMutation": {"const": false},
-    "sourceMutation": {"const": false}
+    "sourceMutation": {"const": false},
+    "examHitReview": {"$ref": "./hit-review.report.v1.json"}
   },
   "additionalProperties": true
 }

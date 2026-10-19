@@ -13,6 +13,8 @@ the gap, and whether later evidence proves improvement.
 the remediation. `sort` consumes the updated evidence. `amend` handles content
 conflicts, while `check`, `fix`, and `heal` handle artifact defects.
 
+Every mode consumes `PDF → Exam Hit → highlight → gap detection → research → learn handoff → recheck → report`. Exam-result reads frozen per-question Hit records; user-written may delegate a Hit Inspector only when no Exam-generated Hit exists.
+
 ## Non-negotiables
 
 - Consume only a closed Exam Result with immutable first-pass answers, grading
@@ -44,6 +46,10 @@ conflicts, while `check`, `fix`, and `heal` handle artifact defects.
 - Route content conflicts to `amend` and artifact defects to `check`, `fix`, or
   `heal`. A student mistake alone is not an artifact defect.
 - Run local Learner Model validation only. Do not run a full `check` silently.
+- Consume a complete per-question Exam Hit record from the frozen Exam Result;
+  do not recompute or overwrite it in `exam-result` mode.
+- Keep original hits separate from `enriched_exam_coverage`; external research
+  is an `External Supplement`, never an official answer or Source replacement.
 
 Run [exam-result.md](playbooks/exam-result.md) by default, or
 [user-written.md](playbooks/user-written.md) only after explicit user-submission
@@ -53,7 +59,8 @@ validate with [validate_review_report.py](scripts/validate_review_report.py),
 and apply observations only through the idempotent
 [apply_review_update.py](scripts/apply_review_update.py) `--apply` gate.
 Validate overlays with [validate_annotations.py](scripts/validate_annotations.py);
-rendering never edits Source.
+compose Hit with [compose_hit_review.py](scripts/compose_hit_review.py), then validate with [validate_hit_review.py](scripts/validate_hit_review.py).
+Rendering never edits Source.
 ## Review modes
 
 `review` defaults to `exam-result`; `review user-written` requires explicit
@@ -63,23 +70,14 @@ evidence. `user-written` directly reads questions, answers, and the user's PDF
 submission and may update Learner State only from verified human evidence.
 Both modes produce structured/Markdown/HTML review outputs and never generate
 PDF. Use [material-review.md](playbooks/material-review.md),
+[exam-hit-enrichment.md](playbooks/exam-hit-enrichment.md),
 [material_review.py](scripts/material_review.py),
 [route_review.py](scripts/route_review.py), and
 [validate_review_mode.py](scripts/validate_review_mode.py).
 
-## State machine
-
-~~~text
-NEW_REVIEW_REQUEST
-→ ROUTE_EXAM_RESULT_OR_USER_WRITTEN
-→ READ_ORIGINAL_PDF_INPUTS
-→ RUN_MATERIAL_REVIEW
-→ RUN_ELIGIBLE_LEARNER_REVIEW
-→ BUILD_TASKS_HIGHLIGHTS_AND_RETESTS
-→ APPLY_IDEMPOTENT_LEARNER_UPDATE_IF_ALLOWED
-→ WRITE_SEPARATE_STATUS_REPORT
-→ CLOSED
-~~~
+The review state machine is: route → read original PDFs → consume/delegate Hit →
+highlight and classify gaps → research/learn handoff → recheck → Learner Review
+update → report. It never calls `heal` recursively.
 
 ## Done gate
 

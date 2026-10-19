@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-plugins.org/schemas/review/external-supplement.v1.json",
+  "title": "Review External Supplement",
+  "type": "object",
+  "required": ["supplementId", "sourceUrl", "sourceTitle", "publisher", "accessedAt", "provenanceType", "evidenceStatus", "relatedGapIds", "supportedClaims"],
+  "properties": {
+    "supplementId": {"type": "string", "minLength": 1},
+    "sourceUrl": {"type": "string", "pattern": "^https?://"},
+    "sourceTitle": {"type": "string", "minLength": 1},
+    "publisher": {"type": "string", "minLength": 1},
+    "accessedAt": {"type": "string", "minLength": 1},
+    "provenanceType": {"const": "external_supplement"},
+    "evidenceStatus": {"enum": ["supported", "needs_verification", "rejected"]},
+    "relatedGapIds": {"type": "array", "minItems": 1},
+    "relatedQuestionIds": {"type": "array"},
+    "relatedCardIds": {"type": "array"},
+    "supportedClaims": {"type": "array", "minItems": 1}
+  },
+  "additionalProperties": true
+}

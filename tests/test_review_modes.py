@@ -25,6 +25,8 @@ class ReviewModeTests(unittest.TestCase):
         self.assertEqual(manifest["reviewMode"], "exam-result")
         self.assertFalse(manifest["learnerModelWriteAllowed"])
         self.assertFalse(manifest["outputPolicy"]["generatesPdf"])
+        self.assertEqual(manifest["reviewPipeline"][1:4], ["consume_exam_hit", "highlight", "gap_detection"])
+        self.assertTrue(manifest["researchPolicy"]["requiresProvenance"])
         self.assertEqual(validate_review_input(manifest), [])
 
     def test_user_written_requires_new_attempt_and_three_original_pdfs(self) -> None:

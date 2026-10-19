@@ -3,6 +3,15 @@
   "examId": "math-1-demo-001",
   "state": "CLOSED",
   "readOnlyDuringMeasurement": true,
+  "executionIsolation": {
+    "hitInspectorContextId": "math-1-demo-001|hit-inspector",
+    "independentAnswererContextId": "math-1-demo-001|independent-answerer",
+    "phaseOrder": ["READ_QUESTION", "EXAM_HIT", "INDEPENDENT_ANSWER", "GRADE", "FREEZE"],
+    "hitCompletedBeforeAnswer": true,
+    "answererInputPolicy": "question_only_after_hit",
+    "answererDidNotReceive": ["hit_analysis", "candidate_card_content", "hit_status", "missing_knowledge", "external_research", "official_answer", "official_solution"],
+    "verified": true
+  },
   "answerer": {
     "type": "human",
     "id": "learner-001",
@@ -68,21 +77,35 @@
         "answer": "B",
         "confidence": 0.7,
         "reasoningSummary": "比值极限为 1 时停止使用比值判别法。",
-        "knowledgeCardsUsed": ["ratio-test"],
+        "knowledgeCardsUsed": [],
+        "answererContextId": "math-1-demo-001|independent-answerer",
+        "answererInputPolicy": "question_only_after_hit",
+        "phaseOrder": ["READ_QUESTION", "EXAM_HIT", "INDEPENDENT_ANSWER"],
         "retrievalResult": {
           "status": "found",
           "matchedCardIds": ["ratio-test"]
         },
         "retrieval": {
-          "directMappingAvailable": true,
-          "attempted": true,
-          "queries": ["比值判别法"],
-          "candidateCardIds": ["ratio-test"],
-          "selectedCardIds": ["ratio-test"],
-          "result": "FOUND",
-          "evidence": ["card:ratio-test"]
+          "directMappingAvailable": false,
+          "attempted": false,
+          "queries": [],
+          "candidateCardIds": [],
+          "selectedCardIds": [],
+          "result": "NOT_ATTEMPTED",
+          "evidence": []
         },
         "order": 1
+      },
+      "hit": {
+        "hitStatus": "HIT",
+        "graphSnapshotId": "math-1-snapshot-2026-10-16",
+        "requiredKnowledge": ["ratio-test condition and boundary behavior"],
+        "supportingCardIds": ["ratio-test"],
+        "supportingContentRefs": [{"cardId": "ratio-test", "field": "method", "excerpt": "strict condition and boundary behavior", "contentSha256": "sha256:ratio-test-card"}],
+        "missingKnowledge": [],
+        "hitEvidenceRefs": ["question:series-mcq-12", "card:ratio-test"],
+        "hitCompletedAt": "2026-10-16T08:01:00+08:00",
+        "inspectorContextId": "math-1-demo-001|hit-inspector"
       },
       "firstPassFrozen": true,
       "official": {
@@ -118,21 +141,35 @@
         "answer": "A",
         "confidence": 0.4,
         "reasoningSummary": "先按正项级数处理，但没有识别相邻项比值结构。",
-        "knowledgeCardsUsed": ["positive-series"],
+        "knowledgeCardsUsed": [],
+        "answererContextId": "math-1-demo-001|independent-answerer",
+        "answererInputPolicy": "question_only_after_hit",
+        "phaseOrder": ["READ_QUESTION", "EXAM_HIT", "INDEPENDENT_ANSWER"],
         "retrievalResult": {
           "status": "found",
           "matchedCardIds": ["positive-series"]
         },
         "retrieval": {
           "directMappingAvailable": false,
-          "attempted": true,
-          "queries": ["相邻项比值 阶乘 正项级数"],
-          "candidateCardIds": ["positive-series", "ratio-test"],
-          "selectedCardIds": ["ratio-test"],
-          "result": "FOUND",
-          "evidence": ["card:ratio-test", "relation:positive-series-to-ratio-test"]
+          "attempted": false,
+          "queries": [],
+          "candidateCardIds": [],
+          "selectedCardIds": [],
+          "result": "NOT_ATTEMPTED",
+          "evidence": []
         },
         "order": 2
+      },
+      "hit": {
+        "hitStatus": "PARTIAL",
+        "graphSnapshotId": "math-1-snapshot-2026-10-16",
+        "requiredKnowledge": ["ratio-test trigger for factorial structure", "method-selection bridge"],
+        "supportingCardIds": ["ratio-test"],
+        "supportingContentRefs": [{"cardId": "ratio-test", "field": "method", "excerpt": "ratio-test method", "contentSha256": "sha256:ratio-test-card"}],
+        "missingKnowledge": ["factorial trigger and selection bridge"],
+        "hitEvidenceRefs": ["question:series-mcq-17", "card:ratio-test"],
+        "hitCompletedAt": "2026-10-16T08:02:00+08:00",
+        "inspectorContextId": "math-1-demo-001|hit-inspector"
       },
       "firstPassFrozen": true,
       "official": {

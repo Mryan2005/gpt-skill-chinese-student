@@ -9,6 +9,9 @@ question-by-question content test, not a question-mapping count or an answer
 performance score. Each repair round produces a new graph snapshot and a new
 Hit report before comparing coverage.
 
+`heal exam` reuses the shared Exam Hit Inspector and report contract; it does
+not create a second Hit definition or move Hit into Review.
+
 Required evidence includes:
 
 - original PDF provenance and native-reading status;

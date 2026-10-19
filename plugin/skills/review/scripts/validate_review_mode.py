@@ -47,6 +47,14 @@ def validate_review_input(manifest: Any) -> list[str]:
             for index, source in enumerate(sources):
                 if source.get("source") != "original_pdf" or source.get("ocrUsed") is not False or source.get("delegatedOcr") is not False or source.get("intermediateTextSources") != []:
                     errors.append(f"sources[{index}] violates native PDF reading contract")
+    pipeline = manifest.get("reviewPipeline")
+    if pipeline is not None:
+        expected_stages = {"pdf", "highlight", "gap_detection", "research", "learn_handoff", "recheck", "report"}
+        if not isinstance(pipeline, list) or not expected_stages.issubset(set(pipeline)) or not any(stage in pipeline for stage in ("consume_exam_hit", "consume_or_delegate_exam_hit")):
+            errors.append("reviewPipeline must consume or delegate Exam Hit before highlighting")
+    research_policy = manifest.get("researchPolicy")
+    if research_policy is not None and (research_policy.get("allowed") is not True or research_policy.get("requiresProvenance") is not True):
+        errors.append("researchPolicy must allow only provenance-backed supplements")
     return errors
 
 
