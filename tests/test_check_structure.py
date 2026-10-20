@@ -53,6 +53,7 @@ AGENTS = {
     "structure-auditor.md",
     "content-auditor.md",
     "coverage-auditor.md",
+    "readiness-auditor.md",
     "question-auditor.md",
     "solution-auditor.md",
     "math-auditor.md",

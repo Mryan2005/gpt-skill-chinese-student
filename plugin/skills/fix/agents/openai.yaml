@@ -1,4 +1,4 @@
 interface:
   display_name: "$中式学生:fix"
   short_description: "根据检查报告自动修复问题"
-  default_prompt: "Use $chinese-student:fix to consume the latest valid check report, repair all allowed Derived, Runtime, and Generated Artifact findings without per-finding confirmation, validate locally, and stop with a fix report for the user to verify with check."
+  default_prompt: "Use $chinese-student:fix to consume the latest valid check report. Use predeclared specialist fixers for isolated Patch Proposals and the single Fix Orchestrator for serialized writes, validate locally, and stop with a fix report for the user to verify with check."

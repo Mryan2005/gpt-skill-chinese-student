@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from agent_roles import load_agent_role_registry, validate_agent_role_registry
 from skill_registry import load_registry, validate_registry
 
 
@@ -47,6 +48,13 @@ def validate_plugin(plugin_root: Path) -> list[str]:
     except (OSError, json.JSONDecodeError) as exc:
         return errors + [f"skill registry: {exc}"]
     errors.extend(validate_registry(registry, plugin_root))
+    if registry.get("agentRoleRegistry") != "references/agent-role-registry.v1.json":
+        errors.append("skill registry must point to the Agent Role Registry")
+    try:
+        agent_roles = load_agent_role_registry(plugin_root)
+    except (OSError, json.JSONDecodeError) as exc:
+        return errors + [f"agent role registry: {exc}"]
+    errors.extend(validate_agent_role_registry(agent_roles, plugin_root))
 
     skills_root = plugin_root / "skills"
     entries = {str(entry["id"]): entry for entry in registry.get("commands", []) if isinstance(entry, dict) and entry.get("id")}
@@ -93,7 +101,7 @@ def main() -> int:
         for error in errors:
             print(f"PLUGIN_STRUCTURE_ERROR: {error}", file=sys.stderr)
         return 1
-    print("PASS: plugin structure, skill metadata, help index, and route registry are consistent.")
+    print("PASS: plugin structure, skill metadata, help index, route registry, and agent role registry are consistent.")
     return 0
 
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "$中式学生:review"
   short_description: "复盘考试错误并更新学习反馈"
-  default_prompt: "Use $chinese-student:review [exam-result|user-written]. Default to exam-result: directly read original PDFs, consume frozen per-question Exam Hit records, produce content highlights, evidence-backed gap research and learn handoffs, then Material Review; run Learner Review only for eligible human evidence. If user-written has no Exam-generated Hit, delegate a separate Hit Inspector against the specified historical snapshot. Keep original and enriched snapshots separate, preserve External Supplement provenance, and never generate PDF."
+  default_prompt: "Use $chinese-student:review [exam-result|user-written]. Use the predeclared Material Reviewer, Learner Reviewer, Annotation Planner, Gap Researcher, and single Review Merger. Directly read original PDFs, consume frozen per-question Exam Hit records, preserve External Supplement provenance, and write Learner State only through the eligibility gate."

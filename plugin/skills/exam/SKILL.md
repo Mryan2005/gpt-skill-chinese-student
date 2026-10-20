@@ -46,7 +46,8 @@ knowledge, define card semantics, or audit Subject quality.
 Read [exam-contract.md](references/exam-contract.md), [exam-workspace.md](references/exam-workspace.md),
 [pdf-reading.md](references/pdf-reading.md), [answer-record.md](references/answer-record.md),
 [grading.md](references/grading.md), [exam-phase-contract.md](references/exam-phase-contract.md),
-and [error-taxonomy.md](references/error-taxonomy.md).
+and [error-taxonomy.md](references/error-taxonomy.md), plus the shared
+[agent-role-contract.md](../../references/agent-role-contract.md).
 
 The state machine moves forward only; rollback or first-pass overwrite is a
 structure error. Hit artifacts live in the normal `.exam/current/` run.

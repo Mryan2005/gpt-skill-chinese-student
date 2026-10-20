@@ -31,7 +31,8 @@ Read [common.md](references/common.md), [knowledge-model.md](references/knowledg
 [question-model.md](references/question-model.md), [provenance.md](references/provenance.md),
 [learner-model.md](references/learner-model.md),
 [learner-model-contract.md](../../references/learner-model-contract.md), and
-[platform-contract.md](../../references/platform-contract.md) as needed. Keep
+[platform-contract.md](../../references/platform-contract.md), and
+[agent-role-contract.md](../../references/agent-role-contract.md) as needed. Keep
 subject-specific rules out of this front door.
 
 ## Routing

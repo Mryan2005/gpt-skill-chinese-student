@@ -10,28 +10,34 @@ from pathlib import Path
 from typing import Any
 
 
+
+PLUGIN_SCRIPTS = Path(__file__).resolve().parents[3] / "scripts"
+if str(PLUGIN_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(PLUGIN_SCRIPTS))
+
+from agent_roles import load_agent_role_registry, validate_agent_role_registry  # noqa: E402
+
 SEVERITIES = {"blocker", "error", "warning", "info"}
 RESULTS = {"PASS", "PASS_WITH_WARNINGS", "FAIL", "BLOCKED"}
 AUDIT_STATUSES = {"PASS", "WARNING", "FAIL", "BLOCKED"}
 EXECUTION_MODES = {"parallel-agent", "batched-agent", "shared-agent", "orchestrator-fallback"}
-WORKER_BUNDLES = {"structure", "domain", "presentation", "coverage"}
-AUDITORS = {
-    "source",
-    "provenance",
-    "structure",
-    "content",
-    "coverage",
-    "question",
-    "solution",
-    "math",
-    "latex",
-    "relation",
-    "rendering",
-    "retrieval",
-    "readiness",
-    "learner-model",
-    "sort-state",
-}
+
+
+def _load_check_roles() -> tuple[set[str], set[str], set[str]]:
+    plugin_root = Path(__file__).resolve().parents[3]
+    registry = load_agent_role_registry(plugin_root)
+    errors = validate_agent_role_registry(registry, plugin_root)
+    if errors:
+        raise ValueError("invalid Agent Role Registry: " + " | ".join(errors))
+    workflow = next(item for item in registry["workflows"] if item["skill"] == "check")
+    bundles = workflow["bundles"]
+    role_ids = {role["id"] for role in workflow["roles"]}
+    reporters = role_ids | {workflow["mergerRole"]}
+    auditors = {role_id.removesuffix("-auditor") for role_id in role_ids if role_id != workflow["mergerRole"]}
+    return set(bundles), auditors, reporters
+
+
+WORKER_BUNDLES, AUDITORS, REPORTERS = _load_check_roles()
 REQUIRED_BY_MODE = {
     "full-audit": AUDITORS,
     "source-audit": {"source", "provenance"},
@@ -41,23 +47,6 @@ REQUIRED_BY_MODE = {
     "relation-audit": {"relation"},
     "rendering-audit": {"rendering"},
     "retrieval-audit": {"retrieval"},
-}
-REPORTERS = {
-    "source-auditor",
-    "structure-auditor",
-    "content-auditor",
-    "coverage-auditor",
-    "question-auditor",
-    "solution-auditor",
-    "math-auditor",
-    "latex-auditor",
-    "relation-auditor",
-    "provenance-auditor",
-    "rendering-auditor",
-    "retrieval-auditor",
-    "learner-model-auditor",
-    "sort-state-auditor",
-    "finding-merger",
 }
 REQUIRED_FINDING_FIELDS = {
     "id",

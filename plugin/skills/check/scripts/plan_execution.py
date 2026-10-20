@@ -4,17 +4,32 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
+from pathlib import Path
 from typing import Any
 
 
+PLUGIN_SCRIPTS = Path(__file__).resolve().parents[3] / "scripts"
+if str(PLUGIN_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(PLUGIN_SCRIPTS))
+
+from agent_roles import load_agent_role_registry, validate_agent_role_registry  # noqa: E402
+
 MAX_PARALLEL = 3
 MAX_CONSECUTIVE_SPAWN_FAILURES = 2
-BUNDLES = {
-    "structure": ["structure", "source", "provenance", "question"],
-    "domain": ["content", "solution", "math", "relation"],
-    "presentation": ["latex", "rendering", "retrieval"],
-    "coverage": ["coverage", "readiness", "learner-model", "sort-state"],
-}
+
+
+def _load_bundles() -> dict[str, list[str]]:
+    plugin_root = Path(__file__).resolve().parents[3]
+    registry = load_agent_role_registry(plugin_root)
+    errors = validate_agent_role_registry(registry, plugin_root)
+    if errors:
+        raise ValueError("invalid Agent Role Registry: " + " | ".join(errors))
+    workflow = next(item for item in registry["workflows"] if item["skill"] == "check")
+    return {name: list(role_ids) for name, role_ids in workflow["bundles"].items()}
+
+
+BUNDLES = _load_bundles()
 
 
 def _chunks(items: list[str], size: int) -> list[list[str]]:

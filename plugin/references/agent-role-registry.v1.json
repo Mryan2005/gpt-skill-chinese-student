@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "agent-role-registry.v1",
+  "workflows": [
+    {
+      "skill": "learn",
+      "fallback": "orchestrator-sequential",
+      "mergerRole": "subject-merger",
+      "roles": [
+        {"id": "source-extractor", "kind": "isolated-reader", "contract": "skills/learn/agents/source-extractor.md", "reads": ["source-files", "project-state"], "writes": ["learn-report"], "output": ".codex/learning-reports/<batch>/source-extractor.md", "parallelizable": true},
+        {"id": "content-refiner", "kind": "isolated-reader", "contract": "skills/learn/agents/content-refiner.md", "reads": ["source-files", "source-intake-report"], "writes": ["learn-report"], "output": ".codex/learning-reports/<batch>/content-refiner.md", "parallelizable": true},
+        {"id": "question-mapper", "kind": "isolated-reader", "contract": "skills/learn/agents/question-mapper.md", "reads": ["source-files", "source-intake-report"], "writes": ["learn-report"], "output": ".codex/learning-reports/<batch>/question-mapper.md", "parallelizable": true},
+        {"id": "domain-mapper", "kind": "isolated-proposer", "contract": "skills/learn/agents/domain-mapper.md", "reads": ["isolated-learn-reports", "domain-contract"], "writes": ["learn-report"], "output": ".codex/learning-reports/<batch>/domain-mapper.md", "parallelizable": true},
+        {"id": "subject-merger", "kind": "merger", "contract": "skills/learn/agents/subject-merger.md", "reads": ["isolated-learn-reports", "domain-contract", "current-subject"], "writes": ["canonical-subject", "learning-state"], "output": "canonical Markdown and graph output", "parallelizable": false}
+      ]
+    },
+    {
+      "skill": "exam",
+      "fallback": "orchestrator-sequential",
+      "mergerRole": "exam-coordinator",
+      "roles": [
+        {"id": "hit-inspector", "kind": "isolated-reader", "contract": "skills/exam/agents/hit-inspector.md", "reads": ["original-question-pdf", "frozen-subject-snapshot"], "writes": ["exam-workspace"], "output": ".exam/current/hit/<questionId>.json", "parallelizable": true},
+        {"id": "independent-answerer", "kind": "isolated-reader", "contract": "skills/exam/agents/independent-answerer.md", "reads": ["original-question-only"], "writes": ["exam-workspace"], "output": ".exam/current/answers/<questionId>.json", "parallelizable": true},
+        {"id": "grader", "kind": "isolated-reader", "contract": "skills/exam/agents/grader.md", "reads": ["frozen-first-pass", "original-explanation-pdf"], "writes": ["exam-workspace"], "output": ".exam/current/grading/<questionId>.json", "parallelizable": true},
+        {"id": "exam-coordinator", "kind": "merger", "contract": "skills/exam/agents/exam-coordinator.md", "reads": ["isolated-exam-records", "frozen-subject-snapshot"], "writes": ["exam-workspace", "frozen-exam-result"], "output": ".exam/current/exam-result.json", "parallelizable": false}
+      ]
+    },
+    {
+      "skill": "review",
+      "fallback": "orchestrator-sequential",
+      "mergerRole": "review-merger",
+      "roles": [
+        {"id": "material-reviewer", "kind": "isolated-reader", "contract": "skills/review/agents/material-reviewer.md", "reads": ["frozen-exam-result", "original-pdfs", "frozen-hit-records"], "writes": ["review-report"], "output": ".review/current/roles/material-reviewer.json", "parallelizable": true},
+        {"id": "learner-reviewer", "kind": "isolated-proposer", "contract": "skills/review/agents/learner-reviewer.md", "reads": ["frozen-exam-result", "learner-attribution-gate"], "writes": ["review-report"], "output": ".review/current/roles/learner-reviewer.json", "parallelizable": true},
+        {"id": "annotation-planner", "kind": "isolated-proposer", "contract": "skills/review/agents/annotation-planner.md", "reads": ["frozen-hit-records", "canonical-artifact"], "writes": ["review-report"], "output": ".review/current/roles/annotation-planner.json", "parallelizable": true},
+        {"id": "gap-researcher", "kind": "isolated-proposer", "contract": "skills/review/agents/gap-researcher.md", "reads": ["frozen-hit-records", "reliable-sources"], "writes": ["review-report"], "output": ".review/current/roles/gap-researcher.json", "parallelizable": true},
+        {"id": "review-merger", "kind": "merger", "contract": "skills/review/agents/review-merger.md", "reads": ["isolated-review-reports", "frozen-exam-result"], "writes": ["review-workspace", "eligible-learner-update"], "output": ".review/current/review-report.v2.json", "parallelizable": false}
+      ]
+    },
+    {
+      "skill": "check",
+      "fallback": "orchestrator-sequential",
+      "mergerRole": "finding-merger",
+      "bundles": {
+        "structure": ["structure-auditor", "source-auditor", "provenance-auditor", "question-auditor"],
+        "domain": ["content-auditor", "solution-auditor", "math-auditor", "relation-auditor"],
+        "presentation": ["latex-auditor", "rendering-auditor", "retrieval-auditor"],
+        "coverage": ["coverage-auditor", "readiness-auditor", "learner-model-auditor", "sort-state-auditor"]
+      },
+      "roles": [
+        {"id": "source-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/source-auditor.md", "reads": ["canonical-artifact", "source-records"], "writes": ["check-report"], "output": ".check/current/agents/source-auditor.json", "parallelizable": true},
+        {"id": "structure-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/structure-auditor.md", "reads": ["canonical-artifact", "domain-contract"], "writes": ["check-report"], "output": ".check/current/agents/structure-auditor.json", "parallelizable": true},
+        {"id": "content-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/content-auditor.md", "reads": ["canonical-artifact", "domain-contract"], "writes": ["check-report"], "output": ".check/current/agents/content-auditor.json", "parallelizable": true},
+        {"id": "coverage-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/coverage-auditor.md", "reads": ["canonical-artifact", "source-records"], "writes": ["check-report"], "output": ".check/current/agents/coverage-auditor.json", "parallelizable": true},
+        {"id": "readiness-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/readiness-auditor.md", "reads": ["canonical-artifact", "domain-readiness-contract"], "writes": ["check-report"], "output": ".check/current/agents/readiness-auditor.json", "parallelizable": true},
+        {"id": "question-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/question-auditor.md", "reads": ["canonical-artifact", "question-bank"], "writes": ["check-report"], "output": ".check/current/agents/question-auditor.json", "parallelizable": true},
+        {"id": "solution-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/solution-auditor.md", "reads": ["canonical-artifact", "answer-evidence"], "writes": ["check-report"], "output": ".check/current/agents/solution-auditor.json", "parallelizable": true},
+        {"id": "math-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/math-auditor.md", "reads": ["canonical-artifact", "math-domain-contract"], "writes": ["check-report"], "output": ".check/current/agents/math-auditor.json", "parallelizable": true},
+        {"id": "latex-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/latex-auditor.md", "reads": ["canonical-markdown", "formula-records"], "writes": ["check-report"], "output": ".check/current/agents/latex-auditor.json", "parallelizable": true},
+        {"id": "relation-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/relation-auditor.md", "reads": ["canonical-artifact", "relations"], "writes": ["check-report"], "output": ".check/current/agents/relation-auditor.json", "parallelizable": true},
+        {"id": "provenance-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/provenance-auditor.md", "reads": ["canonical-artifact", "source-records"], "writes": ["check-report"], "output": ".check/current/agents/provenance-auditor.json", "parallelizable": true},
+        {"id": "rendering-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/rendering-auditor.md", "reads": ["rendered-html", "canonical-artifact"], "writes": ["check-report"], "output": ".check/current/agents/rendering-auditor.json", "parallelizable": true},
+        {"id": "retrieval-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/retrieval-auditor.md", "reads": ["rendered-html", "canonical-artifact"], "writes": ["check-report"], "output": ".check/current/agents/retrieval-auditor.json", "parallelizable": true},
+        {"id": "learner-model-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/learner-model-auditor.md", "reads": ["learner-model", "review-evidence"], "writes": ["check-report"], "output": ".check/current/agents/learner-model-auditor.json", "parallelizable": true},
+        {"id": "sort-state-auditor", "kind": "isolated-reader", "contract": "skills/check/agents/sort-state-auditor.md", "reads": ["sort-state", "review-evidence"], "writes": ["check-report"], "output": ".check/current/agents/sort-state-auditor.json", "parallelizable": true},
+        {"id": "finding-merger", "kind": "merger", "contract": "skills/check/agents/finding-merger.md", "reads": ["isolated-check-reports", "domain-contract"], "writes": ["check-workspace"], "output": ".check/current/findings.json", "parallelizable": false}
+      ]
+    },
+    {
+      "skill": "fix",
+      "fallback": "orchestrator-sequential",
+      "mergerRole": "fix-orchestrator",
+      "roles": [
+        {"id": "schema-fixer", "kind": "isolated-proposer", "contract": "skills/fix/agents/schema-fixer.md", "reads": ["fresh-check-report", "artifact-snapshot"], "writes": ["fix-proposal"], "output": ".fix/current/proposals/schema-fixer.json", "parallelizable": true},
+        {"id": "provenance-fixer", "kind": "isolated-proposer", "contract": "skills/fix/agents/provenance-fixer.md", "reads": ["fresh-check-report", "artifact-snapshot"], "writes": ["fix-proposal"], "output": ".fix/current/proposals/provenance-fixer.json", "parallelizable": true},
+        {"id": "question-fixer", "kind": "isolated-proposer", "contract": "skills/fix/agents/question-fixer.md", "reads": ["fresh-check-report", "artifact-snapshot"], "writes": ["fix-proposal"], "output": ".fix/current/proposals/question-fixer.json", "parallelizable": true},
+        {"id": "solution-fixer", "kind": "isolated-proposer", "contract": "skills/fix/agents/solution-fixer.md", "reads": ["fresh-check-report", "artifact-snapshot"], "writes": ["fix-proposal"], "output": ".fix/current/proposals/solution-fixer.json", "parallelizable": true},
+        {"id": "relation-fixer", "kind": "isolated-proposer", "contract": "skills/fix/agents/relation-fixer.md", "reads": ["fresh-check-report", "artifact-snapshot"], "writes": ["fix-proposal"], "output": ".fix/current/proposals/relation-fixer.json", "parallelizable": true},
+        {"id": "latex-fixer", "kind": "isolated-proposer", "contract": "skills/fix/agents/latex-fixer.md", "reads": ["fresh-check-report", "artifact-snapshot"], "writes": ["fix-proposal"], "output": ".fix/current/proposals/latex-fixer.json", "parallelizable": true},
+        {"id": "runtime-fixer", "kind": "isolated-proposer", "contract": "skills/fix/agents/runtime-fixer.md", "reads": ["fresh-check-report", "artifact-snapshot"], "writes": ["fix-proposal"], "output": ".fix/current/proposals/runtime-fixer.json", "parallelizable": true},
+        {"id": "learner-state-fixer", "kind": "isolated-proposer", "contract": "skills/fix/agents/learner-state-fixer.md", "reads": ["fresh-check-report", "learner-model"], "writes": ["fix-proposal"], "output": ".fix/current/proposals/learner-state-fixer.json", "parallelizable": true},
+        {"id": "fix-orchestrator", "kind": "merger", "contract": "skills/fix/agents/fix-orchestrator.md", "reads": ["fresh-check-report", "isolated-fix-proposals", "artifact-snapshot"], "writes": ["derived-artifact", "runtime-artifact", "generated-artifact"], "output": ".fix/current/fix-report.json", "parallelizable": false}
+      ]
+    }
+  ]
+}

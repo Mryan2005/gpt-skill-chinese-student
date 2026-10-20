@@ -121,6 +121,20 @@ Skill folders, picker metadata, frontmatter, and help index agree. This keeps a
 new or renamed Skill from silently becoming undiscoverable or from taking over
 another workflow's trigger phrases.
 
+### Agent-role boundary
+
+The plugin predefines role contracts without requiring permanent Agent threads.
+[agent-role-registry.v1.json](plugin/references/agent-role-registry.v1.json)
+declares the allowed inputs, isolated outputs, write boundary, merger, and
+sequential fallback for `learn`, `exam`, `review`, `check`, and `fix`. Capacity
+changes scheduling only: a role can run in parallel, batched, or through the
+orchestrator, but cannot disappear from the workflow. Non-merger roles write
+reports or Patch Proposals; one merger/coordinator owns each final write.
+
+In particular, Exam Hit inspection and independent answering are separate
+roles. Review keeps Material Review separate from Learner Review. Check remains
+read-only, and Fix serializes all Derived/Runtime/Generated Artifact writes.
+
 ## Architecture
 
 `learn` owns shared platform workflows:
@@ -182,14 +196,20 @@ solutions, and historical answers never become complete content silently.
 plugin/
 ├─ plugin.json
 ├─ references/
+│  ├─ agent-role-contract.md
+│  ├─ agent-role-registry.v1.json
 │  └─ skill-registry.v1.json
 ├─ schemas/
+│  ├─ agents/
+│  │  └─ agent-role-registry.schema.json
 │  ├─ learner/
 │  └─ routing/
 │     ├─ command-route-input.schema.json
 │     └─ command-route-result.schema.json
 ├─ scripts/
 │  ├─ route_command.py
+│  ├─ agent_roles.py
+│  ├─ validate_agent_roles.py
 │  ├─ skill_registry.py
 │  ├─ validate_plugin_structure.py
 │  └─ validate_learner_model.py
@@ -227,6 +247,8 @@ python -X utf8 plugin/skills/study-math/scripts/validate_markup.py plugin/skills
 
 python -X utf8 plugin/scripts/validate_plugin_structure.py
 
+python -X utf8 plugin/scripts/validate_agent_roles.py
+
 python -X utf8 plugin/scripts/route_command.py "考后复盘这套试卷"
 
 python -X utf8 -m unittest discover -s tests -v
@@ -238,7 +260,9 @@ python -X utf8 -m unittest discover -s tests -v
 `validate_plugin_structure.py` checks the plugin-wide skill graph and routing
 contract. `route_command.py` is a deterministic, read-only invocation probe;
 its output is evidence about route selection, not a replacement for the
-selected Skill.
+selected Skill. `validate_agent_roles.py` checks that every predefined role has
+a contract, isolated mutable boundary, and exactly one serialized merger per
+workflow.
 Inspect generated HTML separately for formulas, search, card interaction, and
 browser console errors.
 

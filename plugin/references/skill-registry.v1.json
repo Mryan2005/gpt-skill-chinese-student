@@ -7,6 +7,7 @@
     "combinedInvocationPrefix": "$chinese-student:"
   },
   "defaultCommand": "learn",
+  "agentRoleRegistry": "references/agent-role-registry.v1.json",
   "commands": [
     {
       "id": "learn",

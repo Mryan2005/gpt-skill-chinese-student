@@ -54,6 +54,8 @@ Every mode consumes `PDF → Exam Hit → highlight → gap detection → resear
 Run [exam-result.md](playbooks/exam-result.md) by default, or
 [user-written.md](playbooks/user-written.md) only after explicit user-submission
 intent. Read [review-contract.md](references/review-contract.md) before review.
+Read [agent-role-contract.md](../../references/agent-role-contract.md) before
+splitting review work.
 Reset with [reset_review_workspace.py](scripts/reset_review_workspace.py),
 validate with [validate_review_report.py](scripts/validate_review_report.py),
 and apply observations only through the idempotent

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-role-registry.v1",
+  "title": "Chinese Student agent role registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "workflows"],
+  "properties": {
+    "schemaVersion": {"const": "agent-role-registry.v1"},
+    "workflows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["skill", "fallback", "mergerRole", "roles"],
+        "properties": {
+          "skill": {"type": "string", "minLength": 1},
+          "fallback": {"enum": ["orchestrator-sequential", "single-coordinator"]},
+          "mergerRole": {"type": "string", "minLength": 1},
+          "bundles": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 1}
+            }
+          },
+          "roles": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "kind", "contract", "reads", "writes", "output", "parallelizable"],
+              "properties": {
+                "id": {"type": "string", "minLength": 1},
+                "kind": {"enum": ["isolated-reader", "isolated-proposer", "merger"]},
+                "contract": {"type": "string", "minLength": 1},
+                "reads": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                "writes": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                "output": {"type": "string", "minLength": 1},
+                "parallelizable": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

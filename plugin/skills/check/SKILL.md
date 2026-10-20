@@ -33,7 +33,8 @@ model. It does not relearn, remap, or repair content.
 Read [audit-contract.md](references/audit-contract.md),
 [execution-contract.md](references/execution-contract.md),
 [check-workspace.md](references/check-workspace.md),
-[finding-schema.md](references/finding-schema.md), and [severity.md](references/severity.md).
+[finding-schema.md](references/finding-schema.md), [severity.md](references/severity.md),
+and [agent-role-contract.md](../../references/agent-role-contract.md).
 
 ## Routing
 

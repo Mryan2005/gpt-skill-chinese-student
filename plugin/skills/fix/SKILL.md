@@ -30,7 +30,8 @@ not ask for per-finding confirmation. Run `check` afterward to verify the result
 Read [fix-contract.md](references/fix-contract.md),
 [repair-plan-schema.md](references/repair-plan-schema.md),
 [patch-proposal-schema.md](references/patch-proposal-schema.md), and
-[conflict-policy.md](references/conflict-policy.md).
+[conflict-policy.md](references/conflict-policy.md), plus
+[agent-role-contract.md](../../references/agent-role-contract.md).
 
 ## Routing
 
