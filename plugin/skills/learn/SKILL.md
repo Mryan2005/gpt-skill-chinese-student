@@ -1,6 +1,6 @@
 ---
 name: learn
-description: Use as the cross-subject learning front door for new material, topic study, question-set organization, subject updates, knowledge-base repair, and exam-readiness checks. It routes domain-specific work to the appropriate subject model.
+description: Use for building or updating a Subject from new material, topics, or question sets. It routes to playbooks and domain models; do not use it for read-only audits, closed-book exams, post-exam review, sorting, or destructive rebuilds.
 ---
 
 # Learn

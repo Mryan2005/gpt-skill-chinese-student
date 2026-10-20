@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "command-route-input.v1",
+  "title": "Chinese Student command route input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "text"],
+  "properties": {
+    "schemaVersion": {"const": "command-route-input.v1"},
+    "text": {"type": "string", "minLength": 1},
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subject": {"type": "string", "minLength": 1},
+        "hasExamPdf": {"type": "boolean"},
+        "hasExamResult": {"type": "boolean"}
+      }
+    }
+  }
+}

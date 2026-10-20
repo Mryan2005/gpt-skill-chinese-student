@@ -1,6 +1,6 @@
 ---
 name: fix
-description: Use as the write-enabled repair orchestrator for the latest valid check findings. It repairs allowed Derived, Runtime, and Generated Artifact defects without modifying Source or silently invoking relearn.
+description: Use after a valid check report to automatically repair allowed Derived, Runtime, and Generated Artifact defects. It does not audit from scratch, modify Source, or invoke relearn.
 ---
 
 # Fix

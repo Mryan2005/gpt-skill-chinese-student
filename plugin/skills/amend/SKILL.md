@@ -1,6 +1,6 @@
 ---
 name: amend
-description: Use when the user explicitly reports missing, incorrect, unclear, outdated, or poorly structured learning content and asks to supplement or correct it. Apply the smallest coherent change to the affected writable layer and run local validation without requiring a prior check report.
+description: Use when the user explicitly reports a missing, incorrect, unclear, outdated, or poorly structured learning artifact and asks to correct it. Apply the smallest evidenced Derived change; do not use it for check findings without feedback or for destructive rebuilds.
 ---
 
 # Amend

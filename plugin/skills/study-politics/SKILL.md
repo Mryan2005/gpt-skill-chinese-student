@@ -1,6 +1,6 @@
 ---
 name: study-politics
-description: Use as the politics domain model for source-faithful political concepts, principles, canonical expressions, comparisons, confusions, timelines, policy frameworks, and exam-oriented question mappings. learn remains the workflow front door.
+description: Internal politics domain model loaded by learn for source-faithful concepts, principles, canonical expressions, comparisons, timelines, and question mappings. Use learn as the user-facing workflow front door.
 ---
 
 # Study politics

@@ -1,6 +1,6 @@
 ---
 name: check
-description: Use as the read-only multi-agent QA and audit front door for learning artifacts, including source integrity, knowledge structure, questions, relations, retrieval, rendering, and exam readiness.
+description: Use for a read-only evidence-backed audit of learning artifacts: sources, structure, questions, relations, retrieval, rendering, or readiness. It reports findings and never repairs or teaches.
 ---
 
 # Check

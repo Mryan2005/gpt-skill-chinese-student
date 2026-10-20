@@ -47,6 +47,16 @@ class HelpStructureTests(unittest.TestCase):
         self.assertIn("Unknown", output)
         self.assertIn("review", output)
 
+    def test_unknown_string_subcommand_is_reported_without_crashing(self) -> None:
+        output = render_help(load_registry(HELP_ROOT, HELP_ROOT.parent), "check", "not-a-real-audit")
+        self.assertIn("Unknown subcommand", output)
+        self.assertIn("full-audit", output)
+
+    def test_known_string_subcommand_is_not_reported_as_unknown(self) -> None:
+        output = render_help(load_registry(HELP_ROOT, HELP_ROOT.parent), "check", "full-audit")
+        self.assertIn("- `full-audit`", output)
+        self.assertNotIn("Unknown subcommand", output)
+
 
 if __name__ == "__main__":
     unittest.main()

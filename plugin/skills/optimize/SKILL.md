@@ -1,6 +1,6 @@
 ---
 name: optimize
-description: Analyze and safely improve a derived learning graph through evidence-backed duplicate detection, split/merge recommendations, and validated migrations.
+description: Use to analyze and safely optimize a Derived knowledge graph through evidence-backed duplicate, split, merge, and relation-migration plans. It does not audit source correctness, teach new material, or change Source.
 ---
 
 # Optimize

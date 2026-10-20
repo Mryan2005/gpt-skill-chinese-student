@@ -1,6 +1,6 @@
 ---
 name: study-math
-description: Use as the mathematics learning front door for systematic topic study, structured question sets, knowledge-map repair, formula-preserving records, and exam-readiness checks. Use learn for ordinary cross-subject learning, including small math requests.
+description: Internal mathematics domain model loaded by learn for systematic topics, question records, formula-preserving cards, map repair, and readiness rules. Use learn as the user-facing cross-subject front door for ordinary math learning.
 ---
 
 # Study math

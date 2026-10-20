@@ -1,6 +1,6 @@
 ---
 name: practice
-description: Generate a printable or electronically answerable practice question PDF and a separate answer/explanation PDF from reliable question material.
+description: Use to generate a printable or electronically answerable practice question PDF and a separate answer/explanation PDF. Do not use it to grade a submission or review an exam.
 ---
 
 # Practice

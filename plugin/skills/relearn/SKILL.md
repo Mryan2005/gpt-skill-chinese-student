@@ -1,6 +1,6 @@
 ---
 name: relearn
-description: Use for an explicitly confirmed destructive rebuild of a Subject's Derived learning state from preserved Source records. Do not use for ordinary learning, Subject updates, schema migration, or deleting a Subject.
+description: Use only after explicit confirmation to discard a Subject's Derived learning state and rebuild it from preserved Source records. Do not use for ordinary learning, updates, migrations, repairs, or deleting a Subject.
 ---
 
 # Relearn

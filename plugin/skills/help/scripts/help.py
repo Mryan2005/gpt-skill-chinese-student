@@ -11,6 +11,14 @@ from pathlib import Path
 from typing import Any
 
 
+PLUGIN_SCRIPTS = Path(__file__).resolve().parents[3] / "scripts"
+if str(PLUGIN_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(PLUGIN_SCRIPTS))
+
+from skill_registry import load_registry as load_skill_registry  # noqa: E402
+from skill_registry import validate_registry as validate_skill_registry  # noqa: E402
+
+
 def _skill_dirs(skills_root: Path) -> set[str]:
     return {path.name for path in skills_root.iterdir() if path.is_dir() and (path / "SKILL.md").is_file()}
 
@@ -37,6 +45,12 @@ def load_registry(help_root: Path, skills_root: Path) -> dict[str, Any]:
     stale = sorted(indexed - actual)
     if missing or stale:
         raise ValueError(f"help command index is out of sync; missing={missing}; stale={stale}")
+    plugin_root = skills_root.parent
+    routing = load_skill_registry(plugin_root)
+    routing_errors = validate_skill_registry(routing, plugin_root)
+    if routing_errors:
+        raise ValueError("skill route registry is invalid: " + " | ".join(routing_errors))
+    routing_by_name = {item.get("id"): item for item in routing.get("commands", [])}
     for item in commands:
         if item.get("kind") == "workflow":
             metadata = skills_root / item["name"] / "agents" / "openai.yaml"
@@ -45,6 +59,9 @@ def load_registry(help_root: Path, skills_root: Path) -> dict[str, Any]:
         frontmatter = _frontmatter(skills_root / item["name"] / "SKILL.md")
         if frontmatter.get("name") != item["name"]:
             raise ValueError(f"help index name mismatch for {item['name']}")
+        route_entry = routing_by_name.get(item["name"])
+        if not route_entry or route_entry.get("kind") != item.get("kind"):
+            raise ValueError(f"help/route kind mismatch for {item['name']}")
     return registry
 
 
@@ -64,6 +81,10 @@ def _command_table(commands: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def _subcommand_name(subcommand: Any) -> str:
+    return str(subcommand.get("name", "")) if isinstance(subcommand, dict) else str(subcommand)
+
+
 def _detail(item: dict[str, Any], subcommand: str | None = None) -> str:
     lines = [f"### chinese-student: {item['name']}", "", item["description"], "", "**Kind:** `" + item["kind"] + "`  ", "**Status:** `" + item["status"] + "`", "", "**Usage**"]
     lines.extend(f"- `{usage}`" for usage in item.get("usage", []))
@@ -72,9 +93,9 @@ def _detail(item: dict[str, Any], subcommand: str | None = None) -> str:
     if subcommands:
         lines.extend(["", "**Subcommands**"])
         for sub in subcommands:
+            if subcommand and _subcommand_name(sub) != subcommand:
+                continue
             if isinstance(sub, dict):
-                if subcommand and sub.get("name") != subcommand:
-                    continue
                 lines.append(f"- `{sub['name']}`: {sub['description']}")
                 if sub.get("inputs"):
                     lines.append(f"  - Inputs: {'；'.join(sub['inputs'])}")
@@ -86,8 +107,9 @@ def _detail(item: dict[str, Any], subcommand: str | None = None) -> str:
                     lines.append(f"  - Confirmation: {sub['confirmation']}")
             else:
                 lines.append(f"- `{sub}`")
-    if subcommand and not any(isinstance(sub, dict) and sub.get("name") == subcommand for sub in subcommands):
-        lines.append(f"\nUnknown subcommand `{subcommand}`. Supported: {', '.join(str(sub.get('name', sub)) for sub in subcommands) or 'none'}")
+    if subcommand and not any(_subcommand_name(sub) == subcommand for sub in subcommands):
+        supported = ", ".join(_subcommand_name(sub) for sub in subcommands) or "none"
+        lines.append(f"\nUnknown subcommand `{subcommand}`. Supported: {supported}")
     lines.extend(["", "**Examples**"])
     lines.extend(f"- `{example}`" for example in item.get("examples", []))
     return "\n".join(lines)

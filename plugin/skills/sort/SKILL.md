@@ -1,6 +1,6 @@
 ---
 name: sort
-description: Use as the safe review-priority front door to rank existing knowledge cards by learning value and risk without changing canonical learning content or structure.
+description: Use to generate an explainable review-priority projection from learning value, risk, dependencies, and evidence. It changes neither canonical content nor mastery and does not diagnose correctness.
 ---
 
 # Sort

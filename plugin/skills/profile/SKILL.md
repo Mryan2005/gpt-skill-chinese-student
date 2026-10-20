@@ -1,6 +1,6 @@
 ---
 name: profile
-description: Use as the explicit self-report intake for learner weaknesses, thinking habits, explanation preferences, and self-observations. Keep self-reports separate from observed learning behavior and never infer personality traits.
+description: Use when the learner explicitly reports weaknesses, thinking habits, explanation preferences, or self-observations. It records self-report only; it does not infer mastery, diagnose errors, or summarize system observations.
 ---
 
 # Profile

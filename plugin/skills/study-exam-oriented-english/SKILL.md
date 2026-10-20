@@ -1,6 +1,6 @@
 ---
 name: study-exam-oriented-english
-description: Use as the exam-oriented English domain model for simple, accurate writing and natural Chinese translation, while learn remains the workflow front door.
+description: Internal exam-oriented English domain model loaded by learn for simple accurate writing and natural Chinese translation. Use learn as the user-facing workflow front door.
 ---
 
 # Study exam-oriented English

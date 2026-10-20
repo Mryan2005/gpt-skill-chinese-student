@@ -1,6 +1,6 @@
 ---
 name: heal
-description: Improve a learning artifact through bounded novice-experience or exam-driven evaluation, routing repairs to existing skills without mutating Source or real Learner State.
+description: Use for a bounded novice-experience or exam-driven improvement loop that routes evidence to existing skills. It is not a general repair shortcut, exam runner, or destructive rebuild, and never mutates real Learner State.
 ---
 
 # Heal

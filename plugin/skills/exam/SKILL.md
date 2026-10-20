@@ -1,6 +1,6 @@
 ---
 name: exam
-description: Use as the closed-book assessment runner for a frozen Subject snapshot. It records first-pass answers, releases solutions only after freezing, grades performance, and produces learning-gap reports without modifying the learning artifact.
+description: Use for a closed-book assessment against a frozen Subject snapshot. It runs the internal per-question Hit phase before isolated answering, then grades and freezes the result; do not use it for post-exam teaching or artifact repair.
 ---
 
 # Exam

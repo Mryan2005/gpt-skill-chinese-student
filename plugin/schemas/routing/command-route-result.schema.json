@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "command-route-result.v1",
+  "title": "Chinese Student command route result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "input", "command", "canonicalInvocation", "confidence", "requiresClarification", "candidates", "signals"],
+  "properties": {
+    "schemaVersion": {"const": "command-route.v1"},
+    "input": {"type": "string"},
+    "command": {"type": ["string", "null"]},
+    "canonicalInvocation": {"type": ["string", "null"]},
+    "subcommand": {"type": ["string", "null"]},
+    "playbook": {"type": ["string", "null"]},
+    "domainModel": {"type": ["string", "null"]},
+    "confidence": {"enum": ["high", "medium", "low", "ambiguous", "none"]},
+    "requiresClarification": {"type": "boolean"},
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "score", "signals"],
+        "properties": {
+          "command": {"type": "string"},
+          "score": {"type": "integer"},
+          "signals": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "signals": {"type": "array", "items": {"type": "string"}},
+    "reason": {"type": "string"}
+  }
+}

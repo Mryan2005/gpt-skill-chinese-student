@@ -1,0 +1,293 @@
+{
+  "schemaVersion": "skill-registry.v1",
+  "plugin": {
+    "id": "chinese-student",
+    "displayName": "中式学生",
+    "pickerDisplayPrefix": "$中式学生:",
+    "combinedInvocationPrefix": "$chinese-student:"
+  },
+  "defaultCommand": "learn",
+  "commands": [
+    {
+      "id": "learn",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "learn",
+      "pickerDisplayName": "$中式学生:learn",
+      "combinedInvocation": "$chinese-student:learn",
+      "route": {
+        "priority": 40,
+        "phrases": ["学习资料", "整理材料", "建立知识图谱", "构建知识图谱", "补学知识", "学习这些", "学习", "学会这个"],
+        "terms": ["学习", "教材", "笔记", "知识库", "知识图谱", "learn", "study"],
+        "excludePhrases": ["考试后复盘", "考后复盘", "检查知识库", "自动修复", "重学", "更新插件", "优先复习", "生成练习", "用户自述"]
+      },
+      "playbooks": [
+        {"id": "ingest-material", "phrases": ["图片", "pdf", "教材", "笔记", "导入资料", "新材料"]},
+        {"id": "learn-topic", "phrases": ["章节", "专题", "知识点", "学懂"]},
+        {"id": "organize-questions", "phrases": ["整理题目", "题库", "题目照片", "试题材料"]},
+        {"id": "update-existing-subject", "phrases": ["加入现有学科", "添加到现有", "更新学科内容"]},
+        {"id": "repair-knowledge-base", "phrases": ["修复知识库", "知识图谱混乱", "重复卡片", "知识点找不到"]},
+        {"id": "validate-readiness", "phrases": ["考试准备", "考试就绪", "能不能考试", "准备考试"]}
+      ],
+      "delegatesTo": ["study-math", "study-politics", "study-exam-oriented-english"]
+    },
+    {
+      "id": "update",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "update",
+      "pickerDisplayName": "$中式学生:update",
+      "combinedInvocation": "$chinese-student:update",
+      "route": {
+        "priority": 100,
+        "phrases": ["更新插件", "迁移插件", "升级插件", "版本迁移", "schema迁移", "内容迁移", "更新schema"],
+        "terms": ["update", "migration", "migrate", "升级", "迁移"],
+        "excludePhrases": ["重新学习", "重学", "补充资料"]
+      }
+    },
+    {
+      "id": "relearn",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "relearn",
+      "pickerDisplayName": "$中式学生:relearn",
+      "combinedInvocation": "$chinese-student:relearn",
+      "route": {
+        "priority": 110,
+        "phrases": ["重新学习", "从头学习", "从头构建", "丢弃派生", "重建整个学科"],
+        "terms": ["relearn", "重学"],
+        "excludePhrases": ["更新插件", "迁移"]
+      }
+    },
+    {
+      "id": "exam",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "exam",
+      "pickerDisplayName": "$中式学生:exam",
+      "combinedInvocation": "$chinese-student:exam",
+      "route": {
+        "priority": 100,
+        "phrases": ["闭卷考试", "做整张试卷", "参加考试", "知识覆盖测试", "知识覆盖", "检查试卷覆盖", "考试覆盖", "题目覆盖"],
+        "terms": ["exam", "考试", "试卷", "答题"],
+        "excludePhrases": ["考试后复盘", "考后复盘", "考试结果", "错题分析", "考试准备"]
+      },
+      "internalPhases": ["read-question", "exam-hit", "independent-answer", "grade", "freeze"]
+    },
+    {
+      "id": "practice",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "practice",
+      "pickerDisplayName": "$中式学生:practice",
+      "combinedInvocation": "$chinese-student:practice",
+      "route": {
+        "priority": 98,
+        "phrases": ["生成练习", "打印试卷", "练习题pdf", "电子作答试卷", "生成一套题"],
+        "terms": ["practice", "练习题", "练习", "打印题"],
+        "excludePhrases": ["复习练习", "错题练习", "考试"]
+      }
+    },
+    {
+      "id": "review",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "review",
+      "pickerDisplayName": "$中式学生:review",
+      "combinedInvocation": "$chinese-student:review",
+      "route": {
+        "priority": 115,
+        "phrases": ["考后复盘", "考试后复盘", "考试结果", "错题分析", "为什么错", "学习缺口", "整理考点", "复盘材料"],
+        "terms": ["review", "复盘", "错题", "诊断", "复习材料"],
+        "excludePhrases": ["检查知识库", "修复检查报告"]
+      },
+      "subcommandRoutes": [
+        {"id": "user-written", "phrases": ["我自己答的", "我的答卷", "用户答卷", "本人作答", "user-written"], "terms": ["我的答案", "我的提交"]},
+        {"id": "exam-result", "phrases": ["考试结果", "冻结考试记录", "exam-result"], "terms": []}
+      ],
+      "defaultSubcommand": "exam-result"
+    },
+    {
+      "id": "check",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "check",
+      "pickerDisplayName": "$中式学生:check",
+      "combinedInvocation": "$chinese-student:check",
+      "route": {
+        "priority": 90,
+        "phrases": ["检查知识库", "检查知识图谱", "只读审计", "结构审计", "来源审计", "检查渲染", "检查能否检索", "检查完整性"],
+        "terms": ["check", "检查", "审计", "验证", "完整性", "渲染", "搜不到"],
+        "excludePhrases": ["检查试卷覆盖", "检查知识覆盖", "考试覆盖", "自动修复", "修复检查报告"]
+      },
+      "subcommandRoutes": [
+        {"id": "full-audit", "phrases": ["全面检查", "完整审计", "full-audit"], "terms": []},
+        {"id": "source-integrity", "phrases": ["来源完整性", "来源检查"], "terms": []},
+        {"id": "knowledge-structure", "phrases": ["知识结构", "卡片结构"], "terms": []},
+        {"id": "question-integrity", "phrases": ["题目完整性", "题目映射检查"], "terms": []},
+        {"id": "relation-integrity", "phrases": ["关系完整性", "关系检查"], "terms": []},
+        {"id": "retrieval-integrity", "phrases": ["检索完整性", "检索检查"], "terms": []},
+        {"id": "rendering-integrity", "phrases": ["渲染完整性", "页面检查"], "terms": []},
+        {"id": "readiness", "phrases": ["考试就绪检查", "readiness"], "terms": []}
+      ]
+    },
+    {
+      "id": "fix",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "fix",
+      "pickerDisplayName": "$中式学生:fix",
+      "combinedInvocation": "$chinese-student:fix",
+      "route": {
+        "priority": 105,
+        "phrases": ["自动修复", "根据检查报告修复", "修复检查报告", "修复发现的问题", "批量修复"],
+        "terms": ["fix", "修复"],
+        "excludePhrases": ["重新学习", "重学", "更新插件", "修正官方答案"]
+      }
+    },
+    {
+      "id": "heal",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "heal",
+      "pickerDisplayName": "$中式学生:heal",
+      "combinedInvocation": "$chinese-student:heal",
+      "route": {
+        "priority": 80,
+        "phrases": ["冷启动测试", "新手体验", "学习摩擦", "试题驱动迭代", "知识覆盖压力测试", "迭代修复", "恢复学习体验"],
+        "terms": ["heal", "恢复", "压力测试"],
+        "excludePhrases": ["修复检查报告", "重学"]
+      },
+      "subcommandRoutes": [
+        {"id": "exam", "phrases": ["heal exam", "heal考试"], "terms": []},
+        {"id": "exam-driven", "phrases": ["exam-driven", "试题驱动", "考试驱动", "用试卷压力测试"], "terms": []}
+      ]
+    },
+    {
+      "id": "optimize",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "optimize",
+      "pickerDisplayName": "$中式学生:optimize",
+      "combinedInvocation": "$chinese-student:optimize",
+      "route": {
+        "priority": 92,
+        "phrases": ["优化知识图谱", "优化图谱", "卡片去重", "合并卡片", "拆分卡片", "整理碎片卡片", "知识图谱重组"],
+        "terms": ["optimize", "去重", "合并", "拆分", "碎片化"],
+        "excludePhrases": ["复习排序", "优先级排序"]
+      },
+      "subcommandRoutes": [
+        {"id": "analyze", "phrases": ["分析重复", "只分析", "卡片去重", "optimize analyze"], "terms": ["去重"]},
+        {"id": "apply", "phrases": ["应用优化", "执行迁移", "optimize apply"], "terms": []},
+        {"id": "verify", "phrases": ["验证优化", "optimize verify"], "terms": []}
+      ]
+    },
+    {
+      "id": "sort",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "sort",
+      "pickerDisplayName": "$中式学生:sort",
+      "combinedInvocation": "$chinese-student:sort",
+      "route": {
+        "priority": 88,
+        "phrases": ["优先复习", "复习排序", "复习队列", "今天复习", "重新排列复习", "复习优先级"],
+        "terms": ["sort", "排序", "优先级", "复习顺序"],
+        "excludePhrases": ["题目排序", "知识图谱排序"]
+      },
+      "subcommandRoutes": [
+        {"id": "tonight", "phrases": ["今晚复习", "今晚优先复习", "今天晚上", "sort tonight"], "terms": []},
+        {"id": "exam", "phrases": ["按考试价值", "sort exam"], "terms": []},
+        {"id": "weakness", "phrases": ["按薄弱点", "sort weakness"], "terms": []},
+        {"id": "risk", "phrases": ["按易错风险", "sort risk"], "terms": []},
+        {"id": "prerequisite", "phrases": ["按前置知识", "sort prerequisite"], "terms": []}
+      ],
+      "defaultSubcommand": "default"
+    },
+    {
+      "id": "profile",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "profile",
+      "pickerDisplayName": "$中式学生:profile",
+      "combinedInvocation": "$chinese-student:profile",
+      "route": {
+        "priority": 75,
+        "phrases": ["我的薄弱点", "我的学习偏好", "我的思维习惯", "我容易", "我总是", "自述薄弱点"],
+        "terms": ["profile", "偏好", "喜欢", "不喜欢", "薄弱", "容易忘", "学习习惯"],
+        "excludePhrases": ["系统观察", "考试诊断", "错误统计"]
+      }
+    },
+    {
+      "id": "amend",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "amend",
+      "pickerDisplayName": "$中式学生:amend",
+      "combinedInvocation": "$chinese-student:amend",
+      "route": {
+        "priority": 87,
+        "phrases": ["这张卡错了", "更正知识卡", "补充这张卡", "修改知识内容", "我发现内容错误"],
+        "terms": ["amend", "更正", "纠正内容"],
+        "excludePhrases": ["自动修复", "修复检查报告", "补学知识"]
+      }
+    },
+    {
+      "id": "help",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "help",
+      "pickerDisplayName": "$中式学生:help",
+      "combinedInvocation": "$chinese-student:help",
+      "route": {
+        "priority": 200,
+        "phrases": ["命令帮助", "怎么使用", "有哪些命令", "可用命令", "帮助"],
+        "terms": ["help", "命令", "用法"]
+      }
+    },
+    {
+      "id": "study-math",
+      "kind": "domain-model",
+      "visibility": "internal",
+      "owner": "learn",
+      "pickerDisplayName": "$中式学生:study-math",
+      "combinedInvocation": "$chinese-student:study-math",
+      "loadedBy": "learn"
+    },
+    {
+      "id": "study-politics",
+      "kind": "domain-model",
+      "visibility": "internal",
+      "owner": "learn",
+      "pickerDisplayName": "$中式学生:study-politics",
+      "combinedInvocation": "$chinese-student:study-politics",
+      "loadedBy": "learn"
+    },
+    {
+      "id": "study-exam-oriented-english",
+      "kind": "domain-model",
+      "visibility": "internal",
+      "owner": "learn",
+      "pickerDisplayName": "$中式学生:study-exam-oriented-english",
+      "combinedInvocation": "$chinese-student:study-exam-oriented-english",
+      "loadedBy": "learn"
+    }
+  ],
+  "domains": [
+    {
+      "id": "study-math",
+      "phrases": ["数学", "高等数学", "高数", "微积分", "线性代数", "概率论", "math", "calculus"],
+      "priority": 30
+    },
+    {
+      "id": "study-politics",
+      "phrases": ["考研政治", "政治", "马原", "毛中特", "史纲", "思修", "时政", "politics"],
+      "priority": 30
+    },
+    {
+      "id": "study-exam-oriented-english",
+      "phrases": ["考研英语", "英语作文", "英译汉", "英语翻译", "英语写作", "英语", "writing", "translation"],
+      "priority": 30
+    }
+  ]
+}

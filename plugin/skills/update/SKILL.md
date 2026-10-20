@@ -1,6 +1,6 @@
 ---
 name: update
-description: Use as the plugin and Subject schema migration front door when an existing Subject must move between plugin, content, domain, renderer, or artifact versions. Do not use for learning new material or adding ordinary content.
+description: Use only to migrate an existing plugin, Subject, schema, renderer, or artifact version. Do not use for new learning, ordinary content updates, repairs, review, or destructive rebuilds.
 ---
 
 # Update

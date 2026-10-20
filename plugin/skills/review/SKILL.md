@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use after a closed-book exam to produce evidence-based diagnoses, separate knowledge and question mastery, create learning and retest tasks, update the local Learner Model idempotently, and track progress across attempts without changing the learning artifact.
+description: Use after a frozen exam or explicit user-written submission to review evidence, highlight knowledge, diagnose eligible learner gaps, and plan learning. It consumes results; it does not run a new exam, audit the graph, or repair artifacts.
 ---
 
 # Review

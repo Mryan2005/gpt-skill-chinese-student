@@ -20,6 +20,10 @@ The project follows the layered skill structure and engineering discipline used
 by [pstack](https://github.com/cursor/plugins/tree/main/pstack): keep front
 doors small, route work to focused playbooks, encode repeated lessons in
 schemas and validators, and verify the real artifact before reporting success.
+Routing is also a first-class artifact: the machine-readable skill registry is
+the shared source for ownership, user-visible workflows, internal domain
+models, and deterministic route probes. Help, structure validation, and route
+tests consume the same contract.
 
 ## Core skills
 
@@ -102,6 +106,21 @@ then records a migration plan. Analyze is read-only; semantic merge/split/
 deletion operations require explicit confirmation and complete migration
 evidence.
 
+### Routing boundary
+
+`plugin/references/skill-registry.v1.json` distinguishes user workflows from
+domain models and records the signals that route natural-language requests.
+`study-*` entries are internal models loaded by `learn`; they are not alternate
+learning front doors. `plugin/scripts/route_command.py` is a read-only probe for
+the same route decision. It returns the canonical `$chinese-student:<skill>`
+identity, a subcommand or playbook when one is clear, and competing candidates
+when the request is genuinely ambiguous. It never executes the selected Skill.
+
+`plugin/scripts/validate_plugin_structure.py` checks that the registry, live
+Skill folders, picker metadata, frontmatter, and help index agree. This keeps a
+new or renamed Skill from silently becoming undiscoverable or from taking over
+another workflow's trigger phrases.
+
 ## Architecture
 
 `learn` owns shared platform workflows:
@@ -162,8 +181,18 @@ solutions, and historical answers never become complete content silently.
 ```text
 plugin/
 ├─ plugin.json
+├─ references/
+│  └─ skill-registry.v1.json
 ├─ schemas/
-│  └─ learner/
+│  ├─ learner/
+│  └─ routing/
+│     ├─ command-route-input.schema.json
+│     └─ command-route-result.schema.json
+├─ scripts/
+│  ├─ route_command.py
+│  ├─ skill_registry.py
+│  ├─ validate_plugin_structure.py
+│  └─ validate_learner_model.py
 └─ skills/
    ├─ learn/
    ├─ update/
@@ -196,12 +225,20 @@ python -X utf8 plugin/skills/study-math/scripts/validate_math_cards.py plugin/sk
 
 python -X utf8 plugin/skills/study-math/scripts/validate_markup.py plugin/skills/study-math
 
+python -X utf8 plugin/scripts/validate_plugin_structure.py
+
+python -X utf8 plugin/scripts/route_command.py "考后复盘这套试卷"
+
 python -X utf8 -m unittest discover -s tests -v
 ```
 
 `validate_math.py` checks structured records and mathematics readiness gates.
 `validate_math_cards.py` checks card atomicity, card size, and type fields.
 `validate_markup.py` checks Markdown math delimiters and raw LaTeX commands.
+`validate_plugin_structure.py` checks the plugin-wide skill graph and routing
+contract. `route_command.py` is a deterministic, read-only invocation probe;
+its output is evidence about route selection, not a replacement for the
+selected Skill.
 Inspect generated HTML separately for formulas, search, card interaction, and
 browser console errors.
 
