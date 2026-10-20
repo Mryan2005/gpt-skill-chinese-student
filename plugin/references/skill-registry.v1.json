@@ -10,6 +10,28 @@
   "agentRoleRegistry": "references/agent-role-registry.v1.json",
   "commands": [
     {
+      "id": "auto",
+      "kind": "workflow",
+      "visibility": "user",
+      "owner": "auto",
+      "pickerDisplayName": "$中式学生:auto",
+      "combinedInvocation": "$chinese-student:auto",
+      "route": {
+        "priority": 135,
+        "phrases": ["自动编排", "自动执行工作流", "自动处理学习任务", "智能工作流"],
+        "terms": ["auto", "编排", "orchestrate"],
+        "excludePhrases": ["自动修复"]
+      },
+      "subcommandRoutes": [
+        {"id": "plan", "phrases": ["只规划", "制定计划", "auto plan"], "terms": []},
+        {"id": "run", "phrases": ["执行计划", "auto run"], "terms": []},
+        {"id": "resume", "phrases": ["恢复执行", "继续执行", "auto resume"], "terms": []},
+        {"id": "status", "phrases": ["查看状态", "auto status"], "terms": []},
+        {"id": "explain", "phrases": ["解释计划", "auto explain"], "terms": []}
+      ],
+      "defaultSubcommand": "run"
+    },
+    {
       "id": "learn",
       "kind": "workflow",
       "visibility": "user",

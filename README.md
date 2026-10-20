@@ -29,6 +29,7 @@ tests consume the same contract.
 
 | Skill | Purpose |
 | --- | --- |
+| `auto` | Intelligent orchestrator for compound learning requests. It plans and delegates existing public workflows, validates real artifacts, persists resumable evidence, and never replaces Skill ownership. |
 | `learn` | Cross-subject learning workflow. Ingests sources, builds cards and relations, and maintains the canonical Markdown and knowledge graph. |
 | `update` | Version migration runner for existing Subjects, schemas, artifacts, and progress. It does not modify Source. |
 | `relearn` | Confirmed destructive rebuild. It removes Derived state, preserves Source, and rebuilds through `learn` and the domain model. |
@@ -50,6 +51,11 @@ tests consume the same contract.
 `learn` is the cross-subject front door. Use `study-math` when a task needs a
 systematic mathematics graph, many questions, formulas, proofs, or exam-specific
 mathematics structure.
+
+`auto` is the compound-goal front door. It uses the shared Skill Registry to
+select public workflows, records plans and evidence in `.auto/`, and delegates
+the actual work to the existing owner Skill. A plan alone never means that a
+Skill has executed.
 
 `study-politics` is a domain model loaded by `learn`. It defines political
 concepts, principles, canonical wording, comparisons, confusions, timelines,
@@ -200,6 +206,7 @@ plugin/
 │  ├─ agent-role-registry.v1.json
 │  └─ skill-registry.v1.json
 ├─ schemas/
+│  ├─ auto/
 │  ├─ agents/
 │  │  └─ agent-role-registry.schema.json
 │  ├─ learner/
@@ -214,6 +221,7 @@ plugin/
 │  ├─ validate_plugin_structure.py
 │  └─ validate_learner_model.py
 └─ skills/
+   ├─ auto/
    ├─ learn/
    ├─ update/
    ├─ relearn/

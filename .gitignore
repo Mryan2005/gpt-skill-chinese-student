@@ -1,3 +1,4 @@
 .local/
+.auto/
 __pycache__/
 *.py[cod]

@@ -19,6 +19,7 @@ class HelpStructureTests(unittest.TestCase):
     def test_default_help_is_compact_and_lists_domain_models(self) -> None:
         output = render_help(load_registry(HELP_ROOT, HELP_ROOT.parent))
         self.assertIn("chinese-student: review", output)
+        self.assertIn("chinese-student: auto", output)
         self.assertIn("chinese-student: practice", output)
         self.assertIn("chinese-student: exam", output)
         self.assertIn("study-math", output)

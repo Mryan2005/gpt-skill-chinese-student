@@ -1,0 +1,4 @@
+interface:
+  display_name: "$中式学生:auto"
+  short_description: "智能编排既有学习工作流"
+  default_prompt: "Use $chinese-student:auto to plan and execute a compound learning request through existing public Chinese Student Skills. Persist a dependency-aware .auto run, delegate each ready step to its real owner, require output artifacts plus validator evidence, and stop safely on missing evidence or authorization."

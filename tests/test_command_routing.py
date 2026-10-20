@@ -24,6 +24,7 @@ class CommandRoutingTests(unittest.TestCase):
 
     def test_routes_workflows_to_canonical_invocations(self) -> None:
         cases = {
+            "自动编排学习任务": ("auto", "run", None, None),
             "学习数学章节": ("learn", None, "learn-topic", "study-math"),
             "检查知识库": ("check", None, None, None),
             "根据检查报告自动修复": ("fix", None, None, None),
@@ -61,6 +62,11 @@ class CommandRoutingTests(unittest.TestCase):
         self.assertEqual(result["command"], "check")
         self.assertEqual(result["confidence"], "high")
         self.assertEqual(result["candidates"][0]["score"], 1000)
+
+    def test_explicit_auto_subcommand_is_preserved(self) -> None:
+        result = self.route("$chinese-student:auto plan")
+        self.assertEqual(result["command"], "auto")
+        self.assertEqual(result["subcommand"], "plan")
 
     def test_unknown_request_does_not_guess_a_workflow(self) -> None:
         result = self.route("帮我看看这个")

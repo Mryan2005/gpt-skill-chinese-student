@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "auto.run-state.v1",
+  "type": "object",
+  "required": ["schemaVersion", "runId", "planHash", "workspace", "status", "steps", "replanHistory"],
+  "properties": {
+    "schemaVersion": {"const": "auto.run-state.v1"},
+    "runId": {"type": "string", "minLength": 1},
+    "planHash": {"type": "string", "minLength": 1},
+    "workspace": {"type": "string", "minLength": 1},
+    "status": {"enum": ["PLANNED", "RUNNING", "BLOCKED", "COMPLETE", "FAILED"]},
+    "steps": {"type": "array", "items": {"type": "object"}},
+    "replanHistory": {"type": "array", "items": {"type": "object"}}
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "request": "学习这些资料，然后检查并修复",
+  "sourcePaths": ["materials/chapter-1.pdf"],
+  "subject": "math-1",
+  "requirements": ["保留来源与公式", "完成后运行独立检查"],
+  "acceptanceCriteria": ["来源可追溯", "检查报告无 blocker"]
+}

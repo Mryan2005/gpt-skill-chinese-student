@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "auto.step-result.v1",
+  "type": "object",
+  "required": ["schemaVersion", "stepId", "skill", "invocation", "status", "startedAt", "completedAt", "outputArtifacts", "validatorCommands"],
+  "properties": {
+    "schemaVersion": {"const": "auto.step-result.v1"},
+    "stepId": {"type": "string", "minLength": 1},
+    "skill": {"type": "string", "minLength": 1},
+    "invocation": {"type": "string", "minLength": 1},
+    "status": {"enum": ["SUCCEEDED", "FAILED", "BLOCKED"]},
+    "startedAt": {"type": "string", "minLength": 1},
+    "completedAt": {"type": "string", "minLength": 1},
+    "outputArtifacts": {"type": "array", "items": {"type": "object"}},
+    "validatorCommands": {"type": "array", "items": {"type": "array", "minItems": 1, "items": {"type": "string"}}}
+  }
+}

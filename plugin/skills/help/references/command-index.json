@@ -2,6 +2,25 @@
   "schemaVersion": "help-command-index.v1",
   "commands": [
     {
+      "name": "auto",
+      "kind": "workflow",
+      "status": "available",
+      "description": "理解复合学习目标，编排既有 Skill，持久化执行证据并依据真实验证结果重规划。",
+      "usage": ["chinese-student: auto", "chinese-student: auto plan", "chinese-student: auto run", "chinese-student: auto resume", "chinese-student: auto status", "chinese-student: auto explain"],
+      "subcommands": [
+        {"name": "plan", "description": "只生成依赖图和授权/验证要求，不执行写操作。", "inputs": ["自然语言请求、资料路径、约束和验收条件"], "outputs": [".auto/<runId>/plan.json、state.json"], "sideEffects": ["只写编排状态"], "confirmation": "none"},
+        {"name": "run", "description": "委派已就绪步骤给真实 owner Skill，并只接受实际产物和验证命令作为完成证据。", "inputs": ["已有 plan、前置产物、授权和 delegated Skill 结果"], "outputs": ["更新的 state、产物哈希和 validator evidence"], "sideEffects": ["按被委派 Skill 的授权边界执行"], "confirmation": "delegated Skill rules apply"},
+        {"name": "resume", "description": "重新校验已有产物哈希、依赖和授权后安全继续。", "inputs": ["runId 和 .auto state"], "outputs": ["freshness/blocker 状态"], "sideEffects": ["只更新编排状态"], "confirmation": "none"},
+        {"name": "status", "description": "只读显示当前步骤、阻塞与证据。", "inputs": ["runId"], "outputs": ["run state"], "sideEffects": ["只读"], "confirmation": "none"},
+        {"name": "explain", "description": "解释技能选择、依赖、权限与恢复路径。", "inputs": ["runId"], "outputs": ["可读执行图"], "sideEffects": ["只读"], "confirmation": "none"}
+      ],
+      "inputs": ["自然语言目标、资料、现有产物、约束、授权与验收条件"],
+      "outputs": ["依赖计划、.auto 持久状态、实际验证证据和最终验收报告"],
+      "sideEffects": ["仅通过既有 Skill 修改其允许的边界；auto 自身只写 .auto/"],
+      "confirmation": "delegated destructive or apply operations retain their own explicit confirmation",
+      "examples": ["chinese-student: auto 学习这些资料，然后检查并修复", "chinese-student: auto plan", "chinese-student: auto resume"]
+    },
+    {
       "name": "learn",
       "kind": "workflow",
       "status": "available",
